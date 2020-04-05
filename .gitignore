@@ -1,0 +1,28 @@
+# Please do not add personal files
+
+# Logs
+*.log
+
+# Hidden
+.*
+
+# TODO
+TODO.*
+
+# Notes
+*.notes
+
+# Tests
+test/repos/repo
+coverage.txt
+
+# Binaries
+lazynpm
+
+# Exceptions
+!.gitignore
+!.goreleaser.yml
+!.circleci/
+!.github/
+
+test/git_server/data
