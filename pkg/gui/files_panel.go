@@ -15,6 +15,8 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
 )
 
+//gui.refreshPackages()
+
 // list panel functions
 
 func (gui *Gui) getSelectedFile() (*commands.File, error) {

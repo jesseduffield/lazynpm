@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"sync"
 
 	"github.com/go-errors/errors"
 	"github.com/jesseduffield/gocui"
@@ -12,31 +11,7 @@ import (
 	"github.com/spkg/bom"
 )
 
-var cyclableViews = []string{"status", "files", "branches", "commits", "stash"}
-
-// models/views that we can refresh
-const (
-	COMMITS = iota
-	BRANCHES
-	FILES
-	STASH
-	REFLOG
-	TAGS
-	REMOTES
-	STATUS
-)
-
-const (
-	SYNC     = iota // wait until everything is done before returning
-	ASYNC           // return immediately, allowing each independent thing to update itself
-	BLOCK_UI        // wrap code in an update call to ensure UI updates all at once and keybindings aren't executed till complete
-)
-
-type refreshOptions struct {
-	then  func()
-	scope []int // e.g. []int{COMMITS, BRANCHES}. Leave empty to refresh everything
-	mode  int   // one of SYNC (default), ASYNC, and BLOCK_UI
-}
+var cyclableViews = []string{"status", "packages", "depdencies", "scripts"}
 
 func intArrToMap(arr []int) map[int]bool {
 	output := map[int]bool{}
@@ -46,95 +21,8 @@ func intArrToMap(arr []int) map[int]bool {
 	return output
 }
 
-func (gui *Gui) refreshSidePanels(options refreshOptions) error {
-	wg := sync.WaitGroup{}
-
-	f := func() {
-		var scopeMap map[int]bool
-		if len(options.scope) == 0 {
-			scopeMap = intArrToMap([]int{COMMITS, BRANCHES, FILES, STASH, REFLOG, TAGS, REMOTES, STATUS})
-		} else {
-			scopeMap = intArrToMap(options.scope)
-		}
-
-		if scopeMap[COMMITS] || scopeMap[BRANCHES] || scopeMap[REFLOG] {
-			wg.Add(1)
-			func() {
-				if options.mode == ASYNC {
-					go gui.refreshCommits()
-				} else {
-					gui.refreshCommits()
-				}
-				wg.Done()
-			}()
-		}
-
-		if scopeMap[FILES] {
-			wg.Add(1)
-			func() {
-				if options.mode == ASYNC {
-					go gui.refreshFiles()
-				} else {
-					gui.refreshFiles()
-				}
-				wg.Done()
-			}()
-		}
-
-		if scopeMap[STASH] {
-			wg.Add(1)
-			func() {
-				if options.mode == ASYNC {
-					go gui.refreshStashEntries(gui.g)
-				} else {
-					gui.refreshStashEntries(gui.g)
-				}
-				wg.Done()
-			}()
-		}
-
-		if scopeMap[TAGS] {
-			wg.Add(1)
-			func() {
-				if options.mode == ASYNC {
-					go gui.refreshTags()
-				} else {
-					gui.refreshTags()
-				}
-				wg.Done()
-			}()
-		}
-
-		if scopeMap[REMOTES] {
-			wg.Add(1)
-			func() {
-				if options.mode == ASYNC {
-					go gui.refreshRemotes()
-				} else {
-					gui.refreshRemotes()
-				}
-				wg.Done()
-			}()
-		}
-
-		wg.Wait()
-
-		gui.refreshStatus()
-
-		if options.then != nil {
-			options.then()
-		}
-	}
-
-	if options.mode == BLOCK_UI {
-		gui.g.Update(func(g *gocui.Gui) error {
-			f()
-			return nil
-		})
-	} else {
-		f()
-	}
-
+func (gui *Gui) refreshSidePanels() error {
+	// refresh status, refresh dependencies, refresh
 	return nil
 }
 
@@ -145,22 +33,12 @@ func (gui *Gui) nextView(g *gocui.Gui, v *gocui.View) error {
 	} else {
 		// if we're in the commitFiles view we'll act like we're in the commits view
 		viewName := v.Name()
-		if viewName == "commitFiles" {
-			viewName = "commits"
-		}
 		for i := range cyclableViews {
 			if viewName == cyclableViews[i] {
 				focusedViewName = cyclableViews[i+1]
 				break
 			}
 			if i == len(cyclableViews)-1 {
-				message := gui.Tr.TemplateLocalize(
-					"IssntListOfViews",
-					Teml{
-						"name": viewName,
-					},
-				)
-				gui.Log.Info(message)
 				return nil
 			}
 		}
@@ -182,22 +60,12 @@ func (gui *Gui) previousView(g *gocui.Gui, v *gocui.View) error {
 	} else {
 		// if we're in the commitFiles view we'll act like we're in the commits view
 		viewName := v.Name()
-		if viewName == "commitFiles" {
-			viewName = "commits"
-		}
 		for i := range cyclableViews {
 			if viewName == cyclableViews[i] {
 				focusedViewName = cyclableViews[i-1] // TODO: make this work properly
 				break
 			}
 			if i == len(cyclableViews)-1 {
-				message := gui.Tr.TemplateLocalize(
-					"IssntListOfViews",
-					Teml{
-						"name": viewName,
-					},
-				)
-				gui.Log.Info(message)
 				return nil
 			}
 		}
@@ -306,14 +174,6 @@ func (gui *Gui) switchFocus(g *gocui.Gui, oldView, newView *gocui.View) error {
 		gui.State.PreviousView = oldView.Name()
 	}
 
-	gui.Log.Info("setting highlight to true for view" + newView.Name())
-	message := gui.Tr.TemplateLocalize(
-		"newFocusedViewIs",
-		Teml{
-			"newFocusedView": newView.Name(),
-		},
-	)
-	gui.Log.Info(message)
 	if _, err := g.SetCurrentView(newView.Name()); err != nil {
 		return err
 	}
@@ -377,25 +237,18 @@ func (gui *Gui) renderOptionsMap(optionsMap map[string]string) error {
 	return nil
 }
 
-// TODO: refactor properly
-// i'm so sorry but had to add this getBranchesView
-func (gui *Gui) getFilesView() *gocui.View {
-	v, _ := gui.g.View("files")
+func (gui *Gui) getPackagesView() *gocui.View {
+	v, _ := gui.g.View("packages")
 	return v
 }
 
-func (gui *Gui) getCommitsView() *gocui.View {
-	v, _ := gui.g.View("commits")
+func (gui *Gui) getDepsView() *gocui.View {
+	v, _ := gui.g.View("deps")
 	return v
 }
 
-func (gui *Gui) getCommitMessageView() *gocui.View {
-	v, _ := gui.g.View("commitMessage")
-	return v
-}
-
-func (gui *Gui) getBranchesView() *gocui.View {
-	v, _ := gui.g.View("branches")
+func (gui *Gui) getScriptsView() *gocui.View {
+	v, _ := gui.g.View("scripts")
 	return v
 }
 
@@ -406,16 +259,6 @@ func (gui *Gui) getMainView() *gocui.View {
 
 func (gui *Gui) getSecondaryView() *gocui.View {
 	v, _ := gui.g.View("secondary")
-	return v
-}
-
-func (gui *Gui) getStashView() *gocui.View {
-	v, _ := gui.g.View("stash")
-	return v
-}
-
-func (gui *Gui) getCommitFilesView() *gocui.View {
-	v, _ := gui.g.View("commitFiles")
 	return v
 }
 

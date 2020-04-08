@@ -22,15 +22,8 @@ var (
 func main() {
 	flaggy.DefaultParser.ShowVersionWithVersionFlag = false
 
-	repoPath := "."
-	flaggy.String(&repoPath, "p", "path", "Path of git repo")
-
-	filterPath := ""
-	flaggy.String(&filterPath, "f", "filter", "Path to filter on in `git log -- <path>`. When in filter mode, the commits, reflog, and stash are filtered based on the given path, and some operations are restricted")
-
-	dump := ""
-	flaggy.AddPositionalValue(&dump, "gitargs", 1, false, "Todo file")
-	flaggy.DefaultParser.PositionalFlags[0].Hidden = true
+	packagePath := "."
+	flaggy.String(&packagePath, "p", "path", "Path of package")
 
 	versionFlag := false
 	flaggy.Bool(&versionFlag, "v", "version", "Print the current version")
@@ -53,8 +46,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	if repoPath != "." {
-		if err := os.Chdir(repoPath); err != nil {
+	if packagePath != "." {
+		if err := os.Chdir(packagePath); err != nil {
 			log.Fatal(err.Error())
 		}
 	}
