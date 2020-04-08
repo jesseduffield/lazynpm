@@ -21,7 +21,17 @@ func intArrToMap(arr []int) map[int]bool {
 	return output
 }
 
-func (gui *Gui) refreshSidePanels() error {
+const (
+	ASYNC = iota
+	SYNC
+	BLOCK_UI
+)
+
+type refreshOptions struct {
+	mode int
+}
+
+func (gui *Gui) refreshSidePanels(options refreshOptions) error {
 	// refresh status, refresh dependencies, refresh
 	return nil
 }

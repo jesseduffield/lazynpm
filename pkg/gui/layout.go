@@ -1,8 +1,6 @@
 package gui
 
 import (
-	"fmt"
-
 	"github.com/fatih/color"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/theme"
@@ -52,12 +50,6 @@ func (gui *Gui) onFocusLost(v *gocui.View, newView *gocui.View) error {
 	case "main":
 		// if we have lost focus to a first-class panel, we need to do some cleanup
 		gui.changeMainViewsContext("normal")
-	case "commitFiles":
-		if gui.State.MainContext != "patch-building" {
-			if _, err := gui.g.SetViewOnBottom(v.Name()); err != nil {
-				return err
-			}
-		}
 	}
 	gui.Log.Info(v.Name() + " focus lost")
 	return nil
@@ -89,36 +81,29 @@ func (gui *Gui) getViewHeights() map[string]int {
 		}
 	}
 
-	// unfortunate result of the fact that these are separate views, have to map explicitly
-	if currentCyclebleView == "commitFiles" {
-		currentCyclebleView = "commits"
-	}
-
 	_, height := gui.g.Size()
 
 	if gui.State.ScreenMode == SCREEN_FULL || gui.State.ScreenMode == SCREEN_HALF {
 		vHeights := map[string]int{
 			"status":   0,
-			"files":    0,
-			"branches": 0,
-			"commits":  0,
-			"stash":    0,
+			"packages": 0,
+			"deps":     0,
+			"scripts":  0,
 			"options":  0,
 		}
 		vHeights[currentCyclebleView] = height - 1
 		return vHeights
 	}
 
-	usableSpace := height - 7
+	usableSpace := height - 4
 	extraSpace := usableSpace - (usableSpace/3)*3
 
 	if height >= 28 {
 		return map[string]int{
 			"status":   3,
-			"files":    (usableSpace / 3) + extraSpace,
-			"branches": usableSpace / 3,
-			"commits":  usableSpace / 3,
-			"stash":    3,
+			"packages": (usableSpace / 3) + extraSpace,
+			"deps":     usableSpace / 3,
+			"scripts":  usableSpace / 3,
 			"options":  1,
 		}
 	}
@@ -129,10 +114,9 @@ func (gui *Gui) getViewHeights() map[string]int {
 	}
 	vHeights := map[string]int{
 		"status":   defaultHeight,
-		"files":    defaultHeight,
-		"branches": defaultHeight,
-		"commits":  defaultHeight,
-		"stash":    defaultHeight,
+		"packages": defaultHeight,
+		"deps":     defaultHeight,
+		"scripts":  defaultHeight,
 		"options":  defaultHeight,
 	}
 	vHeights[currentCyclebleView] = height - defaultHeight*4 - 1
@@ -149,13 +133,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	if gui.g.Mouse {
 		donate := color.New(color.FgMagenta, color.Underline).Sprint(gui.Tr.SLocalize("Donate"))
 		information = donate + " " + information
-	}
-	if gui.inDiffMode() {
-		information = utils.ColoredString(fmt.Sprintf("%s %s %s", gui.Tr.SLocalize("showingGitDiff"), "git diff "+gui.diffStr(), utils.ColoredString(gui.Tr.SLocalize("(reset)"), color.Underline)), color.FgMagenta)
-	} else if gui.inFilterMode() {
-		information = utils.ColoredString(fmt.Sprintf("%s '%s' %s", gui.Tr.SLocalize("filteringBy"), gui.State.FilterPath, utils.ColoredString(gui.Tr.SLocalize("(reset)"), color.Underline)), color.FgRed, color.Bold)
-	} else if len(gui.State.CherryPickedCommits) > 0 {
-		information = utils.ColoredString(fmt.Sprintf("%d commits copied", len(gui.State.CherryPickedCommits)), color.FgCyan)
 	}
 
 	minimumHeight := 9
@@ -231,11 +208,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 
 	main := "main"
 	secondary := "secondary"
-	swappingMainPanels := gui.State.Panels.LineByLine != nil && gui.State.Panels.LineByLine.SecondaryFocused
-	if swappingMainPanels {
-		main = "secondary"
-		secondary = "main"
-	}
 
 	// reading more lines into main view buffers upon resize
 	prevMainView, err := gui.g.View("main")
@@ -288,60 +260,37 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		v.FgColor = textColor
 	}
 
-	filesView, err := g.SetViewBeneath("files", "status", vHeights["files"])
+	packagesView, err := g.SetViewBeneath("packages", "status", vHeights["packages"])
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
 		}
-		filesView.Highlight = true
-		filesView.Title = gui.Tr.SLocalize("FilesTitle")
-		filesView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onFilesPanelSearchSelect))
-		filesView.ContainsList = true
+		packagesView.Highlight = true
+		packagesView.Title = gui.Tr.SLocalize("PackagesTitle")
+		packagesView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onPackagesPanelSearchSelect))
+		packagesView.ContainsList = true
 	}
 
-	branchesView, err := g.SetViewBeneath("branches", "files", vHeights["branches"])
+	depsView, err := g.SetViewBeneath("deps", "packages", vHeights["deps"])
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
 		}
-		branchesView.Title = gui.Tr.SLocalize("BranchesTitle")
-		branchesView.Tabs = []string{"Local Branches", "Remotes", "Tags"}
-		branchesView.FgColor = textColor
-		branchesView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onBranchesPanelSearchSelect))
-		branchesView.ContainsList = true
+		depsView.Title = gui.Tr.SLocalize("DepsTitle")
+		depsView.FgColor = textColor
+		// depsView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onBranchesPanelSearchSelect))
+		depsView.ContainsList = true
 	}
 
-	if v, err := g.SetViewBeneath("commitFiles", "branches", vHeights["commits"]); err != nil {
-		if err.Error() != "unknown view" {
-			return err
-		}
-		v.Title = gui.Tr.SLocalize("CommitFiles")
-		v.FgColor = textColor
-		v.SetOnSelectItem(gui.onSelectItemWrapper(gui.onCommitFilesPanelSearchSelect))
-		v.ContainsList = true
-	}
-
-	commitsView, err := g.SetViewBeneath("commits", "branches", vHeights["commits"])
+	scriptsView, err := g.SetViewBeneath("scripts", "deps", vHeights["scripts"])
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
 		}
-		commitsView.Title = gui.Tr.SLocalize("CommitsTitle")
-		commitsView.Tabs = []string{"Commits", "Reflog"}
-		commitsView.FgColor = textColor
-		commitsView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onCommitsPanelSearchSelect))
-		commitsView.ContainsList = true
-	}
-
-	stashView, err := g.SetViewBeneath("stash", "commits", vHeights["stash"])
-	if err != nil {
-		if err.Error() != "unknown view" {
-			return err
-		}
-		stashView.Title = gui.Tr.SLocalize("StashTitle")
-		stashView.FgColor = textColor
-		stashView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onStashPanelSearchSelect))
-		stashView.ContainsList = true
+		scriptsView.Title = gui.Tr.SLocalize("ScriptsTitle")
+		scriptsView.FgColor = textColor
+		// scriptsView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onCommitsPanelSearchSelect))
+		scriptsView.ContainsList = true
 	}
 
 	if v, err := g.SetView("options", appStatusOptionsBoundary-1, height-2, optionsVersionBoundary-1, height, 0); err != nil {
@@ -465,7 +414,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	}
 
 	listViews := []listViewState{
-		{view: filesView, context: "", selectedLine: gui.State.Panels.Files.SelectedLine, lineCount: len(gui.State.Files)},
+		{view: packagesView, context: "", selectedLine: gui.State.Panels.Files.SelectedLine, lineCount: len(gui.State.Files)},
 		{view: branchesView, context: "local-branches", selectedLine: gui.State.Panels.Branches.SelectedLine, lineCount: len(gui.State.Branches)},
 		{view: branchesView, context: "remotes", selectedLine: gui.State.Panels.Remotes.SelectedLine, lineCount: len(gui.State.Remotes)},
 		{view: branchesView, context: "remote-branches", selectedLine: gui.State.Panels.RemoteBranches.SelectedLine, lineCount: len(gui.State.Remotes)},
