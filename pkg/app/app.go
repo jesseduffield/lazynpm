@@ -1,8 +1,7 @@
 package app
 
 import (
-	"bufio"
-	"fmt"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -22,14 +21,13 @@ import (
 type App struct {
 	closers []io.Closer
 
-	Config        config.AppConfigurer
-	Log           *logrus.Entry
-	OSCommand     *commands.OSCommand
-	GitCommand    *commands.GitCommand
-	Gui           *gui.Gui
-	Tr            *i18n.Localizer
-	Updater       *updates.Updater // may only need this on the Gui
-	ClientContext string
+	Config     config.AppConfigurer
+	Log        *logrus.Entry
+	OSCommand  *commands.OSCommand
+	GitCommand *commands.GitCommand
+	Gui        *gui.Gui
+	Tr         *i18n.Localizer
+	Updater    *updates.Updater // may only need this on the Gui
 }
 
 type errorMapping struct {
@@ -91,7 +89,7 @@ func newLogger(config config.AppConfigurer) *logrus.Entry {
 }
 
 // NewApp bootstrap a new application
-func NewApp(config config.AppConfigurer, filterPath string) (*App, error) {
+func NewApp(config config.AppConfigurer) (*App, error) {
 	app := &App{
 		closers: []io.Closer{},
 		Config:  config,
@@ -100,12 +98,6 @@ func NewApp(config config.AppConfigurer, filterPath string) (*App, error) {
 	app.Log = newLogger(config)
 	app.Tr = i18n.NewLocalizer(app.Log)
 
-	// if we are being called in 'demon' mode, we can just return here
-	app.ClientContext = os.Getenv("LAZYGIT_CLIENT_COMMAND")
-	if app.ClientContext != "" {
-		return app, nil
-	}
-
 	app.OSCommand = commands.NewOSCommand(app.Log, config)
 
 	app.Updater, err = updates.NewUpdater(app.Log, config, app.OSCommand, app.Tr)
@@ -113,7 +105,7 @@ func NewApp(config config.AppConfigurer, filterPath string) (*App, error) {
 		return app, err
 	}
 
-	if err := app.setupRepo(); err != nil {
+	if err := app.setupPackage(); err != nil {
 		return app, err
 	}
 
@@ -121,63 +113,51 @@ func NewApp(config config.AppConfigurer, filterPath string) (*App, error) {
 	if err != nil {
 		return app, err
 	}
-	app.Gui, err = gui.NewGui(app.Log, app.GitCommand, app.OSCommand, app.Tr, config, app.Updater, filterPath)
+	app.Gui, err = gui.NewGui(app.Log, app.GitCommand, app.OSCommand, app.Tr, config, app.Updater)
 	if err != nil {
 		return app, err
 	}
 	return app, nil
 }
 
-func (app *App) setupRepo() error {
-	// if we are not in a git repo, we ask if we want to `git init`
-	if err := app.OSCommand.RunCommand("git status"); err != nil {
-		if !strings.Contains(err.Error(), "Not a git repository") {
-			return err
-		}
-		fmt.Print(app.Tr.SLocalize("CreateRepo"))
-		response, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-		if strings.Trim(response, " \n") != "y" {
-			os.Exit(1)
-		}
-		if err := app.OSCommand.RunCommand("git init"); err != nil {
-			return err
-		}
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
-	return nil
+	return !info.IsDir()
+}
+
+func (app *App) setupPackage() error {
+	// ensure we have a package.json file here or in an ancestor directory
+	// if there's not, pick the first one from state or return an error
+	dir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	for {
+		if fileExists("package.json") {
+			return nil
+		}
+
+		if err := os.Chdir(".."); err != nil {
+			return err
+		}
+
+		newDir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		if newDir == dir {
+			return errors.New("must start lazynpm in an npm package")
+		}
+		dir = newDir
+	}
 }
 
 func (app *App) Run() error {
-	if app.ClientContext == "INTERACTIVE_REBASE" {
-		return app.Rebase()
-	}
-
-	if app.ClientContext == "EXIT_IMMEDIATELY" {
-		os.Exit(0)
-	}
-
 	err := app.Gui.RunWithSubprocesses()
 	return err
-}
-
-// Rebase contains logic for when we've been run in demon mode, meaning we've
-// given lazynpm as a command for git to call e.g. to edit a file
-func (app *App) Rebase() error {
-	app.Log.Info("Lazynpm invoked as interactive rebase demon")
-	app.Log.Info("args: ", os.Args)
-
-	if strings.HasSuffix(os.Args[1], "git-rebase-todo") {
-		if err := ioutil.WriteFile(os.Args[1], []byte(os.Getenv("LAZYGIT_REBASE_TODO")), 0644); err != nil {
-			return err
-		}
-
-	} else if strings.HasSuffix(os.Args[1], ".git/COMMIT_EDITMSG") {
-		// if we are rebasing and squashing, we'll see a COMMIT_EDITMSG
-		// but in this case we don't need to edit it, so we'll just return
-	} else {
-		app.Log.Info("Lazynpm demon did not match on any use cases")
-	}
-
-	return nil
 }
 
 // Close closes any resources
@@ -195,12 +175,7 @@ func (app *App) Close() error {
 func (app *App) KnownError(err error) (string, bool) {
 	errorMessage := err.Error()
 
-	mappings := []errorMapping{
-		{
-			originalError: "fatal: not a git repository (or any of the parent directories): .git",
-			newError:      app.Tr.SLocalize("notARepository"),
-		},
-	}
+	mappings := []errorMapping{}
 
 	for _, mapping := range mappings {
 		if strings.Contains(errorMessage, mapping.originalError) {

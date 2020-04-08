@@ -374,10 +374,6 @@ func (gui *Gui) refreshStateFiles() error {
 	files := gui.GitCommand.GetStatusFiles()
 	gui.State.Files = gui.GitCommand.MergeStatusFiles(gui.State.Files, files)
 
-	if err := gui.fileWatcher.addFilesToFileWatcher(files); err != nil {
-		return err
-	}
-
 	gui.refreshSelectedLine(&gui.State.Panels.Files.SelectedLine, len(gui.State.Files))
 	return nil
 }

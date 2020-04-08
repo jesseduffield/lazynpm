@@ -89,7 +89,6 @@ type Gui struct {
 	statusManager        *statusManager
 	credentials          credentials
 	waitForIntro         sync.WaitGroup
-	fileWatcher          *fileWatcher
 	viewBufferManagerMap map[string]*tasks.ViewBufferManager
 	stopChan             chan struct{}
 }
@@ -273,7 +272,7 @@ func (gui *Gui) resetState() {
 
 // for now the split view will always be on
 // NewGui builds a new gui handler
-func NewGui(log *logrus.Entry, gitCommand *commands.GitCommand, oSCommand *commands.OSCommand, tr *i18n.Localizer, config config.AppConfigurer, updater *updates.Updater, filterPath string) (*Gui, error) {
+func NewGui(log *logrus.Entry, gitCommand *commands.GitCommand, oSCommand *commands.OSCommand, tr *i18n.Localizer, config config.AppConfigurer, updater *updates.Updater) (*Gui, error) {
 	gui := &Gui{
 		Log:                  log,
 		GitCommand:           gitCommand,
@@ -286,9 +285,6 @@ func NewGui(log *logrus.Entry, gitCommand *commands.GitCommand, oSCommand *comma
 	}
 
 	gui.resetState()
-	gui.State.FilterPath = filterPath
-
-	gui.watchFilesForChanges()
 
 	gui.GenerateSentinelErrors()
 
@@ -370,10 +366,6 @@ func (gui *Gui) RunWithSubprocesses() error {
 				manager.Close()
 			}
 			gui.viewBufferManagerMap = map[string]*tasks.ViewBufferManager{}
-
-			if !gui.fileWatcher.Disabled {
-				gui.fileWatcher.Watcher.Close()
-			}
 
 			close(gui.stopChan)
 
