@@ -14,11 +14,15 @@ import (
 
 // list panel functions
 
-func (gui *Gui) getSelectedPackage() *commands.File {
+func (gui *Gui) getSelectedPackage() *commands.Package {
 	if len(gui.State.Packages) == 0 {
 		return nil
 	}
 	return gui.State.Packages[gui.State.Panels.Packages.SelectedLine]
+}
+
+func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
+	return nil
 }
 
 func (gui *Gui) selectPackage() error {
@@ -61,17 +65,13 @@ func (gui *Gui) refreshPackages() error {
 
 // specific functions
 
-// PrepareSubProcess - prepare a subprocess for execution and tell the gui to switch to it
-func (gui *Gui) PrepareSubProcess(g *gocui.Gui, commands ...string) {
-	gui.SubProcess = gui.GitCommand.PrepareCommitSubProcess()
-	g.Update(func(g *gocui.Gui) error {
-		return gui.Errors.ErrSubProcess
-	})
-}
-
 func (gui *Gui) refreshStatePackages() error {
 	// get files to stage
-	gui.State.Packages = gui.GitCommand.GetStatusPackages()
+	var err error
+	gui.State.Packages, err = gui.NpmManager.GetPackages()
+	if err != nil {
+		return err
+	}
 
 	gui.refreshSelectedLine(&gui.State.Panels.Packages.SelectedLine, len(gui.State.Packages))
 	return nil
@@ -79,5 +79,5 @@ func (gui *Gui) refreshStatePackages() error {
 
 func (gui *Gui) onPackagesPanelSearchSelect(selectedLine int) error {
 	gui.State.Panels.Packages.SelectedLine = selectedLine
-	return gui.focusAndSelectFile(gui.g, gui.getPackagesView())
+	return gui.handlePackageSelect(gui.g, gui.getPackagesView())
 }

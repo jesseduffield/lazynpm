@@ -24,7 +24,7 @@ type App struct {
 	Config     config.AppConfigurer
 	Log        *logrus.Entry
 	OSCommand  *commands.OSCommand
-	GitCommand *commands.GitCommand
+	NpmManager *commands.NpmManager
 	Gui        *gui.Gui
 	Tr         *i18n.Localizer
 	Updater    *updates.Updater // may only need this on the Gui
@@ -109,11 +109,11 @@ func NewApp(config config.AppConfigurer) (*App, error) {
 		return app, err
 	}
 
-	app.GitCommand, err = commands.NewGitCommand(app.Log, app.OSCommand, app.Tr, app.Config)
+	app.NpmManager, err = commands.NewNpmManager(app.Log, app.OSCommand, app.Tr, app.Config)
 	if err != nil {
 		return app, err
 	}
-	app.Gui, err = gui.NewGui(app.Log, app.GitCommand, app.OSCommand, app.Tr, config, app.Updater)
+	app.Gui, err = gui.NewGui(app.Log, app.NpmManager, app.OSCommand, app.Tr, config, app.Updater)
 	if err != nil {
 		return app, err
 	}

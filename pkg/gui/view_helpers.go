@@ -5,7 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/go-errors/errors"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 	"github.com/spkg/bom"
@@ -96,38 +95,9 @@ func (gui *Gui) newLineFocused(g *gocui.Gui, v *gocui.View) error {
 		return gui.handleMenuSelect(g, v)
 	case "status":
 		return gui.handleStatusSelect(g, v)
-	case "files":
-		return gui.focusAndSelectFile(g, v)
-	case "branches":
-		branchesView := gui.getBranchesView()
-		switch branchesView.Context {
-		case "local-branches":
-			return gui.handleBranchSelect(g, v)
-		case "remotes":
-			return gui.handleRemoteSelect(g, v)
-		case "remote-branches":
-			return gui.handleRemoteBranchSelect(g, v)
-		case "tags":
-			return gui.handleTagSelect(g, v)
-		default:
-			return errors.New("unknown branches panel context: " + branchesView.Context)
-		}
-	case "commits":
-		return gui.handleCommitSelect(g, v)
-	case "commitFiles":
-		return gui.handleCommitFileSelect(g, v)
-	case "stash":
-		return gui.handleStashEntrySelect(g, v)
-	case "confirmation":
-		return nil
-	case "commitMessage":
-		return gui.handleCommitFocused(g, v)
-	case "credentials":
-		return gui.handleCredentialsViewFocused(g, v)
+	case "packages":
+		return gui.handlePackageSelect(g, v)
 	case "main":
-		if gui.State.MainContext == "merging" {
-			return gui.refreshMergePanel()
-		}
 		v.Highlight = false
 		return nil
 	case "search":
@@ -354,10 +324,6 @@ func (gui *Gui) renderPanelOptions() error {
 	switch currentView.Name() {
 	case "menu":
 		return gui.renderMenuOptions()
-	case "main":
-		if gui.State.MainContext == "merging" {
-			return gui.renderMergeOptions()
-		}
 	}
 	return gui.renderGlobalOptions()
 }

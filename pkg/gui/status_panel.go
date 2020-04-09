@@ -1,45 +1,15 @@
 package gui
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/fatih/color"
 	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
-	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 // never call this on its own, it should only be called from within refreshCommits()
 func (gui *Gui) refreshStatus() {
-	gui.State.RefreshingStatusMutex.Lock()
-	defer gui.State.RefreshingStatusMutex.Unlock()
-
-	currentBranch := gui.currentBranch()
-	if currentBranch == nil {
-		// need to wait for branches to refresh
-		return
-	}
-	status := ""
-
-	if currentBranch.Pushables != "" && currentBranch.Pullables != "" {
-		trackColor := color.FgYellow
-		if currentBranch.Pushables == "0" && currentBranch.Pullables == "0" {
-			trackColor = color.FgGreen
-		} else if currentBranch.Pushables == "?" && currentBranch.Pullables == "?" {
-			trackColor = color.FgRed
-		}
-
-		status = utils.ColoredString(fmt.Sprintf("↑%s↓%s ", currentBranch.Pushables, currentBranch.Pullables), trackColor)
-	}
-
-	if gui.GitCommand.WorkingTreeState() != "normal" {
-		status += utils.ColoredString(fmt.Sprintf("(%s) ", gui.GitCommand.WorkingTreeState()), color.FgYellow)
-	}
-
-	name := utils.ColoredString(currentBranch.Name, presentation.GetBranchColor(currentBranch.Name))
-	repoName := utils.GetCurrentRepoName()
-	status += fmt.Sprintf("%s → %s ", repoName, name)
+	status := "current package"
 
 	gui.g.Update(func(*gocui.Gui) error {
 		gui.setViewContent(gui.g, gui.getStatusView(), status)
@@ -61,27 +31,7 @@ func (gui *Gui) handleCheckForUpdate(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) handleStatusClick(g *gocui.Gui, v *gocui.View) error {
-	currentBranch := gui.currentBranch()
-
-	cx, _ := v.Cursor()
-	upstreamStatus := fmt.Sprintf("↑%s↓%s", currentBranch.Pushables, currentBranch.Pullables)
-	repoName := utils.GetCurrentRepoName()
-	switch gui.GitCommand.WorkingTreeState() {
-	case "rebasing", "merging":
-		workingTreeStatus := fmt.Sprintf("(%s)", gui.GitCommand.WorkingTreeState())
-		if cursorInSubstring(cx, upstreamStatus+" ", workingTreeStatus) {
-			return gui.handleCreateRebaseOptionsMenu(gui.g, v)
-		}
-		if cursorInSubstring(cx, upstreamStatus+" "+workingTreeStatus+" ", repoName) {
-			return gui.handleCreateRecentReposMenu(gui.g, v)
-		}
-	default:
-		if cursorInSubstring(cx, upstreamStatus+" ", repoName) {
-			return gui.handleCreateRecentReposMenu(gui.g, v)
-		}
-	}
-
-	return gui.handleStatusSelect(gui.g, v)
+	return nil
 }
 
 func (gui *Gui) handleStatusSelect(g *gocui.Gui, v *gocui.View) error {
@@ -97,19 +47,14 @@ func (gui *Gui) handleStatusSelect(g *gocui.Gui, v *gocui.View) error {
 
 	gui.getMainView().Title = ""
 
-	if gui.inDiffMode() {
-		return gui.renderDiff()
-	}
-
 	magenta := color.New(color.FgMagenta)
 
 	dashboardString := strings.Join(
 		[]string{
 			lazynpmTitle(),
-			"Copyright (c) 2018 Jesse Duffield",
+			"Copyright (c) 2020 Jesse Duffield",
 			"Keybindings: https://github.com/jesseduffield/lazynpm/blob/master/docs/keybindings",
 			"Config Options: https://github.com/jesseduffield/lazynpm/blob/master/docs/Config.md",
-			"Tutorial: https://youtu.be/VDXvbHZYeKY",
 			"Raise an Issue: https://github.com/jesseduffield/lazynpm/issues",
 			magenta.Sprint("Become a sponsor (github is matching all donations for 12 months): https://github.com/sponsors/jesseduffield"), // caffeine ain't free
 		}, "\n\n")
@@ -128,24 +73,11 @@ func (gui *Gui) handleEditConfig(g *gocui.Gui, v *gocui.View) error {
 
 func lazynpmTitle() string {
 	return `
-   _                       _ _
-  | |                     (_) |
-  | | __ _ _____   _  __ _ _| |_
-  | |/ _` + "`" + ` |_  / | | |/ _` + "`" + ` | | __|
-  | | (_| |/ /| |_| | (_| | | |_
-  |_|\__,_/___|\__, |\__, |_|\__|
-                __/ | __/ |
-               |___/ |___/       `
-}
-
-func (gui *Gui) workingTreeState() string {
-	rebaseMode, _ := gui.GitCommand.RebaseMode()
-	if rebaseMode != "" {
-		return "rebasing"
-	}
-	merging, _ := gui.GitCommand.IsInMergeState()
-	if merging {
-		return "merging"
-	}
-	return "normal"
+	__
+	[  |
+	 | |  ,--.   ____    _   __  _ .--.  _ .--.   _ .--..--.
+	 | | '_\ : [_   ]  [ \ [  ][ \.-. |[ '/'\\ \[ \.-. .-. |
+	 | | // | |, .' /_   \ '/ /  | | | | | \__/ | | | | | | |
+	[___]'-;__/[_____][\_:  /  [___||__]| ;.__/ [___||__||__]
+											\__.'           [__|                  `
 }

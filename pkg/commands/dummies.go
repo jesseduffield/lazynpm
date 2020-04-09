@@ -39,20 +39,17 @@ func NewDummyLog() *logrus.Entry {
 	return log.WithField("test", "test")
 }
 
-// NewDummyGitCommand creates a new dummy GitCommand for testing
-func NewDummyGitCommand() *GitCommand {
-	return NewDummyGitCommandWithOSCommand(NewDummyOSCommand())
+// NewDummyNpmManager creates a new dummy NpmManager for testing
+func NewDummyNpmManager() *NpmManager {
+	return NewDummyNpmManagerWithOSCommand(NewDummyOSCommand())
 }
 
-// NewDummyGitCommandWithOSCommand creates a new dummy GitCommand for testing
-func NewDummyGitCommandWithOSCommand(osCommand *OSCommand) *GitCommand {
-	return &GitCommand{
-		Log:                NewDummyLog(),
-		OSCommand:          osCommand,
-		Tr:                 i18n.NewLocalizer(NewDummyLog()),
-		Config:             NewDummyAppConfig(),
-		getGlobalGitConfig: func(string) (string, error) { return "", nil },
-		getLocalGitConfig:  func(string) (string, error) { return "", nil },
-		removeFile:         func(string) error { return nil },
+// NewDummyNpmManagerWithOSCommand creates a new dummy NpmManager for testing
+func NewDummyNpmManagerWithOSCommand(osCommand *OSCommand) *NpmManager {
+	return &NpmManager{
+		Log:       NewDummyLog(),
+		OSCommand: osCommand,
+		Tr:        i18n.NewLocalizer(NewDummyLog()),
+		Config:    NewDummyAppConfig(),
 	}
 }

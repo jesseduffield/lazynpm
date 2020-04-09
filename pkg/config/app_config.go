@@ -22,7 +22,7 @@ type AppConfig struct {
 	UserConfig    *viper.Viper
 	UserConfigDir string
 	AppState      *AppState
-	IsNewRepo     bool
+	IsNewPackage  bool
 }
 
 // AppConfigurer interface allows individual app config structs to inherit Fields
@@ -65,7 +65,7 @@ func NewAppConfig(name, version, commit, date string, buildSource string, debugg
 		UserConfig:    userConfig,
 		UserConfigDir: filepath.Dir(userConfigPath),
 		AppState:      &AppState{},
-		IsNewRepo:     false,
+		IsNewPackage:  false,
 	}
 
 	if err := appConfig.LoadAppState(); err != nil {
@@ -77,12 +77,12 @@ func NewAppConfig(name, version, commit, date string, buildSource string, debugg
 
 // GetIsNewRepo returns known repo boolean
 func (c *AppConfig) GetIsNewRepo() bool {
-	return c.IsNewRepo
+	return c.IsNewPackage
 }
 
 // SetIsNewRepo set if the current repo is known
-func (c *AppConfig) SetIsNewRepo(toSet bool) {
-	c.IsNewRepo = toSet
+func (c *AppConfig) SetIsNewRepo(isNew bool) {
+	c.IsNewPackage = isNew
 }
 
 // GetDebug returns debug flag
@@ -258,14 +258,6 @@ func GetDefaultConfig() []byte {
       - blue
   commitLength:
     show: true
-git:
-  paging:
-    colorArg: always
-    useConfig: false
-  merging:
-    manualCommit: false
-  skipHookPrefix: 'WIP'
-  autoFetch: true
 update:
   method: prompt # can be: prompt | background | never
   days: 14 # how often a update is checked for
@@ -381,24 +373,15 @@ keybinding:
 }
 
 // AppState stores data between runs of the app like when the last update check
-// was performed and which other repos have been checked out
+// was performed
 type AppState struct {
 	LastUpdateCheck int64
-	RecentRepos     []string
+	RecentPackages  []string
 }
 
 func getDefaultAppState() []byte {
 	return []byte(`
     lastUpdateCheck: 0
-    recentRepos: []
+    recentPackages: []
   `)
 }
-
-// // commenting this out until we use it again
-// func homeDirectory() string {
-// 	usr, err := user.Current()
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	return usr.HomeDir
-// }

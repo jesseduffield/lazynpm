@@ -301,20 +301,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		v.FgColor = theme.OptionsColor
 	}
 
-	if gui.getCommitMessageView() == nil {
-		// doesn't matter where this view starts because it will be hidden
-		if commitMessageView, err := g.SetView("commitMessage", hiddenViewOffset, hiddenViewOffset, hiddenViewOffset+10, hiddenViewOffset+10, 0); err != nil {
-			if err.Error() != "unknown view" {
-				return err
-			}
-			_, _ = g.SetViewOnBottom("commitMessage")
-			commitMessageView.Title = gui.Tr.SLocalize("CommitMessage")
-			commitMessageView.FgColor = textColor
-			commitMessageView.Editable = true
-			commitMessageView.Editor = gocui.EditorFunc(gui.commitMessageEditor)
-		}
-	}
-
 	if check, _ := g.View("credentials"); check == nil {
 		// doesn't matter where this view starts because it will be hidden
 		if credentialsView, err := g.SetView("credentials", hiddenViewOffset, hiddenViewOffset, hiddenViewOffset+10, hiddenViewOffset+10, 0); err != nil {
@@ -393,10 +379,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	}
 
 	if gui.g.CurrentView() == nil {
-		initialView := gui.getFilesView()
-		if gui.inFilterMode() {
-			initialView = gui.getCommitsView()
-		}
+		initialView := gui.getPackagesView()
 		if _, err := gui.g.SetCurrentView(initialView.Name()); err != nil {
 			return err
 		}
@@ -414,13 +397,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	}
 
 	listViews := []listViewState{
-		{view: packagesView, context: "", selectedLine: gui.State.Panels.Files.SelectedLine, lineCount: len(gui.State.Files)},
-		{view: branchesView, context: "local-branches", selectedLine: gui.State.Panels.Branches.SelectedLine, lineCount: len(gui.State.Branches)},
-		{view: branchesView, context: "remotes", selectedLine: gui.State.Panels.Remotes.SelectedLine, lineCount: len(gui.State.Remotes)},
-		{view: branchesView, context: "remote-branches", selectedLine: gui.State.Panels.RemoteBranches.SelectedLine, lineCount: len(gui.State.Remotes)},
-		{view: commitsView, context: "branch-commits", selectedLine: gui.State.Panels.Commits.SelectedLine, lineCount: len(gui.State.Commits)},
-		{view: commitsView, context: "reflog-commits", selectedLine: gui.State.Panels.ReflogCommits.SelectedLine, lineCount: len(gui.State.FilteredReflogCommits)},
-		{view: stashView, context: "", selectedLine: gui.State.Panels.Stash.SelectedLine, lineCount: len(gui.State.StashEntries)},
+		{view: packagesView, context: "", selectedLine: gui.State.Panels.Packages.SelectedLine, lineCount: len(gui.State.Packages)},
 	}
 
 	// menu view might not exist so we check to be safe
@@ -455,8 +432,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 func (gui *Gui) onInitialViewsCreation() error {
 	gui.changeMainViewsContext("normal")
 
-	gui.getBranchesView().Context = "local-branches"
-	gui.getCommitsView().Context = "branch-commits"
+	// here is where you would set initial contexts for views with tabs
 
 	return gui.loadNewRepo()
 }

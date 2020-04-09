@@ -6,22 +6,22 @@ import (
 	"github.com/jesseduffield/gocui"
 )
 
-// when a user runs lazynpm with the LAZYGIT_NEW_DIR_FILE env variable defined
+// when a user runs lazynpm with the LAZYNPM_NEW_DIR_FILE env variable defined
 // we will write the current directory to that file on exit so that their
 // shell can then change to that directory. That means you don't get kicked
 // back to the directory that you started with.
 func (gui *Gui) recordCurrentDirectory() error {
-	if os.Getenv("LAZYGIT_NEW_DIR_FILE") == "" {
+	if os.Getenv("LAZYNPM_NEW_DIR_FILE") == "" {
 		return nil
 	}
 
-	// determine current directory, set it in LAZYGIT_NEW_DIR_FILE
+	// determine current directory, set it in LAZYNPM_NEW_DIR_FILE
 	dirName, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	return gui.OSCommand.CreateFileWithContent(os.Getenv("LAZYGIT_NEW_DIR_FILE"), dirName)
+	return gui.OSCommand.CreateFileWithContent(os.Getenv("LAZYNPM_NEW_DIR_FILE"), dirName)
 }
 
 func (gui *Gui) handleQuitWithoutChangingDirectory(g *gocui.Gui, v *gocui.View) error {
@@ -38,12 +38,7 @@ func (gui *Gui) quit(v *gocui.View) error {
 	if gui.State.Updating {
 		return gui.createUpdateQuitConfirmation(gui.g, v)
 	}
-	if gui.inDiffMode() {
-		return gui.exitDiffMode()
-	}
-	if gui.inFilterMode() {
-		return gui.exitFilterMode()
-	}
+
 	if gui.Config.GetUserConfig().GetBool("confirmOnQuit") {
 		return gui.createConfirmationPanel(gui.g, v, true, "", gui.Tr.SLocalize("ConfirmQuit"), func(g *gocui.Gui, v *gocui.View) error {
 			return gocui.ErrQuit

@@ -73,7 +73,7 @@ type Teml i18n.Teml
 type Gui struct {
 	g                    *gocui.Gui
 	Log                  *logrus.Entry
-	GitCommand           *commands.GitCommand
+	NpmManager           *commands.NpmManager
 	OSCommand            *commands.OSCommand
 	SubProcess           *exec.Cmd
 	State                *guiState
@@ -153,10 +153,10 @@ func (gui *Gui) resetState() {
 
 // for now the split view will always be on
 // NewGui builds a new gui handler
-func NewGui(log *logrus.Entry, gitCommand *commands.GitCommand, oSCommand *commands.OSCommand, tr *i18n.Localizer, config config.AppConfigurer, updater *updates.Updater) (*Gui, error) {
+func NewGui(log *logrus.Entry, gitCommand *commands.NpmManager, oSCommand *commands.OSCommand, tr *i18n.Localizer, config config.AppConfigurer, updater *updates.Updater) (*Gui, error) {
 	gui := &Gui{
 		Log:                  log,
-		GitCommand:           gitCommand,
+		NpmManager:           gitCommand,
 		OSCommand:            oSCommand,
 		Config:               config,
 		Tr:                   tr,
@@ -182,12 +182,7 @@ func (gui *Gui) Run() error {
 	}
 	defer g.Close()
 
-	if gui.inFilterMode() {
-		gui.State.ScreenMode = SCREEN_HALF
-	} else {
-		gui.State.ScreenMode = SCREEN_NORMAL
-	}
-
+	gui.State.ScreenMode = SCREEN_NORMAL
 	g.OnSearchEscape = gui.onSearchEscape
 	g.SearchEscapeKey = gui.getKey("universal.return")
 	g.NextSearchMatchKey = gui.getKey("universal.nextMatch")
@@ -305,6 +300,34 @@ func (gui *Gui) loadNewRepo() error {
 	}
 
 	return nil
+}
+
+// updateRecentRepoList registers the fact that we opened lazynpm in this package,
+// so that appears in the packages view next time we open the program in another package
+func (gui *Gui) updateRecentRepoList() error {
+	recentPackages := gui.Config.GetAppState().RecentPackages
+	currentRepo, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	isNew, recentPackages := newRecentPackagesList(recentPackages, currentRepo)
+	gui.Config.SetIsNewRepo(isNew)
+	gui.Config.GetAppState().RecentPackages = recentPackages
+	return gui.Config.SaveAppState()
+}
+
+// newRecentPackagesList returns a new repo list with a new entry but only when it doesn't exist yet
+func newRecentPackagesList(recentPackages []string, currentPackage string) (bool, []string) {
+	isNew := true
+	newPackages := []string{currentPackage}
+	for _, pkg := range recentPackages {
+		if pkg != currentPackage {
+			newPackages = append(newPackages, pkg)
+		} else {
+			isNew = false
+		}
+	}
+	return isNew, newPackages
 }
 
 func (gui *Gui) showInitialPopups(tasks []func(chan struct{}) error) {

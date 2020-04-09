@@ -2,6 +2,7 @@ package gui
 
 import (
 	"math"
+	"os/exec"
 
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
@@ -107,4 +108,33 @@ func (gui *Gui) handleInfoClick(g *gocui.Gui, v *gocui.View) error {
 		return gui.OSCommand.OpenLink("https://github.com/sponsors/jesseduffield")
 	}
 	return nil
+}
+
+func (gui *Gui) editFile(filename string) error {
+	_, err := gui.runSyncOrAsyncCommand(gui.OSCommand.EditFile(filename))
+	return err
+}
+
+func (gui *Gui) openFile(filename string) error {
+	if err := gui.OSCommand.OpenFile(filename); err != nil {
+		return gui.surfaceError(err)
+	}
+	return nil
+}
+
+// runSyncOrAsyncCommand takes the output of a command that may have returned
+// either no error, an error, or a subprocess to execute, and if a subprocess
+// needs to be set on the gui object, it does so, and then returns the error
+// the bool returned tells us whether the calling code should continue
+func (gui *Gui) runSyncOrAsyncCommand(sub *exec.Cmd, err error) (bool, error) {
+	if err != nil {
+		if err != gui.Errors.ErrSubProcess {
+			return false, gui.surfaceError(err)
+		}
+	}
+	if sub != nil {
+		gui.SubProcess = sub
+		return false, gui.Errors.ErrSubProcess
+	}
+	return true, nil
 }
