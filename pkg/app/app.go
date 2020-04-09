@@ -90,6 +90,7 @@ func newLogger(config config.AppConfigurer) *logrus.Entry {
 
 // NewApp bootstrap a new application
 func NewApp(config config.AppConfigurer) (*App, error) {
+
 	app := &App{
 		closers: []io.Closer{},
 		Config:  config,
@@ -99,7 +100,6 @@ func NewApp(config config.AppConfigurer) (*App, error) {
 	app.Tr = i18n.NewLocalizer(app.Log)
 
 	app.OSCommand = commands.NewOSCommand(app.Log, config)
-
 	app.Updater, err = updates.NewUpdater(app.Log, config, app.OSCommand, app.Tr)
 	if err != nil {
 		return app, err
@@ -113,6 +113,7 @@ func NewApp(config config.AppConfigurer) (*App, error) {
 	if err != nil {
 		return app, err
 	}
+
 	app.Gui, err = gui.NewGui(app.Log, app.NpmManager, app.OSCommand, app.Tr, config, app.Updater)
 	if err != nil {
 		return app, err

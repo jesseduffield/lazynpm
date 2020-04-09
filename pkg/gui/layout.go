@@ -229,7 +229,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		if err.Error() != "unknown view" {
 			return err
 		}
-		v.Title = gui.Tr.SLocalize("DiffTitle")
 		v.Wrap = true
 		v.FgColor = textColor
 		v.IgnoreCarriageReturns = true
@@ -246,7 +245,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		if err.Error() != "unknown view" {
 			return err
 		}
-		secondaryView.Title = gui.Tr.SLocalize("DiffTitle")
 		secondaryView.Wrap = true
 		secondaryView.FgColor = gocui.ColorWhite
 		secondaryView.IgnoreCarriageReturns = true
@@ -299,22 +297,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 		v.Frame = false
 		v.FgColor = theme.OptionsColor
-	}
-
-	if check, _ := g.View("credentials"); check == nil {
-		// doesn't matter where this view starts because it will be hidden
-		if credentialsView, err := g.SetView("credentials", hiddenViewOffset, hiddenViewOffset, hiddenViewOffset+10, hiddenViewOffset+10, 0); err != nil {
-			if err.Error() != "unknown view" {
-				return err
-			}
-			_, err := g.SetViewOnBottom("credentials")
-			if err != nil {
-				return err
-			}
-			credentialsView.Title = gui.Tr.SLocalize("CredentialsUsername")
-			credentialsView.FgColor = textColor
-			credentialsView.Editable = true
-		}
 	}
 
 	searchViewOffset := hiddenViewOffset

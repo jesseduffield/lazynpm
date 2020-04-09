@@ -61,7 +61,7 @@ type SentinelErrors struct {
 // localising things in the code.
 func (gui *Gui) GenerateSentinelErrors() {
 	gui.Errors = SentinelErrors{
-		ErrSubProcess: errors.New(gui.Tr.SLocalize("RunningSubprocess")),
+		ErrSubProcess: errors.New("running subprocess"),
 		ErrRestart:    errors.New("restarting"),
 	}
 }
