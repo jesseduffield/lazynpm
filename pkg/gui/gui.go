@@ -217,7 +217,8 @@ func (gui *Gui) Run() error {
 
 	gui.waitForIntro.Add(1)
 
-	gui.goEvery(time.Second, gui.stopChan, gui.refreshPackages)
+	gui.goEvery(time.Millisecond*250, gui.stopChan, gui.refreshPackages)
+	gui.goEvery(time.Millisecond*50, gui.stopChan, gui.refreshScreen)
 
 	g.SetManager(gocui.ManagerFunc(gui.layout), gocui.ManagerFunc(gui.getFocusLayout()))
 
@@ -229,6 +230,13 @@ func (gui *Gui) Run() error {
 
 	err = g.MainLoop()
 	return err
+}
+
+func (gui *Gui) refreshScreen() error {
+	gui.g.Update(func(*gocui.Gui) error {
+		return nil
+	})
+	return nil
 }
 
 // RunWithSubprocesses loops, instantiating a new gocui.Gui with each iteration

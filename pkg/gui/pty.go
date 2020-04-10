@@ -3,6 +3,7 @@
 package gui
 
 import (
+	"io"
 	"os/exec"
 
 	"github.com/creack/pty"
@@ -31,34 +32,47 @@ func (gui *Gui) onResize() error {
 // pseudo-terminal meaning we'll get the behaviour we want from the underlying
 // command.
 func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd) error {
-	view, err := gui.g.View(viewName)
-	if err != nil {
-		return nil // swallowing for now
-	}
+	go func() {
+		view, err := gui.g.View(viewName)
+		if err != nil {
+			return // swallowing for now
+		}
 
-	_, height := view.Size()
-	_, oy := view.Origin()
+		view.Clear()
 
-	manager := gui.getManager(view)
+		// _, height := view.Size()
+		// _, oy := view.Origin()
 
-	ptmx, err := pty.Start(cmd)
-	if err != nil {
-		return err
-	}
+		// manager := gui.getManager(view)
 
-	gui.State.Ptmx = ptmx
-	onClose := func() {
-		ptmx.Close()
-		gui.State.Ptmx = nil
-	}
+		ptmx, err := pty.Start(cmd)
+		if err != nil {
+			// swallowing for now (actually continue to swallow this)
+			return
+		}
+		view.StdinWriter = ptmx
+		view.Pty = true
 
-	if err := gui.onResize(); err != nil {
-		return err
-	}
+		gui.State.Ptmx = ptmx
+		onClose := func() {
+			ptmx.Close()
+			gui.State.Ptmx = nil
+			view.Pty = false
+			view.StdinWriter = nil
+		}
 
-	if err := manager.NewTask(manager.NewCmdTask(ptmx, cmd, height+oy+10, onClose)); err != nil {
-		return err
-	}
+		if err := gui.onResize(); err != nil {
+			// swallowing for now
+			return
+		}
 
+		_, _ = io.Copy(view, ptmx)
+
+		onClose()
+
+		// if err := manager.NewTask(manager.NewCmdTask(ptmx, cmd, height+oy+10, onClose)); err != nil {
+		// 	return err
+		// }
+	}()
 	return nil
 }

@@ -231,7 +231,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 		v.Wrap = true
 		v.FgColor = textColor
-		v.IgnoreCarriageReturns = true
+		v.Autoscroll = true
 	}
 
 	hiddenViewOffset := 9999
