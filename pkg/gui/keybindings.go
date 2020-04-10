@@ -445,6 +445,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.wrappedHandler(gui.handleInstall),
 		},
+		{
+			ViewName: "packages",
+			Key:      gui.getKey("packages.build"),
+			Modifier: gocui.ModNone,
+			Handler:  gui.wrappedHandler(gui.handleBuild),
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {

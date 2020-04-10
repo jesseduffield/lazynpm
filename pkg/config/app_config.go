@@ -314,6 +314,7 @@ keybinding:
     toggleDragSelect-alt: 'V'
   packages:
     link: 'l'
+    build: 'b'
 `)
 }
 

@@ -3,10 +3,13 @@
 package gui
 
 import (
+	"fmt"
 	"io"
 	"os/exec"
 
 	"github.com/creack/pty"
+	"github.com/fatih/color"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 func (gui *Gui) onResize() error {
@@ -31,7 +34,7 @@ func (gui *Gui) onResize() error {
 // which is just an io.Reader. the pty package lets us wrap a command in a
 // pseudo-terminal meaning we'll get the behaviour we want from the underlying
 // command.
-func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd) error {
+func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd, cmdStr string) error {
 	go func() {
 		view, err := gui.g.View(viewName)
 		if err != nil {
@@ -39,6 +42,8 @@ func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd) error {
 		}
 
 		view.Clear()
+
+		fmt.Fprint(view, utils.ColoredString(fmt.Sprintf("+ %s\n\n", cmdStr), color.FgYellow))
 
 		// _, height := view.Size()
 		// _, oy := view.Origin()
@@ -67,6 +72,8 @@ func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd) error {
 		}
 
 		_, _ = io.Copy(view, ptmx)
+
+		fmt.Fprint(view, utils.ColoredString("\ncommand has completed", color.FgGreen))
 
 		onClose()
 

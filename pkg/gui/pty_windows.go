@@ -8,6 +8,6 @@ func (gui *Gui) onResize() error {
 	return nil
 }
 
-func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd) error {
+func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd, cmdStr string) error {
 	return gui.newCmdTask(viewName, cmd)
 }

@@ -130,7 +130,7 @@ func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
 	}
 
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd); err != nil {
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
 		gui.Log.Error(err)
 	}
 
@@ -138,8 +138,50 @@ func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) handleInstall() error {
-	cmd := gui.OSCommand.ExecutableFromString("npm install")
-	if err := gui.newPtyTask("main", cmd); err != nil {
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	currentPkg := gui.currentPackage()
+	if currentPkg == nil {
+		return nil
+	}
+
+	var cmdStr string
+	if selectedPkg == currentPkg {
+		cmdStr = "npm install"
+	} else {
+		cmdStr = "npm install --prefix " + selectedPkg.Path
+	}
+
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+		gui.Log.Error(err)
+	}
+	return nil
+}
+
+func (gui *Gui) handleBuild() error {
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	currentPkg := gui.currentPackage()
+	if currentPkg == nil {
+		return nil
+	}
+
+	var cmdStr string
+	if selectedPkg == currentPkg {
+		cmdStr = "npm run build"
+	} else {
+		cmdStr = "npm run build --prefix " + selectedPkg.Path
+	}
+
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
 		gui.Log.Error(err)
 	}
 	return nil
