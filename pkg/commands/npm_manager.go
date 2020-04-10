@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/jesseduffield/lazynpm/pkg/config"
 	"github.com/jesseduffield/lazynpm/pkg/i18n"
@@ -19,26 +20,34 @@ type NpmManager struct {
 	OSCommand *OSCommand
 	Tr        *i18n.Localizer
 	Config    config.AppConfigurer
+	NpmRoot   string
 }
 
 // NewNpmManager it runs git commands
 func NewNpmManager(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Localizer, config config.AppConfigurer) (*NpmManager, error) {
+	output, err := osCommand.RunCommandWithOutput("npm root -g")
+	if err != nil {
+		return nil, err
+	}
+	npmRoot := strings.TrimSpace(output)
+
 	return &NpmManager{
 		Log:       log,
 		OSCommand: osCommand,
 		Tr:        tr,
 		Config:    config,
+		NpmRoot:   npmRoot,
 	}, nil
 }
 
 func (m *NpmManager) UnmarshalPackage(r io.Reader) (*PackageConfig, error) {
-	var pkgInput *PackageInput
+	var pkgInput *PackageConfigInput
 	d := json.NewDecoder(r)
 	if err := d.Decode(&pkgInput); err != nil {
 		return nil, err
 	}
 
-	var pkg Package
+	var pkg PackageConfig
 	if err := copier.Copy(&pkg, &pkgInput); err != nil {
 		return nil, err
 	}
@@ -80,12 +89,37 @@ func (m *NpmManager) UnmarshalPackage(r io.Reader) (*PackageConfig, error) {
 	return &pkg, nil
 }
 
+func (m *NpmManager) IsLinked(name string, path string) (bool, error) {
+	globalPath := filepath.Join(m.NpmRoot, name)
+	fileInfo, err := os.Lstat(globalPath)
+	if err != nil {
+		if err == os.ErrNotExist {
+			return false, nil
+		}
+		// swallowing error. For some reason we're getting 'no such file or directory' here despite checking for os.ErrNotExist
+		return false, nil
+	}
+
+	isSymlink := fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
+	if isSymlink {
+		linkedPath, err := os.Readlink(globalPath)
+		if err != nil {
+			return false, err
+		}
+		if linkedPath == path {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
+
 	pkgs := make([]*Package, 0, len(paths))
+
 	for _, path := range paths {
 		packageJsonPath := filepath.Join(path, "package.json")
 		if !FileExists(packageJsonPath) {
-			m.Log.Error("package.json does not exist at " + packageJsonPath)
 			continue
 		}
 
@@ -94,12 +128,21 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 			m.Log.Error(err)
 			continue
 		}
-		pkg, err := m.UnmarshalPackage(file)
+		pkgConfig, err := m.UnmarshalPackage(file)
+
+		if err != nil {
+			return nil, err
+		}
+		linked, err := m.IsLinked(pkgConfig.Name, path)
 		if err != nil {
 			return nil, err
 		}
 
-		pkgs = append(pkgs, pkg)
+		pkgs = append(pkgs, &Package{
+			Config: *pkgConfig,
+			Path:   path,
+			Linked: linked,
+		})
 	}
 	return pkgs, nil
 }

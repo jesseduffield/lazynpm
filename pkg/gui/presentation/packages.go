@@ -1,7 +1,10 @@
 package presentation
 
 import (
+	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/theme"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 func GetPackageListDisplayStrings(packages []*commands.Package) [][]string {
@@ -15,5 +18,9 @@ func GetPackageListDisplayStrings(packages []*commands.Package) [][]string {
 }
 
 func getFileDisplayStrings(p *commands.Package) []string {
-	return []string{p.Name}
+	line := utils.ColoredString(p.Config.Name, theme.DefaultTextColor)
+	if p.Linked {
+		line += utils.ColoredString(" (linked)", color.FgCyan)
+	}
+	return []string{line}
 }

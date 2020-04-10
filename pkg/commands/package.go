@@ -4,7 +4,7 @@ import "encoding/json"
 
 // golang doesn't support union types, but fields like 'author' and 'repository' can actually be strings or objects so we'll need to keep that in mind when parsing
 
-type PackageInput struct {
+type PackageConfigInput struct {
 	Name        string   `json:"name"`
 	Version     string   `json:"version"`
 	License     string   `json:"license"`
