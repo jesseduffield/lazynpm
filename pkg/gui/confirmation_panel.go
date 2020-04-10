@@ -134,7 +134,7 @@ func (gui *Gui) createConfirmationPanel(g *gocui.Gui, currentView *gocui.View, r
 	return gui.createPopupPanel(g, currentView, title, prompt, false, returnFocusOnClose, false, handleConfirm, handleClose)
 }
 
-func (gui *Gui) createPromptPanel(g *gocui.Gui, currentView *gocui.View, title string, initialContent string, handleConfirm func(*gocui.Gui, *gocui.View) error) error {
+func (gui *Gui) createPromptPanel(currentView *gocui.View, title string, initialContent string, handleConfirm func(*gocui.Gui, *gocui.View) error) error {
 	return gui.createPopupPanel(gui.g, currentView, title, initialContent, false, true, true, handleConfirm, nil)
 }
 

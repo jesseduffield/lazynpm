@@ -386,6 +386,13 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.handleMouseDownMain,
 		},
 		{
+			ViewName: "main",
+			Contexts: []string{"normal"},
+			Key:      gui.getKey("universal.return"),
+			Modifier: gocui.ModNone,
+			Handler:  gui.wrappedHandler(gui.handleEscapeMain),
+		},
+		{
 			ViewName: "status",
 			Key:      gocui.MouseLeft,
 			Modifier: gocui.ModNone,
@@ -450,6 +457,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:      gui.getKey("packages.build"),
 			Modifier: gocui.ModNone,
 			Handler:  gui.wrappedHandler(gui.handleBuild),
+		},
+		{
+			ViewName: "scripts",
+			Key:      gui.getKey("universal.select"),
+			Modifier: gocui.ModNone,
+			Handler:  gui.wrappedHandler(gui.handleRunScript),
 		},
 	}
 

@@ -86,7 +86,7 @@ func (gui *Gui) handleMouseDownMain(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	}
 
-	return nil
+	return gui.switchFocus(gui.g, gui.g.CurrentView(), gui.getMainView())
 }
 
 func (gui *Gui) handleMouseDownSecondary(g *gocui.Gui, v *gocui.View) error {

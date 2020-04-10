@@ -104,7 +104,7 @@ func (gui *Gui) newLineFocused(g *gocui.Gui, v *gocui.View) error {
 	case "main":
 		v.Highlight = false
 		return nil
-	case "search":
+	case "search", "confirmation":
 		return nil
 	default:
 		panic(gui.Tr.SLocalize("NoViewMachingNewLineFocusedSwitchStatement"))
