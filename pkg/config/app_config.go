@@ -305,6 +305,8 @@ keybinding:
     prevScreenMode: '_'
     undo: 'z'
     redo: '<c-z>'
+    install: 'i'
+    cleanInstall: 'I'
   status:
     checkForUpdate: 'u'
   main:

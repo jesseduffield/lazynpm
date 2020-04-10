@@ -25,3 +25,14 @@ func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 	}
 	return nil
 }
+
+// linkPathMap returns the set of link paths of the current package's dependencies
+func (gui *Gui) linkPathMap() map[string]bool {
+	linkPathMap := map[string]bool{}
+	for _, dep := range gui.State.Deps {
+		if dep.Linked() {
+			linkPathMap[dep.LinkPath] = true
+		}
+	}
+	return linkPathMap
+}

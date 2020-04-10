@@ -116,15 +116,31 @@ func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
 
 	var cmdStr string
 	if selectedPkg == currentPkg {
-		cmdStr = "npm link"
+		if gui.linkPathMap()[selectedPkg.Path] {
+			cmdStr = "npm unlink"
+		} else {
+			cmdStr = "npm link"
+		}
 	} else {
-		cmdStr = fmt.Sprintf("npm link %s", selectedPkg.Config.Name)
+		if gui.linkPathMap()[selectedPkg.Path] {
+			cmdStr = fmt.Sprintf("npm unlink --no-save %s", selectedPkg.Config.Name)
+		} else {
+			cmdStr = fmt.Sprintf("npm link %s", selectedPkg.Config.Name)
+		}
 	}
 
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newCmdTask("main", cmd); err != nil {
+	if err := gui.newPtyTask("main", cmd); err != nil {
 		gui.Log.Error(err)
 	}
 
+	return nil
+}
+
+func (gui *Gui) handleInstall() error {
+	cmd := gui.OSCommand.ExecutableFromString("npm install")
+	if err := gui.newPtyTask("main", cmd); err != nil {
+		gui.Log.Error(err)
+	}
 	return nil
 }
