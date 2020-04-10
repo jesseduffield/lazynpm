@@ -116,7 +116,7 @@ func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
 
 	var cmdStr string
 	if selectedPkg == currentPkg {
-		if gui.linkPathMap()[selectedPkg.Path] {
+		if selectedPkg.LinkedGlobally {
 			cmdStr = "npm unlink"
 		} else {
 			cmdStr = "npm link"

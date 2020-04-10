@@ -32,8 +32,9 @@ func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool) 
 		attr = color.FgYellow
 	}
 	line := utils.ColoredString(p.Config.Name, attr)
+	linkedArg := ""
 	if linkedToCurrentPackage {
-		line += utils.ColoredString(" (linked)", color.FgCyan)
+		linkedArg = utils.ColoredString("(linked)", color.FgCyan)
 	}
-	return []string{line}
+	return []string{line, linkedArg, utils.ColoredString(p.Path, color.FgBlue)}
 }
