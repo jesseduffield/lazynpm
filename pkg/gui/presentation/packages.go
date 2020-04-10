@@ -7,19 +7,32 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
-func GetPackageListDisplayStrings(packages []*commands.Package) [][]string {
+func GetPackageListDisplayStrings(packages []*commands.Package, deps []*commands.Dependency) [][]string {
 	lines := make([][]string, len(packages))
 
+	// we need to work out all the link paths from the deps
+	linkPathMap := map[string]bool{}
+	for _, dep := range deps {
+		if dep.Linked() {
+			linkPathMap[dep.LinkPath] = true
+		}
+	}
+
 	for i := range packages {
-		lines[i] = getPackageDisplayStrings(packages[i])
+		pkg := packages[i]
+		lines[i] = getPackageDisplayStrings(pkg, linkPathMap[pkg.Path])
 	}
 
 	return lines
 }
 
-func getPackageDisplayStrings(p *commands.Package) []string {
-	line := utils.ColoredString(p.Config.Name, theme.DefaultTextColor)
-	if p.Linked {
+func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool) []string {
+	attr := theme.DefaultTextColor
+	if p.LinkedGlobally {
+		attr = color.FgYellow
+	}
+	line := utils.ColoredString(p.Config.Name, attr)
+	if linkedToCurrentPackage {
 		line += utils.ColoredString(" (linked)", color.FgCyan)
 	}
 	return []string{line}

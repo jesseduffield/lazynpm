@@ -56,7 +56,8 @@ type Repository struct {
 type Package struct {
 	Config PackageConfig
 	Path   string
-	Linked bool
+	// for when something is linked to the global node_modules folder
+	LinkedGlobally bool
 }
 
 type PackageConfig struct {

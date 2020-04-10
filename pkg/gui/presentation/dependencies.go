@@ -20,7 +20,7 @@ func getDepDisplayStrings(p *commands.Dependency) []string {
 
 	localVersionCol := utils.ColoredString(p.LocalVersion, color.FgYellow)
 	if p.Linked() {
-		localVersionCol = utils.ColoredString(p.LinkPath, color.FgCyan)
+		localVersionCol = utils.ColoredString("linked: "+p.LinkPath, color.FgCyan)
 	}
 
 	return []string{p.Name, utils.ColoredString(p.Version, color.FgMagenta), localVersionCol}

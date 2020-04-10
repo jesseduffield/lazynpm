@@ -433,6 +433,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.handleCheckoutPackage,
 		},
+		{
+			ViewName: "packages",
+			Key:      gui.getKey("packages.link"),
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleLinkPackage,
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {

@@ -310,6 +310,8 @@ keybinding:
   main:
     toggleDragSelect: 'v'
     toggleDragSelect-alt: 'V'
+  packages:
+    link: 'l'
 `)
 }
 

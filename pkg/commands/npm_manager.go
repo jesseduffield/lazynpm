@@ -141,9 +141,9 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 		}
 
 		pkgs = append(pkgs, &Package{
-			Config: *pkgConfig,
-			Path:   path,
-			Linked: linked,
+			Config:         *pkgConfig,
+			Path:           path,
+			LinkedGlobally: linked,
 		})
 	}
 	return pkgs, nil

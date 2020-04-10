@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"fmt"
+
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
@@ -35,7 +37,7 @@ func (gui *Gui) refreshPackages() error {
 	}
 
 	gui.g.Update(func(g *gocui.Gui) error {
-		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages)
+		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.State.Deps)
 		gui.renderDisplayStrings(packagesView, displayStrings)
 
 		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps)
@@ -98,4 +100,31 @@ func (gui *Gui) handleCheckoutPackage(g *gocui.Gui, v *gocui.View) error {
 	gui.State.Panels.Scripts.SelectedLine = 0
 
 	return gui.refreshPackages()
+}
+
+func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
+	// if it's the current package we should globally link it, otherwise we should link it to here
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	currentPkg := gui.currentPackage()
+	if currentPkg == nil {
+		return nil
+	}
+
+	var cmdStr string
+	if selectedPkg == currentPkg {
+		cmdStr = "npm link"
+	} else {
+		cmdStr = fmt.Sprintf("npm link %s", selectedPkg.Config.Name)
+	}
+
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newCmdTask("main", cmd); err != nil {
+		gui.Log.Error(err)
+	}
+
+	return nil
 }
