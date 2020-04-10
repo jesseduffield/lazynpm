@@ -16,12 +16,14 @@ func GetDependencyListDisplayStrings(dependencies []*commands.Dependency) [][]st
 	return lines
 }
 
-func getDepDisplayStrings(p *commands.Dependency) []string {
+func getDepDisplayStrings(d *commands.Dependency) []string {
 
-	localVersionCol := utils.ColoredString(p.LocalVersion, color.FgYellow)
-	if p.Linked() {
-		localVersionCol = utils.ColoredString("linked: "+p.LinkPath, color.FgCyan)
+	localVersionCol := ""
+	if d.Linked() {
+		localVersionCol = utils.ColoredString("linked: "+d.LinkPath, color.FgCyan)
+	} else if d.PackageConfig != nil {
+		localVersionCol = utils.ColoredString(d.PackageConfig.Version, color.FgYellow)
 	}
 
-	return []string{p.Name, utils.ColoredString(p.Version, color.FgMagenta), localVersionCol}
+	return []string{d.Name, utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
 }

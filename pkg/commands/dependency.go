@@ -1,11 +1,11 @@
 package commands
 
 type Dependency struct {
-	Name         string
-	Version      string
-	LinkPath     string
-	Present      bool
-	LocalVersion string
+	Name          string
+	Version       string
+	LinkPath      string
+	Present       bool
+	PackageConfig *PackageConfig
 }
 
 func (d *Dependency) Linked() bool {

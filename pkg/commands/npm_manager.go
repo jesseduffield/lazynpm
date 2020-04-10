@@ -4,12 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/buger/jsonparser"
 	"github.com/jesseduffield/lazynpm/pkg/config"
 	"github.com/jesseduffield/lazynpm/pkg/i18n"
 	"github.com/jinzhu/copier"
@@ -42,7 +40,7 @@ func NewNpmManager(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Localizer, 
 	}, nil
 }
 
-func (m *NpmManager) UnmarshalPackage(r io.Reader) (*PackageConfig, error) {
+func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error) {
 	var pkgInput *PackageConfigInput
 	d := json.NewDecoder(r)
 	if err := d.Decode(&pkgInput); err != nil {
@@ -130,8 +128,7 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 			m.Log.Error(err)
 			continue
 		}
-		pkgConfig, err := m.UnmarshalPackage(file)
-
+		pkgConfig, err := m.UnmarshalPackageConfig(file)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +172,6 @@ func (m *NpmManager) ChdirToPackageRoot() (bool, error) {
 }
 
 func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
-	// for each dep, check whether it's in node modules
 	deps := currentPkg.SortedDependencies()
 
 	for _, dep := range deps {
@@ -190,18 +186,17 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 
 		// get the actual version of the package in node modules
 		packageConfigPath := filepath.Join(nodeModulesPath, "package.json")
-		bytes, err := ioutil.ReadFile(packageConfigPath)
+		file, err := os.OpenFile(packageConfigPath, os.O_RDONLY, 0644)
 		if err != nil {
 			m.Log.Error(err)
 			continue
 		}
-
-		localVersion, err := jsonparser.GetString(bytes, "version")
+		pkgConfig, err := m.UnmarshalPackageConfig(file)
 		if err != nil {
 			// swallowing error
 			m.Log.Error(err)
 		} else {
-			dep.LocalVersion = localVersion
+			dep.PackageConfig = pkgConfig
 		}
 
 		isSymlink := fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
