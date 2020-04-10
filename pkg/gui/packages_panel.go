@@ -1,12 +1,6 @@
 package gui
 
 import (
-
-	// "io"
-	// "io/ioutil"
-
-	// "strings"
-
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"

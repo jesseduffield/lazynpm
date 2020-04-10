@@ -52,6 +52,12 @@ type Repository struct {
 }
 
 type Package struct {
+	Config PackageConfig
+	Path   string
+	Linked bool
+}
+
+type PackageConfig struct {
 	Name        string
 	Version     string
 	License     string

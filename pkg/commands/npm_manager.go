@@ -31,7 +31,7 @@ func NewNpmManager(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Localizer, 
 	}, nil
 }
 
-func (m *NpmManager) UnmarshalPackage(r io.Reader) (*Package, error) {
+func (m *NpmManager) UnmarshalPackage(r io.Reader) (*PackageConfig, error) {
 	var pkgInput *PackageInput
 	d := json.NewDecoder(r)
 	if err := d.Decode(&pkgInput); err != nil {
