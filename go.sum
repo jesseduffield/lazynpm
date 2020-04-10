@@ -97,6 +97,8 @@ github.com/jesseduffield/termbox-go v0.0.0-20200130214842-1d31d1faa3c9/go.mod h1
 github.com/jesseduffield/termbox-go v0.0.0-20200405031649-4dc645f7e8ba h1:hWBdYchM9nZ2+GldroQQ627ISOC83iRDdpfwY+uyJeI=
 github.com/jesseduffield/termbox-go v0.0.0-20200405031649-4dc645f7e8ba/go.mod h1:anMibpZtqNxjDbxrcDEAwSdaJ37vyUeM1f/M4uekib4=
 github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
+github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a h1:zPPuIq2jAWWPTrGt70eK/BSch+gFAGrNzecsoENgu2o=
+github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a/go.mod h1:yL958EeXv8Ylng6IfnvG4oflryUi3vgA3xPs9hmII1s=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
 github.com/jtolds/gls v4.20.0+incompatible/go.mod h1:QJZ7F/aHp+rZTRtaJ1ow/lLfFfVYBRgL+9YlvaHOwJU=
