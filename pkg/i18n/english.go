@@ -238,6 +238,12 @@ func addEnglish(i18nObject *i18n.Bundle) error {
 		}, &i18n.Message{
 			ID:    "(reset)",
 			Other: "(reset)",
+		}, &i18n.Message{
+			ID:    "NoDependencies",
+			Other: "No dependencies",
+		}, &i18n.Message{
+			ID:    "NoScripts",
+			Other: "No Scripts",
 		},
 	)
 }

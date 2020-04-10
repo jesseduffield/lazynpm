@@ -35,7 +35,7 @@ type PackageConfigInput struct {
 	DevDependencies      map[string]string `json:"devDependencies"`
 	PeerDependencies     map[string]string `json:"peerDependencies"`
 	OptionalDependencies map[string]string `json:"optionalDependencies"`
-	BundleDependencies   bool              `json:"bundleDependencies"`
+	BundledDependencies  []string          `json:"bundleDependencies"`
 }
 
 type Author struct {
@@ -88,16 +88,29 @@ type PackageConfig struct {
 	DevDependencies      map[string]string
 	PeerDependencies     map[string]string
 	OptionalDependencies map[string]string
-	BundleDependencies   bool
+	BundledDependencies  []string
 }
 
-func (p *Package) SortedDeps() []*Dependency {
-	deps := make([]*Dependency, 0, len(p.Config.Dependencies))
-	for name, version := range p.Config.Dependencies {
+func (p *Package) SortedDepsGeneric(depMap map[string]string) []*Dependency {
+	deps := make([]*Dependency, 0, len(depMap))
+	for name, version := range depMap {
 		deps = append(deps, &Dependency{Name: name, Version: version})
 	}
-	sort.Slice(deps, func(i, j int) bool { return strings.Compare(deps[i].Name, deps[j].Name) > 0 })
+	sort.Slice(deps, func(i, j int) bool { return strings.Compare(deps[i].Name, deps[j].Name) < 0 })
 	return deps
+}
+
+func (p *Package) SortedDependencies() []*Dependency {
+	return p.SortedDepsGeneric(p.Config.Dependencies)
+}
+func (p *Package) SortedDevDependencies() []*Dependency {
+	return p.SortedDepsGeneric(p.Config.DevDependencies)
+}
+func (p *Package) SortedPeerDependencies() []*Dependency {
+	return p.SortedDepsGeneric(p.Config.PeerDependencies)
+}
+func (p *Package) SortedOptionalDependencies() []*Dependency {
+	return p.SortedDepsGeneric(p.Config.OptionalDependencies)
 }
 
 func (p *Package) SortedScripts() []*Script {
@@ -105,6 +118,6 @@ func (p *Package) SortedScripts() []*Script {
 	for name, command := range p.Config.Scripts {
 		scripts = append(scripts, &Script{Name: name, Command: command})
 	}
-	sort.Slice(scripts, func(i, j int) bool { return strings.Compare(scripts[i].Name, scripts[j].Name) > 0 })
+	sort.Slice(scripts, func(i, j int) bool { return strings.Compare(scripts[i].Name, scripts[j].Name) < 0 })
 	return scripts
 }

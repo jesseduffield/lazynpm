@@ -1,7 +1,9 @@
 package presentation
 
 import (
+	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 func GetDependencyListDisplayStrings(dependencies []*commands.Dependency) [][]string {
@@ -15,5 +17,11 @@ func GetDependencyListDisplayStrings(dependencies []*commands.Dependency) [][]st
 }
 
 func getDepDisplayStrings(p *commands.Dependency) []string {
-	return []string{p.Name, p.Version}
+
+	localVersionCol := utils.ColoredString(p.LocalVersion, color.FgYellow)
+	if p.Linked() {
+		localVersionCol = utils.ColoredString(p.LinkPath, color.FgCyan)
+	}
+
+	return []string{p.Name, utils.ColoredString(p.Version, color.FgMagenta), localVersionCol}
 }

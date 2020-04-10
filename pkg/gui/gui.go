@@ -119,6 +119,7 @@ type searchingState struct {
 
 type guiState struct {
 	Packages          []*commands.Package
+	Deps              []*commands.Dependency
 	MenuItemCount     int // can't store the actual list because it's of interface{} type
 	PreviousView      string
 	Updating          bool
@@ -306,7 +307,6 @@ func (gui *Gui) loadNewRepo() error {
 // updateRecentRepoList registers the fact that we opened lazynpm in this package,
 // so that appears in the packages view next time we open the program in another package
 func (gui *Gui) updateRecentRepoList() error {
-	recentPackages := gui.Config.GetAppState().RecentPackages
 	ok, err := gui.NpmManager.ChdirToPackageRoot()
 	if err != nil {
 		return err
@@ -316,17 +316,28 @@ func (gui *Gui) updateRecentRepoList() error {
 		if err != nil {
 			return err
 		}
-		isNew, recentPackages := newRecentPackagesList(recentPackages, currentPackagePath)
-		gui.Config.SetIsNewPackage(isNew)
-		gui.Config.GetAppState().RecentPackages = recentPackages
-		return gui.Config.SaveAppState()
+		return gui.sendPackageToTop(currentPackagePath)
 	}
 
+	recentPackages := gui.Config.GetAppState().RecentPackages
 	if len(recentPackages) > 0 {
 		// TODO: ensure this actually contains a package.json file (meaning it won't be filtered out)
 		return os.Chdir(recentPackages[0])
 	}
 	return errors.New("Must open lazynpm in an npm package")
+}
+
+func (gui *Gui) sendPackageToTop(path string) error {
+	// in case we're not already there, chdir to path
+	if err := os.Chdir(path); err != nil {
+		return err
+	}
+
+	recentPackages := gui.Config.GetAppState().RecentPackages
+	isNew, recentPackages := newRecentPackagesList(recentPackages, path)
+	gui.Config.SetIsNewPackage(isNew)
+	gui.Config.GetAppState().RecentPackages = recentPackages
+	return gui.Config.SaveAppState()
 }
 
 // newRecentPackagesList returns a new repo list with a new entry but only when it doesn't exist yet

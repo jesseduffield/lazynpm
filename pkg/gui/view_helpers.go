@@ -98,9 +98,9 @@ func (gui *Gui) newLineFocused(g *gocui.Gui, v *gocui.View) error {
 	case "packages":
 		return gui.handlePackageSelect(g, v)
 	case "deps":
-		return gui.handlePackageSelect(g, v)
+		return gui.handleDepSelect(g, v)
 	case "scripts":
-		return gui.handlePackageSelect(g, v)
+		return gui.handleScriptSelect(g, v)
 	case "main":
 		v.Highlight = false
 		return nil

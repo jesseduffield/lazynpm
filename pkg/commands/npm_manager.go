@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/buger/jsonparser"
 	"github.com/jesseduffield/lazynpm/pkg/config"
 	"github.com/jesseduffield/lazynpm/pkg/i18n"
 	"github.com/jinzhu/copier"
@@ -118,12 +120,12 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 	pkgs := make([]*Package, 0, len(paths))
 
 	for _, path := range paths {
-		packageJsonPath := filepath.Join(path, "package.json")
-		if !FileExists(packageJsonPath) {
+		packageConfigPath := filepath.Join(path, "package.json")
+		if !FileExists(packageConfigPath) {
 			continue
 		}
 
-		file, err := os.OpenFile(packageJsonPath, os.O_RDONLY, 0644)
+		file, err := os.OpenFile(packageConfigPath, os.O_RDONLY, 0644)
 		if err != nil {
 			m.Log.Error(err)
 			continue
@@ -170,4 +172,49 @@ func (m *NpmManager) ChdirToPackageRoot() (bool, error) {
 		}
 		dir = newDir
 	}
+}
+
+func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
+	// for each dep, check whether it's in node modules
+	deps := currentPkg.SortedDependencies()
+
+	for _, dep := range deps {
+		nodeModulesPath := filepath.Join(currentPkg.Path, "node_modules", dep.Name)
+		fileInfo, err := os.Lstat(nodeModulesPath)
+		if err != nil {
+			// must not be present in node modules
+			m.Log.Error(err)
+			continue
+		}
+		dep.Present = true
+
+		// get the actual version of the package in node modules
+		packageConfigPath := filepath.Join(nodeModulesPath, "package.json")
+		bytes, err := ioutil.ReadFile(packageConfigPath)
+		if err != nil {
+			m.Log.Error(err)
+			continue
+		}
+
+		localVersion, err := jsonparser.GetString(bytes, "version")
+		if err != nil {
+			// swallowing error
+			m.Log.Error(err)
+		} else {
+			dep.LocalVersion = localVersion
+		}
+
+		isSymlink := fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
+		if !isSymlink {
+			continue
+		}
+
+		linkPath, err := filepath.EvalSymlinks(nodeModulesPath)
+		if err != nil {
+			return nil, err
+		}
+		dep.LinkPath = linkPath
+	}
+
+	return deps, nil
 }

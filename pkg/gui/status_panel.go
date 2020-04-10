@@ -9,10 +9,8 @@ import (
 
 // never call this on its own, it should only be called from within refreshCommits()
 func (gui *Gui) refreshStatus() {
-	status := "current package"
-
 	gui.g.Update(func(*gocui.Gui) error {
-		gui.setViewContent(gui.g, gui.getStatusView(), status)
+		gui.setViewContent(gui.g, gui.getStatusView(), gui.currentPackage().Config.Name)
 		return nil
 	})
 }
@@ -72,12 +70,12 @@ func (gui *Gui) handleEditConfig(g *gocui.Gui, v *gocui.View) error {
 }
 
 func lazynpmTitle() string {
-	return `
-	__
-	[  |
-	 | |  ,--.   ____    _   __  _ .--.  _ .--.   _ .--..--.
-	 | | '_\ : [_   ]  [ \ [  ][ \.-. |[ '/'\\ \[ \.-. .-. |
-	 | | // | |, .' /_   \ '/ /  | | | | | \__/ | | | | | | |
-	[___]'-;__/[_____][\_:  /  [___||__]| ;.__/ [___||__||__]
-											\__.'           [__|                  `
+	return `  _
+ | |
+ | | __ _ _____   _ _ __  _ __  _ __ ___
+ | |/ _` + "`" + ` |_  / | | | '_ \| '_ \| '_ ` + "`" + ` _ \
+ | | (_| |/ /| |_| | | | | |_) | | | | | |
+ |_|\__,_/___|\__, |_| |_| .__/|_| |_| |_|
+               __/ |     | |
+              |___/      |_|`
 }

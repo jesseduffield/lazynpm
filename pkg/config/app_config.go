@@ -243,7 +243,6 @@ func GetDefaultConfig() []byte {
   scrollHeight: 2
   scrollPastBottom: true
   mouseEvents: true
-  skipUnstageLineWarning: false
   sidePanelWidth: 0.3333
   theme:
     lightTheme: false
@@ -256,8 +255,6 @@ func GetDefaultConfig() []byte {
       - blue
     selectedLineBgColor:
       - blue
-  commitLength:
-    show: true
 update:
   method: prompt # can be: prompt | background | never
   days: 14 # how often a update is checked for
@@ -301,74 +298,18 @@ keybinding:
     scrollUpMain-alt2: '<c-u>'
     scrollDownMain-alt2: '<c-d>'
     executeCustomCommand: ':'
-    createRebaseOptionsMenu: 'm'
-    pushFiles: 'P'
-    pullFiles: 'p'
     refresh: 'R'
-    createPatchOptionsMenu: '<c-p>'
     nextTab: ']'
     prevTab: '['
     nextScreenMode: '+'
     prevScreenMode: '_'
     undo: 'z'
     redo: '<c-z>'
-    filteringMenu: <c-s>
-    diffingMenu: '<c-e>'
   status:
     checkForUpdate: 'u'
-    recentRepos: '<enter>'
-  files:
-    commitChanges: 'c'
-    commitChangesWithoutHook: 'w'
-    amendLastCommit: 'A'
-    commitChangesWithEditor: 'C'
-    ignoreFile: 'i'
-    refreshFiles: 'r'
-    stashAllChanges: 's'
-    viewStashOptions: 'S'
-    toggleStagedAll: 'a'
-    viewResetOptions: 'D'
-    fetch: 'f'
-  branches:
-    createPullRequest: 'o'
-    checkoutBranchByName: 'c'
-    forceCheckoutBranch: 'F'
-    rebaseBranch: 'r'
-    renameBranch: 'R'
-    mergeIntoCurrentBranch: 'M'
-    viewGitFlowOptions: 'i'
-    fastForward: 'f'
-    pushTag: 'P'
-    setUpstream: 'u'
-    fetchRemote: 'f'
-  commits:
-    squashDown: 's'
-    renameCommit: 'r'
-    renameCommitWithEditor: 'R'
-    viewResetOptions: 'g'
-    markCommitAsFixup: 'f'
-    createFixupCommit: 'F'
-    squashAboveCommits: 'S'
-    moveDownCommit: '<c-j>'
-    moveUpCommit: '<c-k>'
-    amendToCommit: 'A'
-    pickCommit: 'p'
-    revertCommit: 't'
-    cherryPickCopy: 'c'
-    cherryPickCopyRange: 'C'
-    pasteCommits: 'v'
-    tagCommit: 'T'
-    checkoutCommit: '<space>'
-    resetCherryPick: '<c-R>'
-  stash:
-    popStash: 'g'
-  commitFiles:
-    checkoutCommitFile: 'c'
   main:
     toggleDragSelect: 'v'
     toggleDragSelect-alt: 'V'
-    toggleSelectHunk: 'a'
-    pickBothHunks: 'b'
 `)
 }
 

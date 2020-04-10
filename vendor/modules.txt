@@ -1,3 +1,6 @@
+# github.com/buger/jsonparser v0.0.0-20200322175846-f7e751efca13
+## explicit
+github.com/buger/jsonparser
 # github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 ## explicit
 github.com/cloudfoundry/jibber_jabber

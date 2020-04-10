@@ -427,6 +427,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Modifier: gocui.ModNone,
 			Handler:  gui.scrollDownConfirmationPanel,
 		},
+		{
+			ViewName: "packages",
+			Key:      gui.getKey("universal.select"),
+			Modifier: gocui.ModNone,
+			Handler:  gui.handleCheckoutPackage,
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {

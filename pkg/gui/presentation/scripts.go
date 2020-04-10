@@ -1,7 +1,9 @@
 package presentation
 
 import (
+	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 func GetScriptListDisplayStrings(scripts []*commands.Script) [][]string {
@@ -15,5 +17,5 @@ func GetScriptListDisplayStrings(scripts []*commands.Script) [][]string {
 }
 
 func getScriptDisplayStrings(p *commands.Script) []string {
-	return []string{p.Name, p.Command}
+	return []string{p.Name, utils.ColoredString(p.Command, color.FgBlue)}
 }

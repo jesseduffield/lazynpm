@@ -134,5 +134,24 @@ func (gui *Gui) getListViews() []*listView {
 			gui:                   gui,
 			rendersToMainView:     true,
 		},
+		{
+			viewName: "deps",
+			// TODO: handle more dep types
+			getItemsLength:        func() int { return len(gui.currentPackage().SortedDependencies()) },
+			getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Deps.SelectedLine },
+			handleFocus:           gui.handleDepSelect,
+			handleItemSelect:      gui.handleDepSelect,
+			gui:                   gui,
+			rendersToMainView:     true,
+		},
+		{
+			viewName:              "scripts",
+			getItemsLength:        func() int { return len(gui.currentPackage().SortedScripts()) },
+			getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Scripts.SelectedLine },
+			handleFocus:           gui.handleScriptSelect,
+			handleItemSelect:      gui.handleScriptSelect,
+			gui:                   gui,
+			rendersToMainView:     true,
+		},
 	}
 }

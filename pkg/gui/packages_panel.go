@@ -38,13 +38,15 @@ func (gui *Gui) refreshPackages() error {
 		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages)
 		gui.renderDisplayStrings(packagesView, displayStrings)
 
-		displayStrings = presentation.GetDependencyListDisplayStrings(gui.currentPackage().SortedDeps())
+		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps)
 		gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 
 		displayStrings = presentation.GetScriptListDisplayStrings(gui.currentPackage().SortedScripts())
 		gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 		return nil
 	})
+
+	gui.refreshStatus()
 
 	return nil
 }
@@ -66,6 +68,11 @@ func (gui *Gui) refreshStatePackages() error {
 		return err
 	}
 
+	gui.State.Deps, err = gui.NpmManager.GetDeps(gui.currentPackage())
+	if err != nil {
+		return err
+	}
+
 	gui.refreshSelectedLine(&gui.State.Panels.Packages.SelectedLine, len(gui.State.Packages))
 	return nil
 }
@@ -73,4 +80,22 @@ func (gui *Gui) refreshStatePackages() error {
 func (gui *Gui) onPackagesPanelSearchSelect(selectedLine int) error {
 	gui.State.Panels.Packages.SelectedLine = selectedLine
 	return gui.handlePackageSelect(gui.g, gui.getPackagesView())
+}
+
+func (gui *Gui) handleCheckoutPackage(g *gocui.Gui, v *gocui.View) error {
+	selectedPkg := gui.getSelectedPackage()
+
+	if selectedPkg == nil {
+		return nil
+	}
+
+	if err := gui.sendPackageToTop(selectedPkg.Path); err != nil {
+		return err
+	}
+
+	gui.State.Panels.Packages.SelectedLine = 0
+	gui.State.Panels.Deps.SelectedLine = 0
+	gui.State.Panels.Scripts.SelectedLine = 0
+
+	return gui.refreshPackages()
 }
