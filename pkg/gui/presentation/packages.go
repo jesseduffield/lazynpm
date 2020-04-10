@@ -11,13 +11,13 @@ func GetPackageListDisplayStrings(packages []*commands.Package) [][]string {
 	lines := make([][]string, len(packages))
 
 	for i := range packages {
-		lines[i] = getFileDisplayStrings(packages[i])
+		lines[i] = getPackageDisplayStrings(packages[i])
 	}
 
 	return lines
 }
 
-func getFileDisplayStrings(p *commands.Package) []string {
+func getPackageDisplayStrings(p *commands.Package) []string {
 	line := utils.ColoredString(p.Config.Name, theme.DefaultTextColor)
 	if p.Linked {
 		line += utils.ColoredString(" (linked)", color.FgCyan)

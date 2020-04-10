@@ -27,18 +27,23 @@ func (lv *listView) handleLineChange(change int) error {
 		return nil
 	}
 
+	view, err := lv.gui.g.View(lv.viewName)
+	if err != nil {
+		return err
+	}
+
 	lv.gui.changeSelectedLine(lv.getSelectedLineIdxPtr(), lv.getItemsLength(), change)
+	view.FocusPoint(0, *lv.getSelectedLineIdxPtr())
 
 	if lv.rendersToMainView {
 		if err := lv.gui.resetOrigin(lv.gui.getMainView()); err != nil {
 			return err
 		}
+		if err := lv.gui.resetOrigin(lv.gui.getSecondaryView()); err != nil {
+			return err
+		}
 	}
 
-	view, err := lv.gui.g.View(lv.viewName)
-	if err != nil {
-		return err
-	}
 	return lv.handleItemSelect(lv.gui.g, view)
 }
 
@@ -93,6 +98,9 @@ func (lv *listView) handleClick(g *gocui.Gui, v *gocui.View) error {
 
 	if lv.rendersToMainView {
 		if err := lv.gui.resetOrigin(lv.gui.getMainView()); err != nil {
+			return err
+		}
+		if err := lv.gui.resetOrigin(lv.gui.getSecondaryView()); err != nil {
 			return err
 		}
 	}

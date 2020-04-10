@@ -1,7 +1,6 @@
 package app
 
 import (
-	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -105,10 +104,6 @@ func NewApp(config config.AppConfigurer) (*App, error) {
 		return app, err
 	}
 
-	if err := app.setupPackage(); err != nil {
-		return app, err
-	}
-
 	app.NpmManager, err = commands.NewNpmManager(app.Log, app.OSCommand, app.Tr, app.Config)
 	if err != nil {
 		return app, err
@@ -119,33 +114,6 @@ func NewApp(config config.AppConfigurer) (*App, error) {
 		return app, err
 	}
 	return app, nil
-}
-
-func (app *App) setupPackage() error {
-	// ensure we have a package.json file here or in an ancestor directory
-	// if there's not, pick the first one from state or return an error
-	dir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	for {
-		if commands.FileExists("package.json") {
-			return nil
-		}
-
-		if err := os.Chdir(".."); err != nil {
-			return err
-		}
-
-		newDir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		if newDir == dir {
-			return errors.New("must start lazynpm in an npm package")
-		}
-		dir = newDir
-	}
 }
 
 func (app *App) Run() error {

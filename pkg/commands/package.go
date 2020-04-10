@@ -1,8 +1,10 @@
 package commands
 
-import "encoding/json"
-
-// golang doesn't support union types, but fields like 'author' and 'repository' can actually be strings or objects so we'll need to keep that in mind when parsing
+import (
+	"encoding/json"
+	"sort"
+	"strings"
+)
 
 type PackageConfigInput struct {
 	Name        string   `json:"name"`
@@ -87,4 +89,22 @@ type PackageConfig struct {
 	PeerDependencies     map[string]string
 	OptionalDependencies map[string]string
 	BundleDependencies   bool
+}
+
+func (p *Package) SortedDeps() []*Dependency {
+	deps := make([]*Dependency, 0, len(p.Config.Dependencies))
+	for name, version := range p.Config.Dependencies {
+		deps = append(deps, &Dependency{Name: name, Version: version})
+	}
+	sort.Slice(deps, func(i, j int) bool { return strings.Compare(deps[i].Name, deps[j].Name) > 0 })
+	return deps
+}
+
+func (p *Package) SortedScripts() []*Script {
+	scripts := make([]*Script, 0, len(p.Config.Scripts))
+	for name, command := range p.Config.Scripts {
+		scripts = append(scripts, &Script{Name: name, Command: command})
+	}
+	sort.Slice(scripts, func(i, j int) bool { return strings.Compare(scripts[i].Name, scripts[j].Name) > 0 })
+	return scripts
 }

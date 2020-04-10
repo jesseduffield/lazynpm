@@ -40,8 +40,8 @@ type AppConfigurer interface {
 	WriteToUserConfig(string, interface{}) error
 	SaveAppState() error
 	LoadAppState() error
-	SetIsNewRepo(bool)
-	GetIsNewRepo() bool
+	SetIsNewPackage(bool)
+	GetIsNewPackage() bool
 }
 
 // NewAppConfig makes a new app config
@@ -75,13 +75,13 @@ func NewAppConfig(name, version, commit, date string, buildSource string, debugg
 	return appConfig, nil
 }
 
-// GetIsNewRepo returns known repo boolean
-func (c *AppConfig) GetIsNewRepo() bool {
+// GetIsNewPackage returns known repo boolean
+func (c *AppConfig) GetIsNewPackage() bool {
 	return c.IsNewPackage
 }
 
-// SetIsNewRepo set if the current repo is known
-func (c *AppConfig) SetIsNewRepo(isNew bool) {
+// SetIsNewPackage set if the current repo is known
+func (c *AppConfig) SetIsNewPackage(isNew bool) {
 	c.IsNewPackage = isNew
 }
 

@@ -146,3 +146,28 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 	}
 	return pkgs, nil
 }
+
+func (m *NpmManager) ChdirToPackageRoot() (bool, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return false, err
+	}
+	for {
+		if FileExists("package.json") {
+			return true, nil
+		}
+
+		if err := os.Chdir(".."); err != nil {
+			return false, err
+		}
+
+		newDir, err := os.Getwd()
+		if err != nil {
+			return false, err
+		}
+		if newDir == dir {
+			return false, nil
+		}
+		dir = newDir
+	}
+}

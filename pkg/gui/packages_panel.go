@@ -16,25 +16,11 @@ func (gui *Gui) getSelectedPackage() *commands.Package {
 }
 
 func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
-	return nil
-}
-
-func (gui *Gui) selectPackage() error {
-	gui.getPackagesView().FocusPoint(0, gui.State.Panels.Packages.SelectedLine)
-
 	pkg := gui.getSelectedPackage()
 	if pkg == nil {
 		gui.getMainView().Title = ""
 		return gui.newStringTask("main", gui.Tr.SLocalize("NoChangedPackages"))
 	}
-
-	if err := gui.resetOrigin(gui.getMainView()); err != nil {
-		return err
-	}
-	if err := gui.resetOrigin(gui.getSecondaryView()); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -51,10 +37,23 @@ func (gui *Gui) refreshPackages() error {
 	gui.g.Update(func(g *gocui.Gui) error {
 		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages)
 		gui.renderDisplayStrings(packagesView, displayStrings)
+
+		displayStrings = presentation.GetDependencyListDisplayStrings(gui.currentPackage().SortedDeps())
+		gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
+
+		displayStrings = presentation.GetScriptListDisplayStrings(gui.currentPackage().SortedScripts())
+		gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 		return nil
 	})
 
 	return nil
+}
+
+func (gui *Gui) currentPackage() *commands.Package {
+	if len(gui.State.Packages) == 0 {
+		panic("need at least one package")
+	}
+	return gui.State.Packages[0]
 }
 
 // specific functions

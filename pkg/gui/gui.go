@@ -134,6 +134,7 @@ type guiState struct {
 	PrevMainHeight    int
 	OldInformation    string
 	StartupStage      int // one of INITIAL and COMPLETE. Allows us to not load everything at once
+	CurrentPackageIdx int
 }
 
 func (gui *Gui) resetState() {
@@ -306,14 +307,26 @@ func (gui *Gui) loadNewRepo() error {
 // so that appears in the packages view next time we open the program in another package
 func (gui *Gui) updateRecentRepoList() error {
 	recentPackages := gui.Config.GetAppState().RecentPackages
-	currentRepo, err := os.Getwd()
+	ok, err := gui.NpmManager.ChdirToPackageRoot()
 	if err != nil {
 		return err
 	}
-	isNew, recentPackages := newRecentPackagesList(recentPackages, currentRepo)
-	gui.Config.SetIsNewRepo(isNew)
-	gui.Config.GetAppState().RecentPackages = recentPackages
-	return gui.Config.SaveAppState()
+	if ok {
+		currentPackagePath, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		isNew, recentPackages := newRecentPackagesList(recentPackages, currentPackagePath)
+		gui.Config.SetIsNewPackage(isNew)
+		gui.Config.GetAppState().RecentPackages = recentPackages
+		return gui.Config.SaveAppState()
+	}
+
+	if len(recentPackages) > 0 {
+		// TODO: ensure this actually contains a package.json file (meaning it won't be filtered out)
+		return os.Chdir(recentPackages[0])
+	}
+	return errors.New("Must open lazynpm in an npm package")
 }
 
 // newRecentPackagesList returns a new repo list with a new entry but only when it doesn't exist yet
