@@ -121,14 +121,6 @@ func NewApp(config config.AppConfigurer) (*App, error) {
 	return app, nil
 }
 
-func fileExists(filename string) bool {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false
-	}
-	return !info.IsDir()
-}
-
 func (app *App) setupPackage() error {
 	// ensure we have a package.json file here or in an ancestor directory
 	// if there's not, pick the first one from state or return an error
@@ -137,7 +129,7 @@ func (app *App) setupPackage() error {
 		return err
 	}
 	for {
-		if fileExists("package.json") {
+		if commands.FileExists("package.json") {
 			return nil
 		}
 

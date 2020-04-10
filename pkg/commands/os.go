@@ -317,17 +317,6 @@ func (c *OSCommand) Remove(filename string) error {
 	return WrapError(err)
 }
 
-// FileExists checks whether a file exists at the specified path
-func (c *OSCommand) FileExists(path string) (bool, error) {
-	if _, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
-}
-
 // RunPreparedCommand takes a pointer to an exec.Cmd and runs it
 // this is useful if you need to give your command some environment variables
 // before running it
@@ -453,4 +442,12 @@ func RunLineOutputCmd(cmd *exec.Cmd, onLine func(line string) (bool, error)) err
 
 	cmd.Wait()
 	return nil
+}
+
+func FileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

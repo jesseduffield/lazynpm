@@ -68,7 +68,7 @@ func (gui *Gui) refreshPackages() error {
 func (gui *Gui) refreshStatePackages() error {
 	// get files to stage
 	var err error
-	gui.State.Packages, err = gui.NpmManager.GetPackages()
+	gui.State.Packages, err = gui.NpmManager.GetPackages(gui.Config.GetAppState().RecentPackages)
 	if err != nil {
 		return err
 	}
