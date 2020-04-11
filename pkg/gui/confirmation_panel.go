@@ -184,5 +184,9 @@ func (gui *Gui) createErrorPanel(message string) error {
 }
 
 func (gui *Gui) surfaceError(err error) error {
+	if err == nil {
+		return nil
+	}
+
 	return gui.createErrorPanel(err.Error())
 }

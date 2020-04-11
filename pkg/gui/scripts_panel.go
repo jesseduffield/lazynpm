@@ -22,12 +22,7 @@ func (gui *Gui) getSelectedScript() *commands.Script {
 }
 
 func (gui *Gui) getScripts() []*commands.Script {
-	currentPackage := gui.currentPackage()
-	if currentPackage == nil {
-		return nil
-	}
-
-	return currentPackage.SortedScripts()
+	return gui.currentPackage().SortedScripts()
 }
 
 func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
@@ -51,4 +46,14 @@ func (gui *Gui) handleRunScript() error {
 		}
 		return nil
 	})
+}
+
+func (gui *Gui) handleRemoveScript() error {
+	script := gui.getSelectedScript()
+
+	return gui.createConfirmationPanel(gui.getScriptsView(), true, "Remove script", fmt.Sprintf("are you sure you want to remove script `%s`?", script.Name), func(g *gocui.Gui, v *gocui.View) error {
+		return gui.surfaceError(
+			gui.NpmManager.RemoveScript(script.Name, gui.currentPackage().ConfigPath()),
+		)
+	}, nil)
 }

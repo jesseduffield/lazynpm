@@ -2,7 +2,6 @@ package gui
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/fatih/color"
 	"github.com/go-errors/errors"
@@ -88,5 +87,5 @@ func (gui *Gui) handleOpenDepPackageConfig() error {
 		return gui.surfaceError(errors.New("dependency not in node_modules"))
 	}
 
-	return gui.openFile(filepath.Join("node_modules", selectedDep.Name, "package.json"))
+	return gui.openFile(selectedDep.ConfigPath())
 }

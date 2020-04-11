@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -110,4 +111,8 @@ func (p *Package) SortedScripts() []*Script {
 	}
 	sort.Slice(scripts, func(i, j int) bool { return strings.Compare(scripts[i].Name, scripts[j].Name) < 0 })
 	return scripts
+}
+
+func (p *Package) ConfigPath() string {
+	return filepath.Join(p.Path, "package.json")
 }

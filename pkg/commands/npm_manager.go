@@ -1,10 +1,12 @@
 package commands
 
 import (
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/buger/jsonparser"
 	"github.com/jesseduffield/lazynpm/pkg/config"
 	"github.com/jesseduffield/lazynpm/pkg/i18n"
 	"github.com/sirupsen/logrus"
@@ -122,8 +124,9 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 	deps := currentPkg.SortedDependencies()
 
 	for _, dep := range deps {
-		nodeModulesPath := filepath.Join(currentPkg.Path, "node_modules", dep.Name)
-		fileInfo, err := os.Lstat(nodeModulesPath)
+		depPath := filepath.Join(currentPkg.Path, "node_modules", dep.Name)
+		dep.Path = depPath
+		fileInfo, err := os.Lstat(depPath)
 		if err != nil {
 			// must not be present in node modules
 			m.Log.Error(err)
@@ -132,7 +135,7 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 		dep.Present = true
 
 		// get the actual version of the package in node modules
-		packageConfigPath := filepath.Join(nodeModulesPath, "package.json")
+		packageConfigPath := filepath.Join(depPath, "package.json")
 		file, err := os.OpenFile(packageConfigPath, os.O_RDONLY, 0644)
 		if err != nil {
 			m.Log.Error(err)
@@ -151,7 +154,7 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 			continue
 		}
 
-		linkPath, err := filepath.EvalSymlinks(nodeModulesPath)
+		linkPath, err := filepath.EvalSymlinks(depPath)
 		if err != nil {
 			return nil, err
 		}
@@ -159,4 +162,15 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 	}
 
 	return deps, nil
+}
+
+func (m *NpmManager) RemoveScript(scriptName string, packageJsonPath string) error {
+	config, err := ioutil.ReadFile(packageJsonPath)
+	if err != nil {
+		return err
+	}
+
+	updatedConfig := jsonparser.Delete(config, "scripts", scriptName)
+
+	return ioutil.WriteFile(packageJsonPath, updatedConfig, 0644)
 }

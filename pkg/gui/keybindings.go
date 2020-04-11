@@ -490,6 +490,13 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Description: "`npm run` script",
 		},
 		{
+			ViewName:    "scripts",
+			Key:         gui.getKey("universal.remove"),
+			Modifier:    gocui.ModNone,
+			Handler:     gui.wrappedHandler(gui.handleRemoveScript),
+			Description: "remove script from package.json",
+		},
+		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.install"),
 			Modifier:    gocui.ModNone,

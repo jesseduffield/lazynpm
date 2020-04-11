@@ -2,7 +2,6 @@ package gui
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/fatih/color"
 	"github.com/go-errors/errors"
@@ -111,13 +110,8 @@ func (gui *Gui) handleLinkPackage() error {
 		return nil
 	}
 
-	currentPkg := gui.currentPackage()
-	if currentPkg == nil {
-		return nil
-	}
-
 	var cmdStr string
-	if selectedPkg == currentPkg {
+	if selectedPkg == gui.currentPackage() {
 		return gui.surfaceError(errors.New("Cannot link a package to itself"))
 	}
 
@@ -145,12 +139,7 @@ func (gui *Gui) handleGlobalLinkPackage() error {
 		return nil
 	}
 
-	currentPkg := gui.currentPackage()
-	if currentPkg == nil {
-		return nil
-	}
-
-	if selectedPkg != currentPkg {
+	if selectedPkg != gui.currentPackage() {
 		return gui.surfaceError(errors.New("You can only globally link the current package. Hit space on this package to make it the current package."))
 	}
 
@@ -175,13 +164,8 @@ func (gui *Gui) handleInstall() error {
 		return nil
 	}
 
-	currentPkg := gui.currentPackage()
-	if currentPkg == nil {
-		return nil
-	}
-
 	var cmdStr string
-	if selectedPkg == currentPkg {
+	if selectedPkg == gui.currentPackage() {
 		cmdStr = "npm install"
 	} else {
 		cmdStr = "npm install --prefix " + selectedPkg.Path
@@ -200,13 +184,8 @@ func (gui *Gui) handleBuild() error {
 		return nil
 	}
 
-	currentPkg := gui.currentPackage()
-	if currentPkg == nil {
-		return nil
-	}
-
 	var cmdStr string
-	if selectedPkg == currentPkg {
+	if selectedPkg == gui.currentPackage() {
 		cmdStr = "npm run build"
 	} else {
 		cmdStr = "npm run build --prefix " + selectedPkg.Path
@@ -225,7 +204,7 @@ func (gui *Gui) handleOpenPackageConfig() error {
 		return nil
 	}
 
-	return gui.openFile(filepath.Join(selectedPkg.Path, "package.json"))
+	return gui.openFile(selectedPkg.ConfigPath())
 }
 
 func (gui *Gui) handleRemovePackage() error {
