@@ -1,7 +1,7 @@
 package presentation
 
 import (
-	"strings"
+	"fmt"
 
 	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
@@ -29,7 +29,7 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 		if ok {
 			localVersionCol = utils.ColoredString(d.PackageConfig.Version, color.FgGreen)
 		} else {
-			localVersionCol = utils.ColoredString(d.PackageConfig.Version+" "+status, color.FgYellow)
+			localVersionCol = utils.ColoredString(fmt.Sprintf("%s%s", d.PackageConfig.Version, statusMap()[status]), color.FgYellow)
 		}
 	} else {
 		localVersionCol = utils.ColoredString("missing", color.FgRed)
@@ -38,26 +38,29 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 	return []string{d.Name, utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
 }
 
-func semverStatus(version, constraint string) (string, bool) {
+func statusMap() map[int]string {
+	return map[int]string{
+		semver.BAD_AHEAD:  " (ahead)",
+		semver.BAD_BEHIND: " (behind)",
+		semver.BAD_EQUAL:  " (equal)",
+		semver.BAD:        "",
+	}
+}
+
+func semverStatus(version, constraint string) (int, bool) {
 	c, err := semver.NewConstraint(constraint)
 	if err != nil {
-		return "error parsing constraint", false
+		// could have a formatted message here but too lazy
+		return semver.BAD, false
 	}
 
 	v, err := semver.NewVersion(version)
 	if err != nil {
-		return "error parsing version", false
+		// could have a formatted message here but too lazy
+		return semver.BAD, false
 	}
 
-	ok, errors := c.Validate(v)
-	if ok {
-		return "", true
-	}
+	status := c.Status(v)
 
-	messages := make([]string, len(errors))
-	for i, err := range errors {
-		messages[i] = err.Error()
-	}
-
-	return strings.Join(messages, ","), false
+	return status, status == semver.GOOD
 }

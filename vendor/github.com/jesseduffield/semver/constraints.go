@@ -60,6 +60,37 @@ func (cs Constraints) Check(v *Version) bool {
 	return false
 }
 
+const (
+	BAD = iota
+	BAD_AHEAD
+	BAD_BEHIND
+	BAD_EQUAL
+	GOOD
+)
+
+// Status returns the status of the version in relation to the constraint e.g. AHEAD/BEHIND
+// This method assumes only a single constraint given
+func (cs Constraints) Status(v *Version) int {
+	good := cs.Check(v)
+
+	if good {
+		return GOOD
+	}
+
+	if len(cs.constraints) > 1 || len(cs.constraints[0]) > 1 {
+		return BAD
+	}
+
+	val := v.Compare(cs.constraints[0][0].con)
+	if val < 0 {
+		return BAD_BEHIND
+	} else if val > 0 {
+		return BAD_AHEAD
+	} else {
+		return BAD_EQUAL
+	}
+}
+
 // Validate checks if a version satisfies a constraint. If not a slice of
 // reasons for the failure are returned in addition to a bool.
 func (cs Constraints) Validate(v *Version) (bool, []error) {
