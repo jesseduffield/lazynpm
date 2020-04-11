@@ -1,10 +1,12 @@
 package presentation
 
 import (
-	"github.com/Masterminds/semver"
+	"strings"
+
 	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
+	"github.com/jesseduffield/semver"
 )
 
 func GetDependencyListDisplayStrings(dependencies []*commands.Dependency) [][]string {
@@ -23,11 +25,12 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 	if d.Linked() {
 		localVersionCol = utils.ColoredString("linked: "+d.LinkPath, color.FgCyan)
 	} else if d.PackageConfig != nil {
-		attr := color.FgYellow
-		if semverGood(d.PackageConfig.Version, d.Version) {
-			attr = color.FgGreen
+		status, ok := semverStatus(d.PackageConfig.Version, d.Version)
+		if ok {
+			localVersionCol = utils.ColoredString(d.PackageConfig.Version, color.FgGreen)
+		} else {
+			localVersionCol = utils.ColoredString(d.PackageConfig.Version+" "+status, color.FgYellow)
 		}
-		localVersionCol = utils.ColoredString(d.PackageConfig.Version, attr)
 	} else {
 		localVersionCol = utils.ColoredString("missing", color.FgRed)
 	}
@@ -35,18 +38,26 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 	return []string{d.Name, utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
 }
 
-func semverGood(version, constraint string) bool {
+func semverStatus(version, constraint string) (string, bool) {
 	c, err := semver.NewConstraint(constraint)
 	if err != nil {
-		return false
+		return "error parsing constraint", false
 	}
 
 	v, err := semver.NewVersion(version)
 	if err != nil {
-		return false
+		return "error parsing version", false
 	}
 
-	a := c.Check(v)
+	ok, errors := c.Validate(v)
+	if ok {
+		return "", true
+	}
 
-	return a
+	messages := make([]string, len(errors))
+	for i, err := range errors {
+		messages[i] = err.Error()
+	}
+
+	return strings.Join(messages, ","), false
 }
