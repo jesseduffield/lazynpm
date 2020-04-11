@@ -6,6 +6,7 @@ import (
 
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
 )
 
 // list panel functions
@@ -30,11 +31,12 @@ func (gui *Gui) getScripts() []*commands.Script {
 }
 
 func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
-	dep := gui.getSelectedScript()
-	if dep == nil {
+	script := gui.getSelectedScript()
+	if script == nil {
 		gui.getMainView().Title = ""
 		return gui.newStringTask("main", gui.Tr.SLocalize("NoScripts"))
 	}
+	gui.renderString("secondary", presentation.ScriptSummary(script))
 	return nil
 }
 

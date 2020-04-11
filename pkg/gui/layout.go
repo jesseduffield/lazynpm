@@ -119,7 +119,8 @@ func (gui *Gui) getViewHeights() map[string]int {
 		"scripts":  defaultHeight,
 		"options":  defaultHeight,
 	}
-	vHeights[currentCyclebleView] = height - defaultHeight*4 - 1
+	sideViewCount := 3
+	vHeights[currentCyclebleView] = height - defaultHeight*sideViewCount - 1
 
 	return vHeights
 }
