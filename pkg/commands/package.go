@@ -1,72 +1,41 @@
 package commands
 
 import (
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
 )
 
-type PackageConfigInput struct {
-	Name        string          `json:"name"`
-	Version     string          `json:"version"`
-	RawLicense  json.RawMessage `json:"license"`
-	Private     bool            `json:"private"`
-	Description string          `json:"description"`
-	Files       []string        `json:"files"`
-	RawKeywords json.RawMessage `json:"keywords"`
-	Os          []string        `json:"os"`
-	Cpu         []string        `json:"cpu"`
-	Main        string          `json:"main"`
-	Engines     struct {
-		Node string `json:"node"`
-		Npm  string `json:"npm"`
-	} `json:"engines"`
-	Scripts              map[string]string `json:"scripts"`
-	RawRepository        json.RawMessage   `json:"repository"`
-	RawAuthor            json.RawMessage   `json:"author"`
-	RawContributors      []json.RawMessage `json:"contributors"`
-	RawBugs              json.RawMessage   `json:"bugs"`
-	Deprecated           bool              `json:"deprecated"`
-	Homepage             string            `json:"homepage"`
-	Directories          map[string]string `json:"directories"`
-	Dependencies         map[string]string `json:"dependencies"`
-	DevDependencies      map[string]string `json:"devDependencies"`
-	PeerDependencies     map[string]string `json:"peerDependencies"`
-	OptionalDependencies map[string]string `json:"optionalDependencies"`
-	BundledDependencies  []string          `json:"bundleDependencies"`
-}
-
 type PackageConfig struct {
-	Name        string
-	Version     string
-	License     string
-	Private     bool
-	Description string
-	Files       []string
-	Keywords    []string
-	Os          []string
-	Cpu         []string
-	Main        string
-	Engines     struct {
+	Name                 string
+	Version              string
+	License              string
+	Description          string
+	Homepage             string
+	Main                 string
+	Deprecated           bool
+	Private              bool
+	Files                []string
+	Keywords             []string
+	Os                   []string
+	Cpu                  []string
+	BundledDependencies  []string
+	Scripts              map[string]string
+	Directories          map[string]string
+	Dependencies         map[string]string
+	DevDependencies      map[string]string
+	PeerDependencies     map[string]string
+	OptionalDependencies map[string]string
+	Engines              struct {
 		Node string
 		Npm  string
 	}
-	Scripts      map[string]string
 	Repository   Repository
 	Author       Author
 	Contributors []Author
 	Bugs         struct {
 		Url string `json:"url"`
 	}
-	Deprecated           bool
-	Homepage             string
-	Directories          map[string]string
-	Dependencies         map[string]string
-	DevDependencies      map[string]string
-	PeerDependencies     map[string]string
-	OptionalDependencies map[string]string
-	BundledDependencies  []string
 }
 
 type Author struct {

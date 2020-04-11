@@ -1,16 +1,12 @@
 package commands
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/jesseduffield/lazynpm/pkg/config"
 	"github.com/jesseduffield/lazynpm/pkg/i18n"
-	"github.com/jinzhu/copier"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,107 +34,6 @@ func NewNpmManager(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Localizer, 
 		Config:    config,
 		NpmRoot:   npmRoot,
 	}, nil
-}
-
-func UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error) {
-	var pkgInput *PackageConfigInput
-	d := json.NewDecoder(r)
-	if err := d.Decode(&pkgInput); err != nil {
-		return nil, err
-	}
-
-	var pkg PackageConfig
-	if err := copier.Copy(&pkg, &pkgInput); err != nil {
-		return nil, err
-	}
-
-	isObject := func(b []byte) bool {
-		return bytes.HasPrefix(b, []byte{'{'})
-	}
-
-	isArray := func(b []byte) bool {
-		return bytes.HasPrefix(b, []byte{'['})
-	}
-
-	isString := func(b []byte) bool {
-		return bytes.HasPrefix(b, []byte{'"'})
-	}
-
-	if isObject(pkgInput.RawAuthor) {
-		err := json.Unmarshal(pkgInput.RawAuthor, &pkg.Author)
-		if err != nil {
-			return nil, err
-		}
-	} else if isString(pkgInput.RawAuthor) {
-		err := json.Unmarshal(pkgInput.RawAuthor, &pkg.Author.SingleLine)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	for _, rawContributor := range pkgInput.RawContributors {
-		var contributor *Author
-		if isObject(rawContributor) {
-			err := json.Unmarshal(rawContributor, &contributor)
-			if err != nil {
-				return nil, err
-			}
-		} else if isString(rawContributor) {
-			contributor = &Author{}
-			err := json.Unmarshal(rawContributor, &contributor.SingleLine)
-			if err != nil {
-				return nil, err
-			}
-		}
-		pkg.Contributors = append(pkg.Contributors, *contributor)
-	}
-
-	if isObject(pkgInput.RawRepository) {
-		err := json.Unmarshal(pkgInput.RawRepository, &pkg.Repository)
-		if err != nil {
-			return nil, err
-		}
-	} else if isString(pkgInput.RawRepository) {
-		err := json.Unmarshal(pkgInput.RawRepository, &pkg.Repository.SingleLine)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if isObject(pkgInput.RawBugs) {
-		err := json.Unmarshal(pkgInput.RawBugs, &pkg.Bugs)
-		if err != nil {
-			return nil, err
-		}
-	} else if isString(pkgInput.RawBugs) {
-		err := json.Unmarshal(pkgInput.RawBugs, &pkg.Bugs.Url)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	if isArray(pkgInput.RawKeywords) {
-		err := json.Unmarshal(pkgInput.RawKeywords, &pkg.Keywords)
-		if err != nil {
-			return nil, err
-		}
-	} else if isString(pkgInput.RawKeywords) {
-		onlyKeyword := ""
-		err := json.Unmarshal(pkgInput.RawKeywords, &onlyKeyword)
-		if err != nil {
-			return nil, err
-		}
-		pkg.Keywords = []string{onlyKeyword}
-	}
-
-	if isString(pkgInput.RawLicense) {
-		err := json.Unmarshal(pkgInput.RawLicense, &pkg.License)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &pkg, nil
 }
 
 func (m *NpmManager) IsLinked(name string, path string) (bool, error) {

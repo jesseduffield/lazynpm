@@ -17,7 +17,7 @@ func TestUnmarshalPackageConfig(t *testing.T) {
 	scenarios := []scenario{
 		{
 			"1.json",
-			&PackageConfig{Name: "body", Version: "5.1.0", License: "", Private: false, Description: "Body parsing", Files: []string(nil), Keywords: []string{}, Os: []string(nil), Cpu: []string(nil), Main: "index", Engines: struct {
+			&PackageConfig{Name: "body", Version: "5.1.0", License: "", Private: false, Description: "Body parsing", Files: []string(nil), Keywords: nil, Os: []string(nil), Cpu: []string(nil), Main: "index", Engines: struct {
 				Node string
 				Npm  string
 			}{Node: "", Npm: ""}, Scripts: map[string]string{"test": "node ./test/index.js"}, Repository: Repository{Type: "", Url: "", SingleLine: "git://github.com/Raynos/body.git"}, Author: Author{Name: "", Email: "", Url: "", SingleLine: "Raynos <raynos2@gmail.com>"}, Contributors: []Author{Author{Name: "Jake Verbaten", Email: "", Url: "", SingleLine: ""}}, Bugs: struct {
@@ -29,7 +29,7 @@ func TestUnmarshalPackageConfig(t *testing.T) {
 			&PackageConfig{Name: "lodash", Version: "4.17.5", License: "MIT", Private: false, Description: "Lodash modular utilities.", Files: []string(nil), Keywords: []string{"modules, stdlib, util"}, Os: []string(nil), Cpu: []string(nil), Main: "lodash.js", Engines: struct {
 				Node string
 				Npm  string
-			}{Node: "", Npm: ""}, Scripts: map[string]string{"test": "echo \"See https://travis-ci.org/lodash-archive/lodash-cli for testing details.\""}, Repository: Repository{Type: "", Url: "", SingleLine: "lodash/lodash"}, Author: Author{Name: "", Email: "", Url: "", SingleLine: "John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)"}, Contributors: []Author{Author{Name: "", Email: "", Url: "", SingleLine: "John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)"}, Author{Name: "", Email: "", Url: "", SingleLine: "Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)"}}, Bugs: struct {
+			}{Node: "", Npm: ""}, Scripts: map[string]string{"test": `echo "See https://travis-ci.org/lodash-archive/lodash-cli for testing details."`}, Repository: Repository{Type: "", Url: "", SingleLine: "lodash/lodash"}, Author: Author{Name: "", Email: "", Url: "", SingleLine: "John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)"}, Contributors: []Author{Author{Name: "", Email: "", Url: "", SingleLine: "John-David Dalton <john.david.dalton@gmail.com> (http://allyoucanleet.com/)"}, Author{Name: "", Email: "", Url: "", SingleLine: "Mathias Bynens <mathias@qiwi.be> (https://mathiasbynens.be/)"}}, Bugs: struct {
 				Url string "json:\"url\""
 			}{Url: ""}, Deprecated: false, Homepage: "https://lodash.com/", Directories: map[string]string(nil), Dependencies: map[string]string(nil), DevDependencies: map[string]string(nil), PeerDependencies: map[string]string(nil), OptionalDependencies: map[string]string(nil), BundledDependencies: []string(nil)},
 		},
@@ -44,12 +44,12 @@ func TestUnmarshalPackageConfig(t *testing.T) {
 		},
 		{
 			"4.json",
-			&PackageConfig{Name: "moment-range", Version: "2.2.0", License: "", Private: false, Description: "Fancy date ranges for Moment.js", Files: []string(nil), Keywords: []string(nil), Os: []string(nil), Cpu: []string(nil), Main: "./dist/moment-range", Engines: struct {
+			&PackageConfig{Name: "@activepipe/stylelint-colorvars-check", Version: "1.0.7", License: "ISC", Description: "Stylelint rules to ensure color variables have been declared using an @value statement", Homepage: "", Main: "index.js", Deprecated: false, Private: false, Files: []string(nil), Keywords: []string(nil), Os: []string(nil), Cpu: []string(nil), BundledDependencies: []string(nil), Scripts: map[string]string{"test": "echo \"Error: no test specified\" && exit 1"}, Directories: map[string]string(nil), Dependencies: map[string]string(nil), DevDependencies: map[string]string(nil), PeerDependencies: map[string]string(nil), OptionalDependencies: map[string]string(nil), Engines: struct {
 				Node string
 				Npm  string
-			}{Node: "*", Npm: ""}, Scripts: map[string]string{"build": "grunt es6transpiler replace umd uglify", "jsdoc": "jsdoc -c .jsdoc", "test": "grunt mochaTest"}, Repository: Repository{Type: "git", Url: "https://git@github.com/gf3/moment-range.git", SingleLine: ""}, Author: Author{Name: "", Email: "", Url: "", SingleLine: "Gianni Chiappetta <gianni@runlevel6.org> (http://butt.zone)"}, Contributors: []Author{Author{Name: "", Email: "", Url: "", SingleLine: "Adam Biggs <adam.biggs@lightmaker.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Matt Patterson <matt@reprocessed.org> (http://reprocessed.org/)"}, Author{Name: "", Email: "", Url: "", SingleLine: "Stuart Kelly <stuart.leigh83@gmail.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Kevin Ross <kevin.ross@alienfast.com> (http://www.alienfast.com)"}, Author{Name: "", Email: "", Url: "", SingleLine: "Scott Hovestadt <scott.hovestadt@gmail.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Nebel <nebel08@gmail.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Aristide Niyungeko <niyungeko@gmail.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Tymon Tobolski <i@teamon.eu> (http://teamon.eu)"}, Author{Name: "", Email: "", Url: "", SingleLine: "Bradley Ayers <bradley.ayers@gmail.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Thomas Walpole <twalpole@gmail.com>"}, Author{Name: "", Email: "", Url: "", SingleLine: "Daniel Sarfati <daniel@knockrentals.com>"}}, Bugs: struct {
+			}{Node: "", Npm: ""}, Repository: Repository{Type: "", Url: "", SingleLine: ""}, Author: Author{Name: "John McClumpha", Email: "john@activepipe.com", Url: "", SingleLine: ""}, Contributors: []Author(nil), Bugs: struct {
 				Url string "json:\"url\""
-			}{Url: "https://github.com/gf3/moment-range/issues"}, Deprecated: false, Homepage: "https://github.com/gf3/moment-range", Directories: map[string]string{"lib": "./lib"}, Dependencies: map[string]string(nil), DevDependencies: map[string]string{"grunt": "~0.4.1", "grunt-cli": "^0.1.13", "grunt-contrib-uglify": "^0.6.0", "grunt-es6-transpiler": "^1.0.2", "grunt-mocha-test": "~0.7.0", "grunt-text-replace": "^0.4.0", "grunt-umd": "^2.3.3", "jsdoc": "^3.3.0", "mocha": "^2.1.0", "moment": ">= 1", "should": "^5.0.1"}, PeerDependencies: map[string]string{"moment": ">= 1"}, OptionalDependencies: map[string]string(nil), BundledDependencies: []string(nil)},
+			}{Url: ""}},
 		},
 	}
 
