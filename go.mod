@@ -10,7 +10,7 @@ require (
 	github.com/go-errors/errors v1.0.1
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/integrii/flaggy v1.4.0
-	github.com/jesseduffield/gocui v0.3.1-0.20200405034337-066b5b6ca1ba
+	github.com/jesseduffield/gocui v0.3.1-0.20200411093505-aaa030344787
 	github.com/jesseduffield/semver/v3 v3.0.4-0.20200411092651-8f1f2b3d1bc1
 	github.com/jesseduffield/termbox-go v0.0.0-20200405031649-4dc645f7e8ba // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
@@ -35,7 +35,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a // indirect
-	golang.org/x/sys v0.0.0-20200331124033-c3d80250170d // indirect
+	golang.org/x/sys v0.0.0-20200409092240-59c9f1ba88fa // indirect
 	golang.org/x/text v0.3.2
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v2 v2.2.7

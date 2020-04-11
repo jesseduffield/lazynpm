@@ -535,6 +535,8 @@ func (v *View) Write(p []byte) (n int, err error) {
 			}
 			v.wcx = 0
 
+			v.ei.reset()
+
 			sanityCheck()
 		default:
 
