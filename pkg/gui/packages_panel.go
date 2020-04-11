@@ -3,9 +3,11 @@ package gui
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 // list panel functions
@@ -23,7 +25,9 @@ func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
 		gui.getMainView().Title = ""
 		return gui.newStringTask("main", gui.Tr.SLocalize("NoChangedPackages"))
 	}
-	gui.renderString("secondary", presentation.PackageSummary(pkg.Config))
+	summary := presentation.PackageSummary(pkg.Config)
+	summary = fmt.Sprintf("%s\nPath: %s", summary, utils.ColoredString(pkg.Path, color.FgCyan))
+	gui.renderString("secondary", summary)
 	return nil
 }
 
@@ -38,7 +42,7 @@ func (gui *Gui) refreshPackages() error {
 	}
 
 	gui.g.Update(func(g *gocui.Gui) error {
-		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.State.Deps)
+		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap())
 		gui.renderDisplayStrings(packagesView, displayStrings)
 
 		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps)

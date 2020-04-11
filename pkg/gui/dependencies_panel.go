@@ -1,9 +1,13 @@
 package gui
 
 import (
+	"fmt"
+
+	"github.com/fatih/color"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 // list panel functions
@@ -22,7 +26,11 @@ func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 		return gui.newStringTask("main", gui.Tr.SLocalize("NoDependencies"))
 	}
 	if dep.PackageConfig != nil {
-		gui.renderString("secondary", presentation.PackageSummary(*dep.PackageConfig))
+		summary := presentation.PackageSummary(*dep.PackageConfig)
+		if dep.Linked() {
+			summary = fmt.Sprintf("%s\nLinked to: %s", summary, utils.ColoredString(dep.LinkPath, color.FgCyan))
+		}
+		gui.renderString("secondary", summary)
 	} else {
 		gui.renderString("secondary", "dependency not present in node_modules")
 	}

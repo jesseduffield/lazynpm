@@ -9,16 +9,8 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
-func GetPackageListDisplayStrings(packages []*commands.Package, deps []*commands.Dependency) [][]string {
+func GetPackageListDisplayStrings(packages []*commands.Package, linkPathMap map[string]bool) [][]string {
 	lines := make([][]string, len(packages))
-
-	// we need to work out all the link paths from the deps
-	linkPathMap := map[string]bool{}
-	for _, dep := range deps {
-		if dep.Linked() {
-			linkPathMap[dep.LinkPath] = true
-		}
-	}
 
 	for i := range packages {
 		pkg := packages[i]
