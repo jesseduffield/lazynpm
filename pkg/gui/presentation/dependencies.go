@@ -35,7 +35,7 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 		localVersionCol = utils.ColoredString("missing", color.FgRed)
 	}
 
-	return []string{d.Name, utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
+	return []string{d.Name, d.Kind, utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
 }
 
 func statusMap() map[int]string {

@@ -27,6 +27,7 @@ type PackageConfig struct {
 	DevDependencies      map[string]string
 	PeerDependencies     map[string]string
 	OptionalDependencies map[string]string
+	SortedDependencies   []*Dependency
 	Engines              struct {
 		Node string
 		Npm  string
@@ -82,26 +83,47 @@ type Package struct {
 	LinkedGlobally bool
 }
 
-func (p *Package) SortedDepsGeneric(depMap map[string]string) []*Dependency {
-	deps := make([]*Dependency, 0, len(depMap))
-	for name, version := range depMap {
-		deps = append(deps, &Dependency{Name: name, Version: version})
-	}
-	sort.Slice(deps, func(i, j int) bool { return strings.Compare(deps[i].Name, deps[j].Name) < 0 })
-	return deps
-}
-
 func (p *Package) SortedDependencies() []*Dependency {
-	return p.SortedDepsGeneric(p.Config.Dependencies)
-}
-func (p *Package) SortedDevDependencies() []*Dependency {
-	return p.SortedDepsGeneric(p.Config.DevDependencies)
-}
-func (p *Package) SortedPeerDependencies() []*Dependency {
-	return p.SortedDepsGeneric(p.Config.PeerDependencies)
-}
-func (p *Package) SortedOptionalDependencies() []*Dependency {
-	return p.SortedDepsGeneric(p.Config.OptionalDependencies)
+	deps := make([]*Dependency, 0, len(p.Config.Dependencies)+len(p.Config.DevDependencies)+len(p.Config.PeerDependencies)+len(p.Config.OptionalDependencies))
+
+	type blah struct {
+		kind   string
+		depMap map[string]string
+	}
+
+	them := []blah{
+		{
+			kind:   "prod",
+			depMap: p.Config.Dependencies,
+		},
+		{
+			kind:   "dev",
+			depMap: p.Config.DevDependencies,
+		},
+		{
+			kind:   "peer",
+			depMap: p.Config.PeerDependencies,
+		},
+		{
+			kind:   "optional",
+			depMap: p.Config.OptionalDependencies,
+		},
+	}
+
+	for _, mapping := range them {
+		depsForKind := make([]*Dependency, 0, len(mapping.depMap))
+		for name, constraint := range mapping.depMap {
+			depsForKind = append(depsForKind, &Dependency{
+				Name:    name,
+				Version: constraint,
+				Kind:    mapping.kind,
+			})
+		}
+		sort.Slice(depsForKind, func(i, j int) bool { return strings.Compare(depsForKind[i].Name, depsForKind[j].Name) < 0 })
+		deps = append(deps, depsForKind...)
+	}
+
+	return deps
 }
 
 func (p *Package) SortedScripts() []*Script {

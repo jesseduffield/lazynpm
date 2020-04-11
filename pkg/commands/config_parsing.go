@@ -228,6 +228,7 @@ func UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error) {
 			})
 		}
 	}
+
 	value, dataType, _, err := jsonparser.Get(configData, "contributors")
 	if err != nil {
 		if err != jsonparser.KeyPathNotFoundError {

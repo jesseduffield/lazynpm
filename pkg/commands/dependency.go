@@ -9,6 +9,7 @@ type Dependency struct {
 	Present       bool
 	PackageConfig *PackageConfig
 	Path          string
+	Kind          string
 }
 
 func (d *Dependency) Linked() bool {
