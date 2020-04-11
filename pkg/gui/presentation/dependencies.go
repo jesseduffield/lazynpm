@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
-	"github.com/jesseduffield/semver"
+	"github.com/jesseduffield/semver/v3"
 )
 
 func GetDependencyListDisplayStrings(dependencies []*commands.Dependency) [][]string {
