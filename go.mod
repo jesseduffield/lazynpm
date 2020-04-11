@@ -3,6 +3,7 @@ module github.com/jesseduffield/lazynpm
 go 1.14
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/buger/jsonparser v0.0.0-20200322175846-f7e751efca13
 	github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 	github.com/creack/pty v1.1.10-0.20191209115840-8ab47f72e854
@@ -16,7 +17,7 @@ require (
 	github.com/integrii/flaggy v1.4.0
 	github.com/jesseduffield/gocui v0.3.1-0.20200405034337-066b5b6ca1ba
 	github.com/jesseduffield/termbox-go v0.0.0-20200405031649-4dc645f7e8ba // indirect
-	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
+	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect

@@ -1,3 +1,6 @@
+# github.com/Masterminds/semver v1.5.0
+## explicit
+github.com/Masterminds/semver
 # github.com/buger/jsonparser v0.0.0-20200322175846-f7e751efca13
 ## explicit
 github.com/buger/jsonparser
@@ -48,7 +51,6 @@ github.com/jesseduffield/gocui
 github.com/jesseduffield/termbox-go
 # github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 ## explicit
-github.com/jinzhu/copier
 # github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 ## explicit
 github.com/kardianos/osext
