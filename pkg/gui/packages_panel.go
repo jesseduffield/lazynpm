@@ -2,8 +2,10 @@ package gui
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/fatih/color"
+	"github.com/go-errors/errors"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
@@ -84,7 +86,7 @@ func (gui *Gui) refreshStatePackages() error {
 	return nil
 }
 
-func (gui *Gui) handleCheckoutPackage(g *gocui.Gui, v *gocui.View) error {
+func (gui *Gui) handleCheckoutPackage() error {
 	selectedPkg := gui.getSelectedPackage()
 
 	if selectedPkg == nil {
@@ -102,7 +104,7 @@ func (gui *Gui) handleCheckoutPackage(g *gocui.Gui, v *gocui.View) error {
 	return gui.refreshPackages()
 }
 
-func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
+func (gui *Gui) handleLinkPackage() error {
 	// if it's the current package we should globally link it, otherwise we should link it to here
 	selectedPkg := gui.getSelectedPackage()
 	if selectedPkg == nil {
@@ -116,17 +118,47 @@ func (gui *Gui) handleLinkPackage(g *gocui.Gui, v *gocui.View) error {
 
 	var cmdStr string
 	if selectedPkg == currentPkg {
-		if selectedPkg.LinkedGlobally {
-			cmdStr = "npm unlink"
-		} else {
-			cmdStr = "npm link"
-		}
+		return gui.surfaceError(errors.New("Cannot link a package to itself"))
+	}
+
+	if gui.linkPathMap()[selectedPkg.Path] {
+		cmdStr = fmt.Sprintf("npm unlink --no-save %s", selectedPkg.Config.Name)
 	} else {
-		if gui.linkPathMap()[selectedPkg.Path] {
-			cmdStr = fmt.Sprintf("npm unlink --no-save %s", selectedPkg.Config.Name)
+		if !selectedPkg.LinkedGlobally {
+			cmdStr = fmt.Sprintf("npm link %s", selectedPkg.Path)
 		} else {
 			cmdStr = fmt.Sprintf("npm link %s", selectedPkg.Config.Name)
 		}
+	}
+
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+		gui.Log.Error(err)
+	}
+
+	return nil
+}
+
+func (gui *Gui) handleGlobalLinkPackage() error {
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	currentPkg := gui.currentPackage()
+	if currentPkg == nil {
+		return nil
+	}
+
+	if selectedPkg != currentPkg {
+		return gui.surfaceError(errors.New("You can only globally link the current package. Hit space on this package to make it the current package."))
+	}
+
+	var cmdStr string
+	if selectedPkg.LinkedGlobally {
+		cmdStr = "npm unlink"
+	} else {
+		cmdStr = "npm link"
 	}
 
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
@@ -185,4 +217,34 @@ func (gui *Gui) handleBuild() error {
 		gui.Log.Error(err)
 	}
 	return nil
+}
+
+func (gui *Gui) handleOpenPackageConfig() error {
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	return gui.openFile(filepath.Join(selectedPkg.Path, "package.json"))
+}
+
+func (gui *Gui) handleRemovePackage() error {
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	currentPkg := gui.currentPackage()
+	if currentPkg == nil {
+		return nil
+	}
+
+	if selectedPkg == currentPkg {
+		return gui.createErrorPanel("Cannot remove current package")
+	}
+
+	return gui.createConfirmationPanel(gui.getPackagesView(), true, "Remove package", "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.", func(*gocui.Gui, *gocui.View) error {
+		return gui.removePackage(selectedPkg.Path)
+	},
+		nil)
 }

@@ -299,7 +299,7 @@ func (gui *Gui) runCommand() error {
 
 func (gui *Gui) loadNewRepo() error {
 	gui.Updater.CheckForNewUpdate(gui.onBackgroundUpdateCheckFinish, false)
-	if err := gui.updateRecentRepoList(); err != nil {
+	if err := gui.updateRecentPackagesList(); err != nil {
 		return err
 	}
 	gui.waitForIntro.Done()
@@ -311,9 +311,9 @@ func (gui *Gui) loadNewRepo() error {
 	return nil
 }
 
-// updateRecentRepoList registers the fact that we opened lazynpm in this package,
+// updateRecentPackagesList registers the fact that we opened lazynpm in this package,
 // so that appears in the packages view next time we open the program in another package
-func (gui *Gui) updateRecentRepoList() error {
+func (gui *Gui) updateRecentPackagesList() error {
 	ok, err := gui.NpmManager.ChdirToPackageRoot()
 	if err != nil {
 		return err
@@ -343,6 +343,17 @@ func (gui *Gui) sendPackageToTop(path string) error {
 	recentPackages := gui.Config.GetAppState().RecentPackages
 	isNew, recentPackages := newRecentPackagesList(recentPackages, path)
 	gui.Config.SetIsNewPackage(isNew)
+	gui.Config.GetAppState().RecentPackages = recentPackages
+	return gui.Config.SaveAppState()
+}
+
+func (gui *Gui) removePackage(path string) error {
+	recentPackages := gui.Config.GetAppState().RecentPackages
+	index, ok := utils.StringIndex(recentPackages, path)
+	if !ok {
+		return nil
+	}
+	recentPackages = append(recentPackages[:index], recentPackages[index+1:]...)
 	gui.Config.GetAppState().RecentPackages = recentPackages
 	return gui.Config.SaveAppState()
 }
@@ -385,11 +396,11 @@ func (gui *Gui) showShamelessSelfPromotionMessage(done chan struct{}) error {
 		return gui.Config.WriteToUserConfig("startupPopupVersion", StartupPopupVersion)
 	}
 
-	return gui.createConfirmationPanel(gui.g, nil, true, gui.Tr.SLocalize("ShamelessSelfPromotionTitle"), gui.Tr.SLocalize("ShamelessSelfPromotionMessage"), onConfirm, onConfirm)
+	return gui.createConfirmationPanel(nil, true, gui.Tr.SLocalize("ShamelessSelfPromotionTitle"), gui.Tr.SLocalize("ShamelessSelfPromotionMessage"), onConfirm, onConfirm)
 }
 
 func (gui *Gui) promptAnonymousReporting(done chan struct{}) error {
-	return gui.createConfirmationPanel(gui.g, nil, true, gui.Tr.SLocalize("AnonymousReportingTitle"), gui.Tr.SLocalize("AnonymousReportingPrompt"), func(g *gocui.Gui, v *gocui.View) error {
+	return gui.createConfirmationPanel(nil, true, gui.Tr.SLocalize("AnonymousReportingTitle"), gui.Tr.SLocalize("AnonymousReportingPrompt"), func(g *gocui.Gui, v *gocui.View) error {
 		done <- struct{}{}
 		return gui.Config.WriteToUserConfig("reporting", "on")
 	}, func(g *gocui.Gui, v *gocui.View) error {

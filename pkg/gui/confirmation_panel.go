@@ -130,8 +130,8 @@ func (gui *Gui) createLoaderPanel(g *gocui.Gui, currentView *gocui.View, prompt 
 }
 
 // it is very important that within this function we never include the original prompt in any error messages, because it may contain e.g. a user password
-func (gui *Gui) createConfirmationPanel(g *gocui.Gui, currentView *gocui.View, returnFocusOnClose bool, title, prompt string, handleConfirm, handleClose func(*gocui.Gui, *gocui.View) error) error {
-	return gui.createPopupPanel(g, currentView, title, prompt, false, returnFocusOnClose, false, handleConfirm, handleClose)
+func (gui *Gui) createConfirmationPanel(currentView *gocui.View, returnFocusOnClose bool, title, prompt string, handleConfirm, handleClose func(*gocui.Gui, *gocui.View) error) error {
+	return gui.createPopupPanel(gui.g, currentView, title, prompt, false, returnFocusOnClose, false, handleConfirm, handleClose)
 }
 
 func (gui *Gui) createPromptPanel(currentView *gocui.View, title string, initialContent string, handleConfirm func(*gocui.Gui, *gocui.View) error) error {
@@ -176,7 +176,7 @@ func (gui *Gui) createSpecificErrorPanel(message string, nextView *gocui.View, w
 		return err
 	}
 
-	return gui.createConfirmationPanel(gui.g, nextView, true, gui.Tr.SLocalize("Error"), coloredMessage, nil, nil)
+	return gui.createConfirmationPanel(nextView, true, gui.Tr.SLocalize("Error"), coloredMessage, nil, nil)
 }
 
 func (gui *Gui) createErrorPanel(message string) error {

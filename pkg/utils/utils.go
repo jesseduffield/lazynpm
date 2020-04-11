@@ -322,3 +322,13 @@ func FindStringSubmatch(str string, regexpStr string) (bool, []string) {
 	match := re.FindStringSubmatch(str)
 	return len(match) > 0, match
 }
+
+// StringIndex returns the index of an element in a string array. If none is found it returns a false boolean value
+func StringIndex(haystack []string, needle string) (int, bool) {
+	for i, element := range haystack {
+		if element == needle {
+			return i, true
+		}
+	}
+	return 0, false
+}

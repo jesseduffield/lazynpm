@@ -306,6 +306,7 @@ keybinding:
     undo: 'z'
     redo: '<c-z>'
     install: 'i'
+    update: 'u'
     cleanInstall: 'I'
   status:
     checkForUpdate: 'u'
@@ -314,6 +315,7 @@ keybinding:
     toggleDragSelect-alt: 'V'
   packages:
     link: 'l'
+    globalLink: 'L'
     build: 'b'
 `)
 }

@@ -2,8 +2,10 @@ package gui
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/fatih/color"
+	"github.com/go-errors/errors"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
@@ -46,4 +48,45 @@ func (gui *Gui) linkPathMap() map[string]bool {
 		}
 	}
 	return linkPathMap
+}
+
+func (gui *Gui) handleDepInstall() error {
+	dep := gui.getSelectedDependency()
+	if dep == nil {
+		return nil
+	}
+
+	cmdStr := fmt.Sprintf("npm install %s", dep.Name)
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+		gui.Log.Error(err)
+	}
+	return nil
+}
+
+func (gui *Gui) handleDepUpdate() error {
+	dep := gui.getSelectedDependency()
+	if dep == nil {
+		return nil
+	}
+
+	cmdStr := fmt.Sprintf("npm update %s", dep.Name)
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+		gui.Log.Error(err)
+	}
+	return nil
+}
+
+func (gui *Gui) handleOpenDepPackageConfig() error {
+	selectedDep := gui.getSelectedDependency()
+	if selectedDep == nil {
+		return nil
+	}
+
+	if selectedDep.PackageConfig == nil {
+		return gui.surfaceError(errors.New("dependency not in node_modules"))
+	}
+
+	return gui.openFile(filepath.Join("node_modules", selectedDep.Name, "package.json"))
 }
