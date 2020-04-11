@@ -112,46 +112,72 @@ func (lv *listView) handleClick(g *gocui.Gui, v *gocui.View) error {
 	return lv.handleItemSelect(lv.gui.g, v)
 }
 
+func (lv *listView) onSearchSelect(selectedLineIdx int) error {
+	view, err := lv.gui.g.View(lv.viewName)
+	if err != nil {
+		return nil
+	}
+
+	*lv.getSelectedLineIdxPtr() = selectedLineIdx
+	return lv.handleItemSelect(lv.gui.g, view)
+}
+
+func (gui *Gui) menuListView() *listView {
+	return &listView{
+		viewName:              "menu",
+		getItemsLength:        func() int { return gui.getMenuView().LinesHeight() },
+		getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Menu.SelectedLine },
+		handleFocus:           gui.handleMenuSelect,
+		handleItemSelect:      gui.handleMenuSelect,
+		// need to add a layer of indirection here because the callback changes during runtime
+		handleClickSelectedItem: gui.wrappedHandler(func() error { return gui.State.Panels.Menu.OnPress(gui.g, nil) }),
+		gui:                     gui,
+		rendersToMainView:       false,
+	}
+}
+
+func (gui *Gui) packagesListView() *listView {
+	return &listView{
+		viewName:              "packages",
+		getItemsLength:        func() int { return len(gui.State.Packages) },
+		getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Packages.SelectedLine },
+		handleFocus:           gui.handlePackageSelect,
+		handleItemSelect:      gui.handlePackageSelect,
+		gui:                   gui,
+		rendersToMainView:     true,
+	}
+}
+
+func (gui *Gui) depsListView() *listView {
+	return &listView{
+		viewName: "deps",
+		// TODO: handle more dep types
+		getItemsLength:        func() int { return len(gui.currentPackage().SortedDependencies()) },
+		getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Deps.SelectedLine },
+		handleFocus:           gui.handleDepSelect,
+		handleItemSelect:      gui.handleDepSelect,
+		gui:                   gui,
+		rendersToMainView:     true,
+	}
+}
+
+func (gui *Gui) scriptsListView() *listView {
+	return &listView{
+		viewName:              "scripts",
+		getItemsLength:        func() int { return len(gui.getScripts()) },
+		getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Scripts.SelectedLine },
+		handleFocus:           gui.handleScriptSelect,
+		handleItemSelect:      gui.handleScriptSelect,
+		gui:                   gui,
+		rendersToMainView:     true,
+	}
+}
+
 func (gui *Gui) getListViews() []*listView {
 	return []*listView{
-		{
-			viewName:              "menu",
-			getItemsLength:        func() int { return gui.getMenuView().LinesHeight() },
-			getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Menu.SelectedLine },
-			handleFocus:           gui.handleMenuSelect,
-			handleItemSelect:      gui.handleMenuSelect,
-			// need to add a layer of indirection here because the callback changes during runtime
-			handleClickSelectedItem: gui.wrappedHandler(func() error { return gui.State.Panels.Menu.OnPress(gui.g, nil) }),
-			gui:                     gui,
-			rendersToMainView:       false,
-		},
-		{
-			viewName:              "packages",
-			getItemsLength:        func() int { return len(gui.State.Packages) },
-			getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Packages.SelectedLine },
-			handleFocus:           gui.handlePackageSelect,
-			handleItemSelect:      gui.handlePackageSelect,
-			gui:                   gui,
-			rendersToMainView:     true,
-		},
-		{
-			viewName: "deps",
-			// TODO: handle more dep types
-			getItemsLength:        func() int { return len(gui.currentPackage().SortedDependencies()) },
-			getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Deps.SelectedLine },
-			handleFocus:           gui.handleDepSelect,
-			handleItemSelect:      gui.handleDepSelect,
-			gui:                   gui,
-			rendersToMainView:     true,
-		},
-		{
-			viewName:              "scripts",
-			getItemsLength:        func() int { return len(gui.currentPackage().SortedScripts()) },
-			getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Scripts.SelectedLine },
-			handleFocus:           gui.handleScriptSelect,
-			handleItemSelect:      gui.handleScriptSelect,
-			gui:                   gui,
-			rendersToMainView:     true,
-		},
+		gui.menuListView(),
+		gui.packagesListView(),
+		gui.depsListView(),
+		gui.scriptsListView(),
 	}
 }

@@ -20,6 +20,15 @@ func (gui *Gui) getSelectedScript() *commands.Script {
 	return scripts[gui.State.Panels.Scripts.SelectedLine]
 }
 
+func (gui *Gui) getScripts() []*commands.Script {
+	currentPackage := gui.currentPackage()
+	if currentPackage == nil {
+		return nil
+	}
+
+	return currentPackage.SortedScripts()
+}
+
 func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
 	dep := gui.getSelectedScript()
 	if dep == nil {

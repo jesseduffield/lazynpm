@@ -265,7 +265,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 		packagesView.Highlight = true
 		packagesView.Title = gui.Tr.SLocalize("PackagesTitle")
-		packagesView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onPackagesPanelSearchSelect))
 		packagesView.ContainsList = true
 	}
 
@@ -376,23 +375,29 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		lineCount    int
 		view         *gocui.View
 		context      string
+		listView     *listView
 	}
 
-	listViews := []listViewState{
-		{view: packagesView, context: "", selectedLine: gui.State.Panels.Packages.SelectedLine, lineCount: len(gui.State.Packages)},
+	listViewStates := []listViewState{
+		{view: packagesView, context: "", selectedLine: gui.State.Panels.Packages.SelectedLine, lineCount: len(gui.State.Packages), listView: gui.packagesListView()},
+		{view: depsView, context: "", selectedLine: gui.State.Panels.Deps.SelectedLine, lineCount: len(gui.State.Deps), listView: gui.depsListView()},
+		{view: scriptsView, context: "", selectedLine: gui.State.Panels.Scripts.SelectedLine, lineCount: len(gui.getScripts()), listView: gui.scriptsListView()},
 	}
 
 	// menu view might not exist so we check to be safe
 	if menuView, err := gui.g.View("menu"); err == nil {
-		listViews = append(listViews, listViewState{view: menuView, context: "", selectedLine: gui.State.Panels.Menu.SelectedLine, lineCount: gui.State.MenuItemCount})
+		listViewStates = append(listViewStates, listViewState{view: menuView, context: "", selectedLine: gui.State.Panels.Menu.SelectedLine, lineCount: gui.State.MenuItemCount, listView: gui.menuListView()})
 	}
-	for _, listView := range listViews {
+	for _, listViewState := range listViewStates {
 		// ignore views where the context doesn't match up with the selected line we're trying to focus
-		if listView.context != "" && (listView.view.Context != listView.context) {
+		if listViewState.context != "" && (listViewState.view.Context != listViewState.context) {
 			continue
 		}
 		// check if the selected line is now out of view and if so refocus it
-		listView.view.FocusPoint(0, listView.selectedLine)
+		listViewState.view.FocusPoint(0, listViewState.selectedLine)
+
+		// I doubt this is expensive though it's admittedly redundant after the first render
+		listViewState.view.SetOnSelectItem(gui.onSelectItemWrapper(listViewState.listView.onSearchSelect))
 	}
 
 	mainViewWidth, mainViewHeight := gui.getMainView().Size()

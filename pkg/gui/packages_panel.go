@@ -43,7 +43,7 @@ func (gui *Gui) refreshPackages() error {
 		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps)
 		gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 
-		displayStrings = presentation.GetScriptListDisplayStrings(gui.currentPackage().SortedScripts())
+		displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts())
 		gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 		return nil
 	})
@@ -77,11 +77,6 @@ func (gui *Gui) refreshStatePackages() error {
 
 	gui.refreshSelectedLine(&gui.State.Panels.Packages.SelectedLine, len(gui.State.Packages))
 	return nil
-}
-
-func (gui *Gui) onPackagesPanelSearchSelect(selectedLine int) error {
-	gui.State.Panels.Packages.SelectedLine = selectedLine
-	return gui.handlePackageSelect(gui.g, gui.getPackagesView())
 }
 
 func (gui *Gui) handleCheckoutPackage(g *gocui.Gui, v *gocui.View) error {
