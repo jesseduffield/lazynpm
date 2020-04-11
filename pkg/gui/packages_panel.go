@@ -23,6 +23,7 @@ func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
 		gui.getMainView().Title = ""
 		return gui.newStringTask("main", gui.Tr.SLocalize("NoChangedPackages"))
 	}
+	gui.renderString("secondary", presentation.PackageSummary(pkg.Config))
 	return nil
 }
 

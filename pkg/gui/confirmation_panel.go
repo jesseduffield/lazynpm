@@ -119,7 +119,7 @@ func (gui *Gui) createPopupPanel(g *gocui.Gui, currentView *gocui.View, title, p
 			confirmationView.EditGotoToEndOfLine()
 		}
 
-		gui.renderString(g, "confirmation", prompt)
+		gui.renderString("confirmation", prompt)
 		return gui.setKeyBindings(g, handleConfirm, handleClose, returnFocusOnClose)
 	})
 	return nil
@@ -147,7 +147,7 @@ func (gui *Gui) setKeyBindings(g *gocui.Gui, handleConfirm, handleClose func(*go
 		},
 	)
 
-	gui.renderString(g, "options", actions)
+	gui.renderString("options", actions)
 	if err := g.SetKeybinding("confirmation", nil, gocui.KeyEnter, gocui.ModNone, gui.wrappedConfirmationFunction(handleConfirm, returnFocusOnClose)); err != nil {
 		return err
 	}

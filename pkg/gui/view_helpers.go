@@ -190,9 +190,9 @@ func (gui *Gui) setViewContent(g *gocui.Gui, v *gocui.View, s string) {
 }
 
 // renderString resets the origin of a view and sets its content
-func (gui *Gui) renderString(g *gocui.Gui, viewName, s string) {
-	g.Update(func(*gocui.Gui) error {
-		v, err := g.View(viewName)
+func (gui *Gui) renderString(viewName, s string) {
+	gui.g.Update(func(*gocui.Gui) error {
+		v, err := gui.g.View(viewName)
 		if err != nil {
 			return nil // return gracefully if view has been deleted
 		}
@@ -217,7 +217,7 @@ func (gui *Gui) optionsMapToString(optionsMap map[string]string) string {
 }
 
 func (gui *Gui) renderOptionsMap(optionsMap map[string]string) error {
-	gui.renderString(gui.g, "options", gui.optionsMapToString(optionsMap))
+	gui.renderString("options", gui.optionsMapToString(optionsMap))
 	return nil
 }
 

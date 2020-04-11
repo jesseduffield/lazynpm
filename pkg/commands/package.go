@@ -2,6 +2,7 @@ package commands
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 	"strings"
 )
@@ -21,13 +22,11 @@ type PackageConfigInput struct {
 		Node string `json:"node"`
 		Npm  string `json:"npm"`
 	} `json:"engines"`
-	Scripts         map[string]string `json:"scripts"`
-	RawRepository   json.RawMessage   `json:"repository"`
-	RawAuthor       json.RawMessage   `json:"author"`
-	RawContributors []json.RawMessage `json:"contributors"`
-	Bugs            struct {
-		URL string `json:"url"`
-	} `json:"bugs"`
+	Scripts              map[string]string `json:"scripts"`
+	RawRepository        json.RawMessage   `json:"repository"`
+	RawAuthor            json.RawMessage   `json:"author"`
+	RawContributors      []json.RawMessage `json:"contributors"`
+	RawBugs              json.RawMessage   `json:"bugs"`
 	Deprecated           bool              `json:"deprecated"`
 	Homepage             string            `json:"homepage"`
 	Directories          map[string]string `json:"directories"`
@@ -36,28 +35,6 @@ type PackageConfigInput struct {
 	PeerDependencies     map[string]string `json:"peerDependencies"`
 	OptionalDependencies map[string]string `json:"optionalDependencies"`
 	BundledDependencies  []string          `json:"bundleDependencies"`
-}
-
-type Author struct {
-	Name  string
-	Email string
-	Url   string
-	// if a string rather than an object was given we'll store it in SingleLine
-	SingleLine string
-}
-
-type Repository struct {
-	Type string
-	URL  string
-	// if a string rather than an object was given we'll store it in SingleLine
-	SingleLine string
-}
-
-type Package struct {
-	Config PackageConfig
-	Path   string
-	// for when something is linked to the global node_modules folder
-	LinkedGlobally bool
 }
 
 type PackageConfig struct {
@@ -80,7 +57,7 @@ type PackageConfig struct {
 	Author       Author
 	Contributors []Author
 	Bugs         struct {
-		URL string
+		Url string `json:"url"`
 	}
 	Deprecated           bool
 	Homepage             string
@@ -90,6 +67,49 @@ type PackageConfig struct {
 	PeerDependencies     map[string]string
 	OptionalDependencies map[string]string
 	BundledDependencies  []string
+}
+
+type Author struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Url   string `json:"url"`
+	// if a string rather than an object was given we'll store it in SingleLine
+	SingleLine string
+}
+
+func (a Author) ToString() string {
+	if a.SingleLine != "" {
+		return a.SingleLine
+	}
+	output := a.Name
+	if a.Email != "" {
+		output = fmt.Sprintf("%s <%s>", output, a.Email)
+	}
+	if a.Url != "" {
+		output = fmt.Sprintf("%s (%s)", output, a.Url)
+	}
+	return output
+}
+
+type Repository struct {
+	Type string `json:"type"`
+	Url  string `json:"url"`
+	// if a string rather than an object was given we'll store it in SingleLine
+	SingleLine string
+}
+
+func (r Repository) ToString() string {
+	if r.SingleLine != "" {
+		return r.SingleLine
+	}
+	return r.Url
+}
+
+type Package struct {
+	Config PackageConfig
+	Path   string
+	// for when something is linked to the global node_modules folder
+	LinkedGlobally bool
 }
 
 func (p *Package) SortedDepsGeneric(depMap map[string]string) []*Dependency {

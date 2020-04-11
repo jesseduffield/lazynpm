@@ -125,7 +125,6 @@ type guiState struct {
 	Updating          bool
 	Panels            *panelStates
 	MainContext       string // used to keep the main and secondary views' contexts in sync
-	SplitMainPanel    bool
 	RetainOriginalDir bool
 	Searching         searchingState
 	ScreenMode        int

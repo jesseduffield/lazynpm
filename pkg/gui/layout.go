@@ -183,28 +183,13 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 
 	mainPanelLeft := leftSideWidth + 1
 	mainPanelRight := width - 1
-	secondaryPanelLeft := width - 1
 	secondaryPanelTop := 0
-	mainPanelBottom := height - 2
-	if gui.State.SplitMainPanel {
-		if gui.State.ScreenMode == SCREEN_FULL {
-			mainPanelLeft = 0
-			panelSplitX := width/2 - 4
-			mainPanelRight = panelSplitX
-			secondaryPanelLeft = panelSplitX + 1
-		} else if width < 220 {
-			mainPanelBottom = height/2 - 1
-			secondaryPanelTop = mainPanelBottom + 1
-			secondaryPanelLeft = leftSideWidth + 1
-		} else {
-			units := 5
-			leftSideWidth = width / units
-			mainPanelLeft = leftSideWidth + 1
-			panelSplitX := (1 + ((units - 1) / 2)) * width / units
-			mainPanelRight = panelSplitX
-			secondaryPanelLeft = panelSplitX + 1
-		}
+	mainPanelTop := 6
+	secondaryView := gui.getSecondaryView()
+	if secondaryView != nil {
+		mainPanelTop = len(secondaryView.BufferLines()) + 2
 	}
+	mainPanelBottom := height - 2
 
 	main := "main"
 	secondary := "secondary"
@@ -224,7 +209,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 	}
 
-	v, err := g.SetView(main, mainPanelLeft, 0, mainPanelRight, mainPanelBottom, gocui.LEFT)
+	v, err := g.SetView(main, mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, gocui.LEFT)
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
@@ -236,18 +221,13 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 
 	hiddenViewOffset := 9999
 
-	hiddenSecondaryPanelOffset := 0
-	if !gui.State.SplitMainPanel {
-		hiddenSecondaryPanelOffset = hiddenViewOffset
-	}
-	secondaryView, err := g.SetView(secondary, secondaryPanelLeft+hiddenSecondaryPanelOffset, hiddenSecondaryPanelOffset+secondaryPanelTop, width-1+hiddenSecondaryPanelOffset, height-2+hiddenSecondaryPanelOffset, gocui.LEFT)
+	secondaryView, err = g.SetView(secondary, mainPanelLeft, secondaryPanelTop, width-1, mainPanelTop-1, gocui.LEFT)
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
 		}
 		secondaryView.Wrap = true
 		secondaryView.FgColor = gocui.ColorWhite
-		secondaryView.IgnoreCarriageReturns = true
 	}
 
 	if v, err := g.SetView("status", 0, 0, leftSideWidth, vHeights["status"]-1, gocui.BOTTOM|gocui.RIGHT); err != nil {
@@ -275,7 +255,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 		depsView.Title = gui.Tr.SLocalize("DepsTitle")
 		depsView.FgColor = textColor
-		// depsView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onBranchesPanelSearchSelect))
 		depsView.ContainsList = true
 	}
 
@@ -286,7 +265,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		}
 		scriptsView.Title = gui.Tr.SLocalize("ScriptsTitle")
 		scriptsView.FgColor = textColor
-		// scriptsView.SetOnSelectItem(gui.onSelectItemWrapper(gui.onCommitsPanelSearchSelect))
 		scriptsView.ContainsList = true
 	}
 
@@ -347,7 +325,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		informationView.BgColor = gocui.ColorDefault
 		informationView.FgColor = gocui.ColorGreen
 		informationView.Frame = false
-		gui.renderString(g, "information", information)
+		gui.renderString("information", information)
 
 		// doing this here because it'll only happen once
 		if err := gui.onInitialViewsCreation(); err != nil {

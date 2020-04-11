@@ -61,8 +61,11 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		pkg.Author.SingleLine = string(pkgInput.RawAuthor)
+	} else if len(pkgInput.RawAuthor) > 0 {
+		err := json.Unmarshal(pkgInput.RawAuthor, &pkg.Author.SingleLine)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	for _, rawContributor := range pkgInput.RawContributors {
@@ -72,8 +75,12 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 			if err != nil {
 				return nil, err
 			}
-		} else {
-			contributor = &Author{SingleLine: string(rawContributor)}
+		} else if len(rawContributor) > 0 {
+			contributor = &Author{}
+			err := json.Unmarshal(rawContributor, &contributor)
+			if err != nil {
+				return nil, err
+			}
 		}
 		pkg.Contributors = append(pkg.Contributors, *contributor)
 	}
@@ -83,8 +90,23 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 		if err != nil {
 			return nil, err
 		}
-	} else {
-		pkg.Repository.SingleLine = string(pkgInput.RawRepository)
+	} else if len(pkgInput.RawRepository) > 0 {
+		err := json.Unmarshal(pkgInput.RawRepository, &pkg.Repository.SingleLine)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if isObject(pkgInput.RawBugs) {
+		err := json.Unmarshal(pkgInput.RawBugs, &pkg.Bugs)
+		if err != nil {
+			return nil, err
+		}
+	} else if len(pkgInput.RawBugs) > 0 {
+		err := json.Unmarshal(pkgInput.RawBugs, &pkg.Bugs.Url)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &pkg, nil
 }

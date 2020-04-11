@@ -3,18 +3,16 @@ package gui
 import (
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
 )
 
 // list panel functions
 
 func (gui *Gui) getSelectedDependency() *commands.Dependency {
-	currentPackage := gui.currentPackage()
-
-	deps := currentPackage.SortedDependencies()
-	if len(deps) == 0 {
+	if len(gui.State.Deps) == 0 {
 		return nil
 	}
-	return deps[gui.State.Panels.Deps.SelectedLine]
+	return gui.State.Deps[gui.State.Panels.Deps.SelectedLine]
 }
 
 func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
@@ -22,6 +20,11 @@ func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 	if dep == nil {
 		gui.getMainView().Title = ""
 		return gui.newStringTask("main", gui.Tr.SLocalize("NoDependencies"))
+	}
+	if dep.PackageConfig != nil {
+		gui.renderString("secondary", presentation.PackageSummary(*dep.PackageConfig))
+	} else {
+		gui.renderString("secondary", "dependency not present in node_modules")
 	}
 	return nil
 }
