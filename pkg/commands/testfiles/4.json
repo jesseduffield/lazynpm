@@ -1,0 +1,49 @@
+{
+  "_args": [
+    [
+      "@activepipe/stylelint-colorvars-check@1.0.5",
+      "/Users/john/Documents/WebDev/activepipe.com"
+    ]
+  ],
+  "_development": true,
+  "_from": "@activepipe/stylelint-colorvars-check@1.0.5",
+  "_id": "@activepipe/stylelint-colorvars-check@1.0.5",
+  "_inBundle": false,
+  "_integrity": "sha512-9W4i++9fwF8rYS6zHLB0ZSlwN4zeSr9zvTrM+ZatZwV9vSWzfMSPsHcRgXItRSkPOdYE7Cv0L40c5zjeh1GUnQ==",
+  "_location": "/@activepipe/stylelint-colorvars-check",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "@activepipe/stylelint-colorvars-check@1.0.5",
+    "name": "@activepipe/stylelint-colorvars-check",
+    "escapedName": "@activepipe%2fstylelint-colorvars-check",
+    "scope": "@activepipe",
+    "rawSpec": "1.0.5",
+    "saveSpec": null,
+    "fetchSpec": "1.0.5"
+  },
+  "_requiredBy": ["#DEV:/"],
+  "_resolved": "https://registry.npmjs.org/@activepipe/stylelint-colorvars-check/-/stylelint-colorvars-check-1.0.5.tgz",
+  "_shasum": "01d3d4ed28494e1fe45ecf46d0081060971c737f",
+  "_spec": "1.0.5",
+  "_where": "/Users/john/Documents/WebDev/activepipe.com",
+  "author": {
+    "name": "John McClumpha",
+    "email": "john@activepipe.com"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Stylelint rules to ensure color variables have been declared using an @value statement",
+  "license": "ISC",
+  "main": "index.js",
+  "name": "@activepipe/stylelint-colorvars-check",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.7",
+
+  "_resolved": "https://npm.fury.io/activepipe/~/d/%40activepipe%2Fstylelint-colorvars-check/%40activepipe%2Fstylelint-colorvars-check-1.0.7",
+  "_integrity": "sha1-gDSKQe77Cy8Eidvn+UmrDiFRBPQ=",
+  "_from": "@activepipe/stylelint-colorvars-check@1.0.7"
+}

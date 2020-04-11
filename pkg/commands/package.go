@@ -8,16 +8,16 @@ import (
 )
 
 type PackageConfigInput struct {
-	Name        string   `json:"name"`
-	Version     string   `json:"version"`
-	License     string   `json:"license"`
-	Private     bool     `json:"private"`
-	Description string   `json:"description"`
-	Files       []string `json:"files"`
-	Keywords    []string `json:"keywords"`
-	Os          []string `json:"os"`
-	Cpu         []string `json:"cpu"`
-	Main        string   `json:"main"`
+	Name        string          `json:"name"`
+	Version     string          `json:"version"`
+	RawLicense  json.RawMessage `json:"license"`
+	Private     bool            `json:"private"`
+	Description string          `json:"description"`
+	Files       []string        `json:"files"`
+	RawKeywords json.RawMessage `json:"keywords"`
+	Os          []string        `json:"os"`
+	Cpu         []string        `json:"cpu"`
+	Main        string          `json:"main"`
 	Engines     struct {
 		Node string `json:"node"`
 		Npm  string `json:"npm"`

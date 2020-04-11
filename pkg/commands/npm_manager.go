@@ -40,7 +40,7 @@ func NewNpmManager(log *logrus.Entry, osCommand *OSCommand, tr *i18n.Localizer, 
 	}, nil
 }
 
-func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error) {
+func UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error) {
 	var pkgInput *PackageConfigInput
 	d := json.NewDecoder(r)
 	if err := d.Decode(&pkgInput); err != nil {
@@ -56,12 +56,20 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 		return bytes.HasPrefix(b, []byte{'{'})
 	}
 
+	isArray := func(b []byte) bool {
+		return bytes.HasPrefix(b, []byte{'['})
+	}
+
+	isString := func(b []byte) bool {
+		return bytes.HasPrefix(b, []byte{'"'})
+	}
+
 	if isObject(pkgInput.RawAuthor) {
 		err := json.Unmarshal(pkgInput.RawAuthor, &pkg.Author)
 		if err != nil {
 			return nil, err
 		}
-	} else if len(pkgInput.RawAuthor) > 0 {
+	} else if isString(pkgInput.RawAuthor) {
 		err := json.Unmarshal(pkgInput.RawAuthor, &pkg.Author.SingleLine)
 		if err != nil {
 			return nil, err
@@ -71,13 +79,13 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 	for _, rawContributor := range pkgInput.RawContributors {
 		var contributor *Author
 		if isObject(rawContributor) {
-			err := json.Unmarshal(rawContributor, contributor)
+			err := json.Unmarshal(rawContributor, &contributor)
 			if err != nil {
 				return nil, err
 			}
-		} else if len(rawContributor) > 0 {
+		} else if isString(rawContributor) {
 			contributor = &Author{}
-			err := json.Unmarshal(rawContributor, &contributor)
+			err := json.Unmarshal(rawContributor, &contributor.SingleLine)
 			if err != nil {
 				return nil, err
 			}
@@ -90,7 +98,7 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 		if err != nil {
 			return nil, err
 		}
-	} else if len(pkgInput.RawRepository) > 0 {
+	} else if isString(pkgInput.RawRepository) {
 		err := json.Unmarshal(pkgInput.RawRepository, &pkg.Repository.SingleLine)
 		if err != nil {
 			return nil, err
@@ -102,12 +110,34 @@ func (m *NpmManager) UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error)
 		if err != nil {
 			return nil, err
 		}
-	} else if len(pkgInput.RawBugs) > 0 {
+	} else if isString(pkgInput.RawBugs) {
 		err := json.Unmarshal(pkgInput.RawBugs, &pkg.Bugs.Url)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	if isArray(pkgInput.RawKeywords) {
+		err := json.Unmarshal(pkgInput.RawKeywords, &pkg.Keywords)
+		if err != nil {
+			return nil, err
+		}
+	} else if isString(pkgInput.RawKeywords) {
+		onlyKeyword := ""
+		err := json.Unmarshal(pkgInput.RawKeywords, &onlyKeyword)
+		if err != nil {
+			return nil, err
+		}
+		pkg.Keywords = []string{onlyKeyword}
+	}
+
+	if isString(pkgInput.RawLicense) {
+		err := json.Unmarshal(pkgInput.RawLicense, &pkg.License)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &pkg, nil
 }
 
@@ -150,7 +180,7 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 			m.Log.Error(err)
 			continue
 		}
-		pkgConfig, err := m.UnmarshalPackageConfig(file)
+		pkgConfig, err := UnmarshalPackageConfig(file)
 		if err != nil {
 			return nil, err
 		}
@@ -213,7 +243,7 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 			m.Log.Error(err)
 			continue
 		}
-		pkgConfig, err := m.UnmarshalPackageConfig(file)
+		pkgConfig, err := UnmarshalPackageConfig(file)
 		if err != nil {
 			// swallowing error
 			m.Log.Error(err)
