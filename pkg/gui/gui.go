@@ -131,7 +131,6 @@ type guiState struct {
 	PrevMainWidth     int
 	PrevMainHeight    int
 	OldInformation    string
-	StartupStage      int // one of INITIAL and COMPLETE. Allows us to not load everything at once
 	CurrentPackageIdx int
 	ContextViews      map[string]*gocui.View
 }
