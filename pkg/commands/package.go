@@ -142,3 +142,7 @@ func (p *Package) ConfigPath() string {
 func (p *Package) ID() string {
 	return fmt.Sprintf("package:%s", p.Path)
 }
+
+func (p *Package) Scoped() bool {
+	return strings.HasPrefix(p.Config.Name, "@")
+}

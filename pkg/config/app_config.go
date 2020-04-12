@@ -304,6 +304,7 @@ keybinding:
     globalLink: 'L'
     build: 'b'
     pack: 'p'
+    publish: 'P'
 `)
 }
 

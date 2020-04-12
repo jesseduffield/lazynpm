@@ -264,3 +264,52 @@ func (gui *Gui) selectedPackageID() string {
 
 	return pkg.ID()
 }
+
+func (gui *Gui) handlePublishPackage(pkg *commands.Package) error {
+	cmdStr := "npm publish"
+
+	tagPrompt := func() error {
+		return gui.createPromptPanel(gui.getPackagesView(), "Enter tag name (leave blank for no tag)", "", func(tag string) error {
+			if tag != "" {
+				cmdStr = fmt.Sprintf("%s --tag=%s", cmdStr, tag)
+			}
+			cmdStr = fmt.Sprintf("%s %s", cmdStr, pkg.Config.Name)
+			return gui.newMainCommand(cmdStr, pkg.ID())
+		})
+	}
+
+	if pkg.Scoped() {
+		menuItems := []*menuItem{
+			{
+				displayStrings: []string{"restricted (default)", utils.ColoredString("--access=restricted", color.FgYellow)},
+				onPress: func() error {
+					cmdStr = fmt.Sprintf("%s --access=restricted", cmdStr)
+					return tagPrompt()
+				},
+			},
+			{
+				displayStrings: []string{"public", utils.ColoredString("--access=public", color.FgYellow)},
+				onPress: func() error {
+					cmdStr = fmt.Sprintf("%s --access=public", cmdStr)
+					return tagPrompt()
+				},
+			},
+		}
+
+		return gui.createMenu("Set access for publishing scoped package (npm publish)", menuItems, createMenuOptions{showCancel: true})
+	}
+
+	return tagPrompt()
+}
+
+func (gui *Gui) wrappedPackageHandler(f func(*commands.Package) error) func(*gocui.Gui, *gocui.View) error {
+
+	return gui.wrappedHandler(func() error {
+		pkg := gui.getSelectedPackage()
+		if pkg == nil {
+			return nil
+		}
+
+		return f(pkg)
+	})
+}

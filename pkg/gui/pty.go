@@ -69,9 +69,14 @@ func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd, cmdStr string) error 
 
 		_, _ = io.Copy(view, ptmx)
 
-		fmt.Fprint(view, utils.ColoredString("\ncommand has completed", color.FgGreen))
-
 		onClose()
+
+		if cmd.ProcessState.Success() {
+			fmt.Fprint(view, utils.ColoredString("\ncommand completed successfully", color.FgGreen))
+		} else {
+			fmt.Fprint(view, utils.ColoredString("\ncommand failed", color.FgRed))
+		}
+
 	}()
 	return nil
 }
