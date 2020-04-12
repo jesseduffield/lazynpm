@@ -366,7 +366,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		{
 			ViewName: "packages",
 			Key:      gui.getKey("universal.select"),
-			Handler:  gui.wrappedHandler(gui.handleCheckoutPackage),
+			Handler:  gui.wrappedPackageHandler(gui.handleCheckoutPackage),
 		},
 		{
 			ViewName: "packages",
@@ -382,7 +382,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.pack"),
-			Handler:     gui.wrappedHandler(gui.handlePackPackage),
+			Handler:     gui.wrappedPackageHandler(gui.handlePackPackage),
 			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm pack`", color.FgYellow)),
 		},
 		{
@@ -394,67 +394,67 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.globalLink"),
-			Handler:     gui.wrappedHandler(gui.handleGlobalLinkPackage),
+			Handler:     gui.wrappedPackageHandler(gui.handleGlobalLinkPackage),
 			Description: fmt.Sprintf("%s (i.e. globally link) (or unlink if already linked)", utils.ColoredString("`npm link`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("universal.remove"),
-			Handler:     gui.wrappedHandler(gui.handleRemovePackage),
+			Handler:     gui.wrappedPackageHandler(gui.handleRemovePackage),
 			Description: "remove package from list",
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("universal.install"),
-			Handler:     gui.wrappedHandler(gui.handleInstall),
+			Handler:     gui.wrappedPackageHandler(gui.handleInstall),
 			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm install`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.build"),
-			Handler:     gui.wrappedHandler(gui.handleBuild),
+			Handler:     gui.wrappedPackageHandler(gui.handleBuild),
 			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm run build`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("universal.openFile"),
-			Handler:     gui.wrappedHandler(gui.handleOpenPackageConfig),
+			Handler:     gui.wrappedPackageHandler(gui.handleOpenPackageConfig),
 			Description: "open package.json",
 		},
 		{
 			ViewName:    "scripts",
 			Key:         gui.getKey("universal.select"),
-			Handler:     gui.wrappedHandler(gui.handleRunScript),
+			Handler:     gui.wrappedScriptHandler(gui.handleRunScript),
 			Description: fmt.Sprintf("%s script", utils.ColoredString("`npm run`", color.FgYellow)),
 		},
 		{
 			ViewName:    "scripts",
 			Key:         gui.getKey("universal.remove"),
-			Handler:     gui.wrappedHandler(gui.handleRemoveScript),
+			Handler:     gui.wrappedScriptHandler(gui.handleRemoveScript),
 			Description: "remove script from package.json",
 		},
 		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.install"),
-			Handler:     gui.wrappedHandler(gui.handleDepInstall),
+			Handler:     gui.wrappedDependencyHandler(gui.handleDepInstall),
 			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm install`", color.FgYellow)),
 		},
 		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.openFile"),
-			Handler:     gui.wrappedHandler(gui.handleOpenDepPackageConfig),
+			Handler:     gui.wrappedDependencyHandler(gui.handleOpenDepPackageConfig),
 			Description: "open package.json",
 		},
 		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.update"),
-			Handler:     gui.wrappedHandler(gui.handleDepUpdate),
+			Handler:     gui.wrappedDependencyHandler(gui.handleDepUpdate),
 			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm update`", color.FgYellow)),
 		},
 		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.remove"),
-			Handler:     gui.wrappedHandler(gui.handleDepUninstall),
+			Handler:     gui.wrappedDependencyHandler(gui.handleDepUninstall),
 			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm uninstall`", color.FgYellow)),
 		},
 	}

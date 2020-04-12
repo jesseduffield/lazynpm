@@ -103,14 +103,8 @@ func (gui *Gui) refreshStatePackages() error {
 	return nil
 }
 
-func (gui *Gui) handleCheckoutPackage() error {
-	selectedPkg := gui.getSelectedPackage()
-
-	if selectedPkg == nil {
-		return nil
-	}
-
-	if err := gui.sendPackageToTop(selectedPkg.Path); err != nil {
+func (gui *Gui) handleCheckoutPackage(pkg *commands.Package) error {
+	if err := gui.sendPackageToTop(pkg.Path); err != nil {
 		return err
 	}
 
@@ -146,74 +140,49 @@ func (gui *Gui) handleLinkPackage() error {
 	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }
 
-func (gui *Gui) handleGlobalLinkPackage() error {
-	selectedPkg := gui.getSelectedPackage()
-	if selectedPkg == nil {
-		return nil
-	}
-
-	if selectedPkg != gui.currentPackage() {
+func (gui *Gui) handleGlobalLinkPackage(pkg *commands.Package) error {
+	if pkg != gui.currentPackage() {
 		return gui.surfaceError(errors.New("You can only globally link the current package. Hit space on this package to make it the current package."))
 	}
 
 	var cmdStr string
-	if selectedPkg.LinkedGlobally {
+	if pkg.LinkedGlobally {
 		cmdStr = "npm unlink"
 	} else {
 		cmdStr = "npm link"
 	}
 
-	return gui.newMainCommand(cmdStr, selectedPkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID())
 }
 
-func (gui *Gui) handleInstall() error {
-	selectedPkg := gui.getSelectedPackage()
-	if selectedPkg == nil {
-		return nil
-	}
-
+func (gui *Gui) handleInstall(pkg *commands.Package) error {
 	var cmdStr string
-	if selectedPkg == gui.currentPackage() {
+	if pkg == gui.currentPackage() {
 		cmdStr = "npm install"
 	} else {
-		cmdStr = "npm install --prefix " + selectedPkg.Path
+		cmdStr = "npm install --prefix " + pkg.Path
 	}
 
-	return gui.newMainCommand(cmdStr, selectedPkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID())
 }
 
-func (gui *Gui) handleBuild() error {
-	selectedPkg := gui.getSelectedPackage()
-	if selectedPkg == nil {
-		return nil
-	}
-
+func (gui *Gui) handleBuild(pkg *commands.Package) error {
 	var cmdStr string
-	if selectedPkg == gui.currentPackage() {
+	if pkg == gui.currentPackage() {
 		cmdStr = "npm run build"
 	} else {
-		cmdStr = "npm run build --prefix " + selectedPkg.Path
+		cmdStr = "npm run build --prefix " + pkg.Path
 	}
 
-	return gui.newMainCommand(cmdStr, selectedPkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID())
 }
 
-func (gui *Gui) handleOpenPackageConfig() error {
-	selectedPkg := gui.getSelectedPackage()
-	if selectedPkg == nil {
-		return nil
-	}
-
-	return gui.openFile(selectedPkg.ConfigPath())
+func (gui *Gui) handleOpenPackageConfig(pkg *commands.Package) error {
+	return gui.openFile(pkg.ConfigPath())
 }
 
-func (gui *Gui) handleRemovePackage() error {
-	selectedPkg := gui.getSelectedPackage()
-	if selectedPkg == nil {
-		return nil
-	}
-
-	if selectedPkg == gui.currentPackage() {
+func (gui *Gui) handleRemovePackage(pkg *commands.Package) error {
+	if pkg == gui.currentPackage() {
 		return gui.createErrorPanel("Cannot remove current package")
 	}
 
@@ -223,7 +192,7 @@ func (gui *Gui) handleRemovePackage() error {
 		prompt:             "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.",
 		returnFocusOnClose: true,
 		handleConfirm: func() error {
-			return gui.removePackage(selectedPkg.Path)
+			return gui.removePackage(pkg.Path)
 		},
 	})
 }
@@ -242,18 +211,13 @@ func (gui *Gui) handleAddPackage() error {
 	})
 }
 
-func (gui *Gui) handlePackPackage() error {
-	selectedPkg := gui.getSelectedPackage()
-	if selectedPkg == nil {
-		return nil
-	}
-
+func (gui *Gui) handlePackPackage(pkg *commands.Package) error {
 	cmdStr := "npm pack"
-	if selectedPkg != gui.currentPackage() {
-		cmdStr = fmt.Sprintf("npm pack %s", selectedPkg.Path)
+	if pkg != gui.currentPackage() {
+		cmdStr = fmt.Sprintf("npm pack %s", pkg.Path)
 	}
 
-	return gui.newMainCommand(cmdStr, selectedPkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID())
 }
 
 func (gui *Gui) selectedPackageID() string {
@@ -303,7 +267,6 @@ func (gui *Gui) handlePublishPackage(pkg *commands.Package) error {
 }
 
 func (gui *Gui) wrappedPackageHandler(f func(*commands.Package) error) func(*gocui.Gui, *gocui.View) error {
-
 	return gui.wrappedHandler(func() error {
 		pkg := gui.getSelectedPackage()
 		if pkg == nil {

@@ -35,17 +35,13 @@ func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func (gui *Gui) handleRunScript() error {
-	script := gui.getSelectedScript()
-
+func (gui *Gui) handleRunScript(script *commands.Script) error {
 	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s", script.Name), func(input string) error {
 		return gui.newMainCommand(input, script.ID())
 	})
 }
 
-func (gui *Gui) handleRemoveScript() error {
-	script := gui.getSelectedScript()
-
+func (gui *Gui) handleRemoveScript(script *commands.Script) error {
 	return gui.createConfirmationPanel(createConfirmationPanelOpts{
 		returnToView:       gui.getScriptsView(),
 		title:              "Remove script",
@@ -66,4 +62,15 @@ func (gui *Gui) selectedScriptID() string {
 	}
 
 	return script.ID()
+}
+
+func (gui *Gui) wrappedScriptHandler(f func(*commands.Script) error) func(*gocui.Gui, *gocui.View) error {
+	return gui.wrappedHandler(func() error {
+		pkg := gui.getSelectedScript()
+		if pkg == nil {
+			return nil
+		}
+
+		return f(pkg)
+	})
 }

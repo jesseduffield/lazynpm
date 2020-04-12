@@ -50,56 +50,36 @@ func (gui *Gui) linkPathMap() map[string]bool {
 	return linkPathMap
 }
 
-func (gui *Gui) handleDepInstall() error {
-	dep := gui.getSelectedDependency()
-	if dep == nil {
-		return nil
-	}
-
+func (gui *Gui) handleDepInstall(dep *commands.Dependency) error {
 	cmdStr := fmt.Sprintf("npm install %s", dep.Name)
 	return gui.newMainCommand(cmdStr, dep.ID())
 }
 
-func (gui *Gui) handleDepUpdate() error {
-	dep := gui.getSelectedDependency()
-	if dep == nil {
-		return nil
-	}
-
+func (gui *Gui) handleDepUpdate(dep *commands.Dependency) error {
 	cmdStr := fmt.Sprintf("npm update %s", dep.Name)
 	return gui.newMainCommand(cmdStr, dep.ID())
 }
 
-func (gui *Gui) handleOpenDepPackageConfig() error {
-	selectedDep := gui.getSelectedDependency()
-	if selectedDep == nil {
-		return nil
-	}
-
-	if selectedDep.PackageConfig == nil {
+func (gui *Gui) handleOpenDepPackageConfig(dep *commands.Dependency) error {
+	if dep.PackageConfig == nil {
 		return gui.surfaceError(errors.New("dependency not in node_modules"))
 	}
 
-	return gui.openFile(selectedDep.ConfigPath())
+	return gui.openFile(dep.ConfigPath())
 }
 
-func (gui *Gui) handleDepUninstall() error {
-	selectedDep := gui.getSelectedDependency()
-	if selectedDep == nil {
-		return nil
-	}
-
+func (gui *Gui) handleDepUninstall(dep *commands.Dependency) error {
 	var menuItems []*menuItem
 
-	if selectedDep.Kind == "peer" {
+	if dep.Kind == "peer" {
 		// I have no idea how peer dependencies work, so we're just using the one option here
-		uninstallStr := fmt.Sprintf("npm uninstall %s", selectedDep.Name)
+		uninstallStr := fmt.Sprintf("npm uninstall %s", dep.Name)
 
 		menuItems = []*menuItem{
 			{
 				displayStrings: []string{"uninstall", utils.ColoredString(uninstallStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallStr, selectedDep.ID())
+					return gui.newMainCommand(uninstallStr, dep.ID())
 				},
 			},
 		}
@@ -110,20 +90,20 @@ func (gui *Gui) handleDepUninstall() error {
 			"optional": " --save-optional",
 		}
 
-		uninstallCmdStr := fmt.Sprintf("npm uninstall --no-save %s", selectedDep.Name)
-		uninstallAndSaveCmdStr := fmt.Sprintf("npm uninstall%s %s", kindMap[selectedDep.Kind], selectedDep.Name)
+		uninstallCmdStr := fmt.Sprintf("npm uninstall --no-save %s", dep.Name)
+		uninstallAndSaveCmdStr := fmt.Sprintf("npm uninstall%s %s", kindMap[dep.Kind], dep.Name)
 
 		menuItems = []*menuItem{
 			{
 				displayStrings: []string{"uninstall and save", utils.ColoredString(uninstallAndSaveCmdStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallAndSaveCmdStr, selectedDep.ID())
+					return gui.newMainCommand(uninstallAndSaveCmdStr, dep.ID())
 				},
 			},
 			{
 				displayStrings: []string{"just uninstall", utils.ColoredString(uninstallCmdStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallCmdStr, selectedDep.ID())
+					return gui.newMainCommand(uninstallCmdStr, dep.ID())
 				},
 			},
 		}
@@ -139,4 +119,15 @@ func (gui *Gui) selectedDepID() string {
 	}
 
 	return selectedDep.ID()
+}
+
+func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) func(*gocui.Gui, *gocui.View) error {
+	return gui.wrappedHandler(func() error {
+		dep := gui.getSelectedDependency()
+		if dep == nil {
+			return nil
+		}
+
+		return f(dep)
+	})
 }
