@@ -131,3 +131,12 @@ func (gui *Gui) handleDepUninstall() error {
 
 	return gui.createMenu("Uninstall dependency", menuItems, createMenuOptions{showCancel: true})
 }
+
+func (gui *Gui) selectedDepID() string {
+	selectedDep := gui.getSelectedDependency()
+	if selectedDep == nil {
+		return ""
+	}
+
+	return selectedDep.ID()
+}

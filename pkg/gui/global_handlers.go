@@ -44,20 +44,35 @@ func (gui *Gui) scrollDownView(viewName string) error {
 	return nil
 }
 
+func (gui *Gui) currentContextViewID() string {
+	currentView := gui.g.CurrentView()
+	switch currentView.Name() {
+	case "packages":
+		return gui.selectedPackageID()
+	case "deps":
+		return gui.selectedDepID()
+	case "scripts":
+		return gui.selectedScriptID()
+	case "tarballs":
+		panic("remind me to implement scrolling for the tarballs panel")
+	}
+	return ""
+}
+
 func (gui *Gui) scrollUpMain(g *gocui.Gui, v *gocui.View) error {
-	return gui.scrollUpView("main")
+	id := gui.currentContextViewID()
+	if id == "" {
+		return nil
+	}
+	return gui.scrollUpView(id)
 }
 
 func (gui *Gui) scrollDownMain(g *gocui.Gui, v *gocui.View) error {
-	return gui.scrollDownView("main")
-}
-
-func (gui *Gui) scrollUpSecondary(g *gocui.Gui, v *gocui.View) error {
-	return gui.scrollUpView("secondary")
-}
-
-func (gui *Gui) scrollDownSecondary(g *gocui.Gui, v *gocui.View) error {
-	return gui.scrollDownView("secondary")
+	id := gui.currentContextViewID()
+	if id == "" {
+		return nil
+	}
+	return gui.scrollDownView(id)
 }
 
 func (gui *Gui) scrollUpConfirmationPanel(g *gocui.Gui, v *gocui.View) error {

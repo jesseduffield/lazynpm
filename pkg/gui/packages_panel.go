@@ -252,3 +252,12 @@ func (gui *Gui) handlePackPackage() error {
 
 	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }
+
+func (gui *Gui) selectedPackageID() string {
+	pkg := gui.getSelectedPackage()
+	if pkg == nil {
+		return ""
+	}
+
+	return pkg.ID()
+}

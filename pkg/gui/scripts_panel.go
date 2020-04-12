@@ -58,3 +58,12 @@ func (gui *Gui) handleRemoveScript() error {
 		},
 	})
 }
+
+func (gui *Gui) selectedScriptID() string {
+	script := gui.getSelectedScript()
+	if script == nil {
+		return ""
+	}
+
+	return script.ID()
+}
