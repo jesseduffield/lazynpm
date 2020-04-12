@@ -1,5 +1,10 @@
 package gui
 
 func (gui *Gui) handleEscapeMain() error {
-	return gui.returnFocus(gui.g, nil)
+	viewName := gui.State.CurrentSideView
+	view, err := gui.g.View(viewName)
+	if err != nil {
+		return nil
+	}
+	return gui.switchFocus(gui.g, nil, view)
 }

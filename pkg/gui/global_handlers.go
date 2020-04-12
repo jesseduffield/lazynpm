@@ -104,15 +104,13 @@ func (gui *Gui) handleMouseDownMain(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	}
 
-	return gui.switchFocus(gui.g, gui.g.CurrentView(), gui.getMainView())
-}
-
-func (gui *Gui) handleMouseDownSecondary(g *gocui.Gui, v *gocui.View) error {
-	if gui.popupPanelFocused() {
+	id := gui.currentContextViewID()
+	view, err := gui.g.View(id)
+	if err != nil {
 		return nil
 	}
 
-	return nil
+	return gui.switchFocus(gui.g, gui.g.CurrentView(), view)
 }
 
 func (gui *Gui) handleInfoClick(g *gocui.Gui, v *gocui.View) error {
@@ -179,4 +177,13 @@ func (gui *Gui) finalStep(err error) error {
 	}
 
 	return gui.surfaceError(gui.refreshPackages())
+}
+
+func (gui *Gui) enterMainView() error {
+	id := gui.currentContextViewID()
+	view, err := gui.g.View(id)
+	if err != nil {
+		return nil
+	}
+	return gui.switchFocus(gui.g, gui.g.CurrentView(), view)
 }

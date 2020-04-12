@@ -105,8 +105,10 @@ func (gui *Gui) newLineFocused(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	case "search", "confirmation":
 		return nil
+	case "tarballs":
+		panic("remind me to do this")
 	default:
-		panic(gui.Tr.SLocalize("NoViewMachingNewLineFocusedSwitchStatement"))
+		return nil
 	}
 }
 

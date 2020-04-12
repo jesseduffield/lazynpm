@@ -329,12 +329,6 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.handleInfoClick,
 		},
 		{
-			ViewName: "secondary",
-			Contexts: []string{"normal"},
-			Key:      gocui.MouseLeft,
-			Handler:  gui.handleMouseDownSecondary,
-		},
-		{
 			ViewName: "status",
 			Key:      gocui.MouseLeft,
 			Handler:  gui.handleStatusClick,
@@ -508,6 +502,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	// Appends keybindings to jump to a particular sideView using numbers
 	for i, viewName := range []string{"status", "packages", "deps", "scripts"} {
 		bindings = append(bindings, &Binding{ViewName: "", Key: rune(i+1) + '0', Handler: gui.goToSideView(viewName)})
+		bindings = append(bindings, &Binding{ViewName: viewName, Key: gui.getKey("universal.goInto"), Handler: gui.wrappedHandler(gui.enterMainView)})
 	}
 
 	for _, listView := range gui.getListViews() {
