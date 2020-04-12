@@ -114,9 +114,9 @@ func (p *Package) SortedDependencies() []*Dependency {
 		depsForKind := make([]*Dependency, 0, len(mapping.depMap))
 		for name, constraint := range mapping.depMap {
 			depsForKind = append(depsForKind, &Dependency{
-				Name:    name,
-				Version: constraint,
-				Kind:    mapping.kind,
+				Name:       name,
+				Constraint: constraint,
+				Kind:       mapping.kind,
 			})
 		}
 		sort.Slice(depsForKind, func(i, j int) bool { return strings.Compare(depsForKind[i].Name, depsForKind[j].Name) < 0 })

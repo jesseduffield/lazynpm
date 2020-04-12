@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/fatih/color"
 	"github.com/go-errors/errors"
@@ -133,29 +134,18 @@ func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) fun
 }
 
 func (gui *Gui) handleChangeDepType(dep *commands.Dependency) error {
-	installProd := fmt.Sprintf("npm install --save-prod %s", dep.Name)
-	installDev := fmt.Sprintf("npm install --save-dev %s", dep.Name)
-	installOptional := fmt.Sprintf("npm install --save-optional %s", dep.Name)
-
-	menuItems := []*menuItem{
-		{
-			displayStrings: []string{"dependencies", utils.ColoredString(installProd, color.FgYellow)},
+	kindKeyMap := commands.KindKeyMap()
+	kindFlagMap := commands.KindFlagMap()
+	menuItems := make([]*menuItem, 0, len(commands.KindKeyMap()))
+	for kind := range kindFlagMap {
+		kind := kind
+		cmdStr := fmt.Sprintf("npm install %s %s", kindFlagMap[kind], dep.Name)
+		menuItems = append(menuItems, &menuItem{
+			displayStrings: []string{kindKeyMap[kind], utils.ColoredString(cmdStr, color.FgYellow)},
 			onPress: func() error {
-				return gui.newMainCommand(installProd, dep.ID())
+				return gui.newMainCommand(cmdStr, dep.ID())
 			},
-		},
-		{
-			displayStrings: []string{"devDependencies", utils.ColoredString(installDev, color.FgYellow)},
-			onPress: func() error {
-				return gui.newMainCommand(installDev, dep.ID())
-			},
-		},
-		{
-			displayStrings: []string{"optionalDependencies", utils.ColoredString(installOptional, color.FgYellow)},
-			onPress: func() error {
-				return gui.newMainCommand(installOptional, dep.ID())
-			},
-		},
+		})
 	}
 
 	return gui.createMenu("Change dependency type", menuItems, createMenuOptions{showCancel: true})
@@ -171,30 +161,27 @@ func (gui *Gui) handleAddDependency(dep *commands.Dependency) error {
 		})
 	}
 
-	installProd := "npm install --save-prod"
-	installDev := "npm install --save-dev"
-	installOptional := "npm install --save-optional"
-
-	menuItems := []*menuItem{
-		{
-			displayStrings: []string{"dependencies", utils.ColoredString(installProd, color.FgYellow)},
+	kindKeyMap := commands.KindKeyMap()
+	kindFlagMap := commands.KindFlagMap()
+	menuItems := make([]*menuItem, 0, len(commands.KindKeyMap()))
+	for kind := range kindFlagMap {
+		kind := kind
+		cmdStr := fmt.Sprintf("npm install %s", kindFlagMap[kind])
+		menuItems = append(menuItems, &menuItem{
+			displayStrings: []string{kindKeyMap[kind], utils.ColoredString(cmdStr, color.FgYellow)},
 			onPress: func() error {
-				return prompt(installProd)
+				return prompt(cmdStr)
 			},
-		},
-		{
-			displayStrings: []string{"devDependencies", utils.ColoredString(installDev, color.FgYellow)},
-			onPress: func() error {
-				return prompt(installDev)
-			},
-		},
-		{
-			displayStrings: []string{"optionalDependencies", utils.ColoredString(installOptional, color.FgYellow)},
-			onPress: func() error {
-				return prompt(installOptional)
-			},
-		},
+		})
 	}
 
 	return gui.createMenu("Install dependency to:", menuItems, createMenuOptions{showCancel: true})
+}
+
+func (gui *Gui) handleEditDepConstraint(dep *commands.Dependency) error {
+	return gui.createPromptPanel(gui.getDepsView(), "Edit constraint", dep.Constraint, func(input string) error {
+
+		packageConfigPath := filepath.Join(dep.ParentPackagePath, "package.json")
+		return gui.NpmManager.EditDepConstraint(dep, packageConfigPath, input)
+	})
 }

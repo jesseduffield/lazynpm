@@ -27,7 +27,7 @@ func getDepDisplayStrings(d *commands.Dependency, commandView *commands.CommandV
 	if d.Linked() {
 		localVersionCol = utils.ColoredString("linked: "+d.LinkPath, color.FgCyan)
 	} else if d.PackageConfig != nil {
-		status, ok := semverStatus(d.PackageConfig.Version, d.Version)
+		status, ok := semverStatus(d.PackageConfig.Version, d.Constraint)
 		if ok {
 			localVersionCol = utils.ColoredString(d.PackageConfig.Version, color.FgGreen)
 		} else {
@@ -44,7 +44,7 @@ func getDepDisplayStrings(d *commands.Dependency, commandView *commands.CommandV
 		"optional": theme.DefaultTextColor,
 	}
 
-	return []string{commandView.Status(), d.Name, utils.ColoredString(d.Kind, kindColorMap[d.Kind]), utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
+	return []string{commandView.Status(), d.Name, utils.ColoredString(d.Kind, kindColorMap[d.Kind]), utils.ColoredString(d.Constraint, color.FgMagenta), localVersionCol}
 }
 
 func statusMap() map[int]string {

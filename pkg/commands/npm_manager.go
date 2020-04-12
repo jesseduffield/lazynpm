@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -126,6 +127,7 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 	for _, dep := range deps {
 		depPath := filepath.Join(currentPkg.Path, "node_modules", dep.Name)
 		dep.Path = depPath
+		dep.ParentPackagePath = currentPkg.Path
 		fileInfo, err := os.Lstat(depPath)
 		if err != nil {
 			// must not be present in node modules
@@ -171,6 +173,20 @@ func (m *NpmManager) RemoveScript(scriptName string, packageJsonPath string) err
 	}
 
 	updatedConfig := jsonparser.Delete(config, "scripts", scriptName)
+
+	return ioutil.WriteFile(packageJsonPath, updatedConfig, 0644)
+}
+
+func (m *NpmManager) EditDepConstraint(dep *Dependency, packageJsonPath string, constraint string) error {
+	config, err := ioutil.ReadFile(packageJsonPath)
+	if err != nil {
+		return err
+	}
+
+	updatedConfig, err := jsonparser.Set(config, []byte(fmt.Sprintf("\"%s\"", constraint)), dep.kindKey(), dep.Name)
+	if err != nil {
+		return err
+	}
 
 	return ioutil.WriteFile(packageJsonPath, updatedConfig, 0644)
 }

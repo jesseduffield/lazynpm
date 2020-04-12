@@ -6,13 +6,14 @@ import (
 )
 
 type Dependency struct {
-	Name          string
-	Version       string
-	LinkPath      string
-	Present       bool
-	PackageConfig *PackageConfig
-	Path          string
-	Kind          string
+	Name              string
+	Constraint        string
+	LinkPath          string
+	Present           bool
+	PackageConfig     *PackageConfig
+	Path              string
+	Kind              string
+	ParentPackagePath string
 }
 
 func (d *Dependency) Linked() bool {
@@ -25,4 +26,25 @@ func (d *Dependency) ConfigPath() string {
 
 func (d *Dependency) ID() string {
 	return fmt.Sprintf("dep:%s|kind:%s", d.Path, d.Kind)
+}
+
+func KindKeyMap() map[string]string {
+	return map[string]string{
+		"prod":     "dependencies",
+		"dev":      "devDependencies",
+		"optional": "optionalDependencies",
+		"peer":     "peerDependencies",
+	}
+}
+
+func KindFlagMap() map[string]string {
+	return map[string]string{
+		"prod":     "--save-prod",
+		"dev":      "--save-dev",
+		"optional": "--save-optional",
+	}
+}
+
+func (d *Dependency) kindKey() string {
+	return KindKeyMap()[d.Kind]
 }
