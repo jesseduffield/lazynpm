@@ -133,9 +133,9 @@ func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) fun
 }
 
 func (gui *Gui) handleChangeDepType(dep *commands.Dependency) error {
-	installProd := "npm install --save-prod"
-	installDev := "npm install --save-dev"
-	installOptional := "npm install --save-optional"
+	installProd := fmt.Sprintf("npm install --save-prod %s", dep.Name)
+	installDev := fmt.Sprintf("npm install --save-dev %s", dep.Name)
+	installOptional := fmt.Sprintf("npm install --save-optional %s", dep.Name)
 
 	menuItems := []*menuItem{
 		{
