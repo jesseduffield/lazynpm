@@ -190,3 +190,19 @@ func (m *NpmManager) EditDepConstraint(dep *Dependency, packageJsonPath string, 
 
 	return ioutil.WriteFile(packageJsonPath, updatedConfig, 0644)
 }
+
+func (m *NpmManager) EditScript(scriptName string, packageJsonPath string, newName string, newCommand string) error {
+	config, err := ioutil.ReadFile(packageJsonPath)
+	if err != nil {
+		return err
+	}
+
+	updatedConfig := jsonparser.Delete(config, "scripts", scriptName)
+
+	updatedConfig, err = jsonparser.Set(updatedConfig, []byte(fmt.Sprintf("\"%s\"", newCommand)), "scripts", newName)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(packageJsonPath, updatedConfig, 0644)
+}

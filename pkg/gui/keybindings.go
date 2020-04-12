@@ -434,6 +434,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Description: "remove script from package.json",
 		},
 		{
+			ViewName:    "scripts",
+			Key:         gui.getKey("universal.edit"),
+			Handler:     gui.wrappedScriptHandler(gui.handleEditScript),
+			Description: "edit script",
+		},
+		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.install"),
 			Handler:     gui.wrappedDependencyHandler(gui.handleDepInstall),
