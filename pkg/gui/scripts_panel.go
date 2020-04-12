@@ -31,20 +31,16 @@ func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	}
 	gui.renderString("secondary", presentation.ScriptSummary(script))
-	gui.activateContextView(gui.scriptContextKey(script))
+	gui.activateContextView(script.ID())
 	return nil
 }
 
 func (gui *Gui) handleRunScript() error {
 	script := gui.getSelectedScript()
 
-	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s ", script.Name), func(input string) error {
-		return gui.newMainCommand(input, gui.scriptContextKey(script))
+	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s", script.Name), func(input string) error {
+		return gui.newMainCommand(input, script.ID())
 	})
-}
-
-func (gui *Gui) scriptContextKey(script *commands.Script) string {
-	return fmt.Sprintf("package:%s|script:%s", gui.currentPackage().Path, script.Name)
 }
 
 func (gui *Gui) handleRemoveScript() error {

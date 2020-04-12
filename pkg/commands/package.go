@@ -129,7 +129,7 @@ func (p *Package) SortedDependencies() []*Dependency {
 func (p *Package) SortedScripts() []*Script {
 	scripts := make([]*Script, 0, len(p.Config.Scripts))
 	for name, command := range p.Config.Scripts {
-		scripts = append(scripts, &Script{Name: name, Command: command})
+		scripts = append(scripts, &Script{Name: name, Command: command, ParentPackagePath: p.Path})
 	}
 	sort.Slice(scripts, func(i, j int) bool { return strings.Compare(scripts[i].Name, scripts[j].Name) < 0 })
 	return scripts
@@ -137,4 +137,8 @@ func (p *Package) SortedScripts() []*Script {
 
 func (p *Package) ConfigPath() string {
 	return filepath.Join(p.Path, "package.json")
+}
+
+func (p *Package) ID() string {
+	return fmt.Sprintf("package:%s", p.Path)
 }

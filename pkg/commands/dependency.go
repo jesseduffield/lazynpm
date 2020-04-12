@@ -1,6 +1,9 @@
 package commands
 
-import "path/filepath"
+import (
+	"fmt"
+	"path/filepath"
+)
 
 type Dependency struct {
 	Name          string
@@ -18,4 +21,8 @@ func (d *Dependency) Linked() bool {
 
 func (d *Dependency) ConfigPath() string {
 	return filepath.Join(d.Path, "package.json")
+}
+
+func (d *Dependency) ID() string {
+	return fmt.Sprintf("dep:%s|kind:%s", d.Path, d.Kind)
 }

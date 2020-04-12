@@ -43,7 +43,7 @@ func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
 	summary := presentation.PackageSummary(pkg.Config)
 	summary = fmt.Sprintf("%s\nPath: %s", summary, utils.ColoredString(pkg.Path, color.FgCyan))
 	gui.renderString("secondary", summary)
-	gui.activateContextView(gui.packageContextKey(pkg))
+	gui.activateContextView(pkg.ID())
 	return nil
 }
 
@@ -140,11 +140,7 @@ func (gui *Gui) handleLinkPackage() error {
 		}
 	}
 
-	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
-}
-
-func (gui *Gui) packageContextKey(pkg *commands.Package) string {
-	return fmt.Sprintf("package:%s", pkg.Path)
+	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }
 
 func (gui *Gui) handleGlobalLinkPackage() error {
@@ -164,7 +160,7 @@ func (gui *Gui) handleGlobalLinkPackage() error {
 		cmdStr = "npm link"
 	}
 
-	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
+	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }
 
 func (gui *Gui) handleInstall() error {
@@ -180,7 +176,7 @@ func (gui *Gui) handleInstall() error {
 		cmdStr = "npm install --prefix " + selectedPkg.Path
 	}
 
-	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
+	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }
 
 func (gui *Gui) handleBuild() error {
@@ -196,7 +192,7 @@ func (gui *Gui) handleBuild() error {
 		cmdStr = "npm run build --prefix " + selectedPkg.Path
 	}
 
-	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
+	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }
 
 func (gui *Gui) handleOpenPackageConfig() error {
@@ -254,5 +250,5 @@ func (gui *Gui) handlePackPackage() error {
 		cmdStr = fmt.Sprintf("npm pack %s", selectedPkg.Path)
 	}
 
-	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
+	return gui.newMainCommand(cmdStr, selectedPkg.ID())
 }

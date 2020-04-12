@@ -35,7 +35,7 @@ func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 	} else {
 		gui.renderString("secondary", "dependency not present in node_modules")
 	}
-	gui.activateContextView(gui.depContextKey(dep))
+	gui.activateContextView(dep.ID())
 	return nil
 }
 
@@ -57,7 +57,7 @@ func (gui *Gui) handleDepInstall() error {
 	}
 
 	cmdStr := fmt.Sprintf("npm install %s", dep.Name)
-	return gui.newMainCommand(cmdStr, gui.depContextKey(dep))
+	return gui.newMainCommand(cmdStr, dep.ID())
 }
 
 func (gui *Gui) handleDepUpdate() error {
@@ -67,7 +67,7 @@ func (gui *Gui) handleDepUpdate() error {
 	}
 
 	cmdStr := fmt.Sprintf("npm update %s", dep.Name)
-	return gui.newMainCommand(cmdStr, gui.depContextKey(dep))
+	return gui.newMainCommand(cmdStr, dep.ID())
 }
 
 func (gui *Gui) handleOpenDepPackageConfig() error {
@@ -99,7 +99,7 @@ func (gui *Gui) handleDepUninstall() error {
 			{
 				displayStrings: []string{"uninstall", utils.ColoredString(uninstallStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallStr, gui.depContextKey(selectedDep))
+					return gui.newMainCommand(uninstallStr, selectedDep.ID())
 				},
 			},
 		}
@@ -117,21 +117,17 @@ func (gui *Gui) handleDepUninstall() error {
 			{
 				displayStrings: []string{"uninstall and save", utils.ColoredString(uninstallAndSaveCmdStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallAndSaveCmdStr, gui.depContextKey(selectedDep))
+					return gui.newMainCommand(uninstallAndSaveCmdStr, selectedDep.ID())
 				},
 			},
 			{
 				displayStrings: []string{"just uninstall", utils.ColoredString(uninstallCmdStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallCmdStr, gui.depContextKey(selectedDep))
+					return gui.newMainCommand(uninstallCmdStr, selectedDep.ID())
 				},
 			},
 		}
 	}
 
 	return gui.createMenu("Uninstall dependency", menuItems, createMenuOptions{showCancel: true})
-}
-
-func (gui *Gui) depContextKey(dep *commands.Dependency) string {
-	return fmt.Sprintf("package:%s|dep:%s|kind:%s", gui.currentPackage().Path, dep.Name, dep.Kind)
 }
