@@ -9,18 +9,18 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
-func GetPackageListDisplayStrings(packages []*commands.Package, linkPathMap map[string]bool) [][]string {
+func GetPackageListDisplayStrings(packages []*commands.Package, linkPathMap map[string]bool, commandMap map[string]*commands.CommandView) [][]string {
 	lines := make([][]string, len(packages))
 
 	for i := range packages {
 		pkg := packages[i]
-		lines[i] = getPackageDisplayStrings(pkg, linkPathMap[pkg.Path])
+		lines[i] = getPackageDisplayStrings(pkg, linkPathMap[pkg.Path], commandMap[pkg.ID()])
 	}
 
 	return lines
 }
 
-func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool) []string {
+func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool, commandView *commands.CommandView) []string {
 	attr := theme.DefaultTextColor
 	if p.LinkedGlobally {
 		attr = color.FgYellow
@@ -30,7 +30,8 @@ func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool) 
 	if linkedToCurrentPackage {
 		linkedArg = utils.ColoredString("(linked)", color.FgCyan)
 	}
-	return []string{line, linkedArg, utils.ColoredString(p.Path, color.FgBlue)}
+
+	return []string{commandView.Status(), line, linkedArg, utils.ColoredString(p.Path, color.FgBlue)}
 }
 
 func PackageSummary(pkgConfig commands.PackageConfig) string {

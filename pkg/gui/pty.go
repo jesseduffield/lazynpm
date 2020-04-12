@@ -57,6 +57,7 @@ func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd, cmdStr string) error 
 			gui.State.Ptmx = nil
 			view.Pty = false
 			view.StdinWriter = nil
+			_ = cmd.Wait()
 		}
 
 		if err := gui.onResize(); err != nil {

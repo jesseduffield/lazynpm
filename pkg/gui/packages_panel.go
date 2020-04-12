@@ -23,7 +23,7 @@ func (gui *Gui) getSelectedPackage() *commands.Package {
 }
 
 func (gui *Gui) activateContextView(viewName string) {
-	if gui.State.ContextViews[viewName] == nil {
+	if gui.State.CommandMap[viewName] == nil {
 		viewName = "main"
 		gui.getMainView().Clear()
 	}
@@ -58,7 +58,7 @@ func (gui *Gui) refreshPackages() error {
 	}
 
 	gui.g.Update(func(g *gocui.Gui) error {
-		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap())
+		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandMap)
 		gui.renderDisplayStrings(packagesView, displayStrings)
 
 		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps)

@@ -132,7 +132,7 @@ type guiState struct {
 	PrevMainHeight    int
 	OldInformation    string
 	CurrentPackageIdx int
-	ContextViews      map[string]*gocui.View
+	CommandMap        map[string]*commands.CommandView
 }
 
 func (gui *Gui) resetState() {
@@ -145,9 +145,9 @@ func (gui *Gui) resetState() {
 			Scripts:  &scriptsPanelState{SelectedLine: 0},
 			Menu:     &menuPanelState{SelectedLine: 0},
 		},
-		SideView:     nil,
-		Ptmx:         nil,
-		ContextViews: map[string]*gocui.View{},
+		SideView:   nil,
+		Ptmx:       nil,
+		CommandMap: map[string]*commands.CommandView{},
 	}
 }
 

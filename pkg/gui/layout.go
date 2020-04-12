@@ -217,8 +217,8 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		v.Autoscroll = true
 	}
 
-	for _, view := range gui.State.ContextViews {
-		_, _ = g.SetView(view.Name(), mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, 0)
+	for _, commandView := range gui.State.CommandMap {
+		_, _ = g.SetView(commandView.View.Name(), mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, 0)
 	}
 
 	hiddenViewOffset := 9999

@@ -1,6 +1,9 @@
 package gui
 
-import "github.com/jesseduffield/lazynpm/pkg/theme"
+import (
+	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/theme"
+)
 
 func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
@@ -24,7 +27,10 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 		return err
 	}
 
-	gui.State.ContextViews[contextKey] = v
+	gui.State.CommandMap[contextKey] = &commands.CommandView{
+		View: v,
+		Cmd:  cmd,
+	}
 
 	if err := gui.newPtyTask(contextKey, cmd, cmdStr); err != nil {
 		gui.Log.Error(err)
