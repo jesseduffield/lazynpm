@@ -129,7 +129,10 @@ func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) fun
 			return nil
 		}
 
-		return f(dep)
+		if err := f(dep); err != nil {
+			return err
+		}
+		return gui.surfaceError(gui.refreshPackages())
 	})
 }
 

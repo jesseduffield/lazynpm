@@ -66,12 +66,15 @@ func (gui *Gui) selectedScriptID() string {
 
 func (gui *Gui) wrappedScriptHandler(f func(*commands.Script) error) func(*gocui.Gui, *gocui.View) error {
 	return gui.wrappedHandler(func() error {
-		pkg := gui.getSelectedScript()
-		if pkg == nil {
+		script := gui.getSelectedScript()
+		if script == nil {
 			return nil
 		}
 
-		return f(pkg)
+		if err := f(script); err != nil {
+			return err
+		}
+		return gui.surfaceError(gui.refreshPackages())
 	})
 }
 

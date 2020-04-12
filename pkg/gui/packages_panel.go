@@ -23,7 +23,7 @@ func (gui *Gui) getSelectedPackage() *commands.Package {
 }
 
 func (gui *Gui) activateContextView(viewName string) {
-	if gui.State.CommandMap[viewName] == nil {
+	if gui.State.CommandViewMap[viewName] == nil {
 		viewName = "main"
 		gui.getMainView().Clear()
 	}
@@ -61,13 +61,13 @@ func (gui *Gui) refreshPackages() error {
 	}
 
 	gui.g.Update(func(g *gocui.Gui) error {
-		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandMap)
+		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandViewMap)
 		gui.renderDisplayStrings(packagesView, displayStrings)
 
-		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandMap)
+		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap)
 		gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 
-		displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandMap)
+		displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandViewMap)
 		gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 		return nil
 	})
@@ -273,6 +273,9 @@ func (gui *Gui) wrappedPackageHandler(f func(*commands.Package) error) func(*goc
 			return nil
 		}
 
-		return f(pkg)
+		if err := f(pkg); err != nil {
+			return err
+		}
+		return gui.surfaceError(gui.refreshPackages())
 	})
 }

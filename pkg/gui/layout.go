@@ -217,7 +217,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		v.Autoscroll = true
 	}
 
-	for _, commandView := range gui.State.CommandMap {
+	for _, commandView := range gui.State.CommandViewMap {
 		_, _ = g.SetView(commandView.View.Name(), mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, 0)
 	}
 

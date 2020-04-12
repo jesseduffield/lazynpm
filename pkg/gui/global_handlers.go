@@ -163,7 +163,7 @@ func (gui *Gui) handleKillCommand() error {
 		return nil
 	}
 
-	commandView := gui.State.CommandMap[contextViewId]
+	commandView := gui.State.CommandViewMap[contextViewId]
 	if commandView == nil {
 		return nil
 	}

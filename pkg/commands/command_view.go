@@ -35,4 +35,8 @@ func (cv *CommandView) Status() string {
 	}
 }
 
+func (cv *CommandView) Running() bool {
+	return cv.Cmd.ProcessState == nil
+}
+
 type CommandViewMap map[string]*CommandView

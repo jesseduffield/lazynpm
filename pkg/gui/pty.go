@@ -68,9 +68,6 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 		}
 	}
 
-	// autoscroll might have been turned off if the user scrolled midway through the last command
-	v.Autoscroll = true
-
 	if _, err := gui.g.SetViewOnTop(contextKey); err != nil {
 		return err
 	}
@@ -80,7 +77,7 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 		Cmd:  cmd,
 	}
 
-	gui.State.CommandMap[contextKey] = commandView
+	gui.State.CommandViewMap[contextKey] = commandView
 
 	if err := gui.newPtyTask(contextKey, commandView, cmdStr); err != nil {
 		gui.Log.Error(err)
@@ -126,6 +123,9 @@ func (gui *Gui) newPtyTask(viewName string, commandView *commands.CommandView, c
 			// swallowing for now (actually continue to swallow this)
 			return
 		}
+
+		// autoscroll might have been turned off if the user scrolled midway through the last command
+		view.Autoscroll = true
 		view.StdinWriter = ptmx
 		view.Pty = true
 

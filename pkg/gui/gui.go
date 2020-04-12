@@ -133,7 +133,7 @@ type guiState struct {
 	PrevMainHeight    int
 	OldInformation    string
 	CurrentPackageIdx int
-	CommandMap        commands.CommandViewMap
+	CommandViewMap    commands.CommandViewMap
 }
 
 func (gui *Gui) resetState() {
@@ -146,9 +146,9 @@ func (gui *Gui) resetState() {
 			Scripts:  &scriptsPanelState{SelectedLine: 0},
 			Menu:     &menuPanelState{SelectedLine: 0},
 		},
-		SideView:   nil,
-		Ptmx:       nil,
-		CommandMap: commands.CommandViewMap{},
+		SideView:       nil,
+		Ptmx:           nil,
+		CommandViewMap: commands.CommandViewMap{},
 	}
 }
 
@@ -230,7 +230,19 @@ func (gui *Gui) Run() error {
 	return err
 }
 
+func (gui *Gui) isCommandRunning() bool {
+	for _, commandView := range gui.State.CommandViewMap {
+		if commandView.Running() {
+			return true
+		}
+	}
+	return false
+}
+
 func (gui *Gui) refreshScreen() error {
+	if !gui.isCommandRunning() {
+		return nil
+	}
 	gui.g.Update(func(*gocui.Gui) error {
 		return nil
 	})
