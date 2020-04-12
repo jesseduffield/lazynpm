@@ -1,98 +1,37 @@
 package gui
 
-import (
-	"os/exec"
-
-	"github.com/jesseduffield/gocui"
-	"github.com/jesseduffield/lazynpm/pkg/tasks"
-)
-
-func (gui *Gui) newCmdTask(viewName string, cmd *exec.Cmd) error {
-	view, err := gui.g.View(viewName)
-	if err != nil {
-		return nil // swallowing for now
-	}
-
-	_, height := view.Size()
-	_, oy := view.Origin()
-
-	manager := gui.getManager(view)
-
-	r, err := cmd.StdoutPipe()
-	if err != nil {
-		return err
-	}
-	cmd.Stderr = cmd.Stdout
-
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-
-	if err := manager.NewTask(manager.NewCmdTask(r, cmd, height+oy+10, nil)); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (gui *Gui) newTask(viewName string, f func(chan struct{}) error) error {
-	view, err := gui.g.View(viewName)
-	if err != nil {
-		return nil // swallowing for now
-	}
-
-	manager := gui.getManager(view)
-
-	if err := manager.NewTask(f); err != nil {
-		return err
-	}
-
-	return nil
-}
+import "github.com/jesseduffield/lazynpm/pkg/theme"
 
 func (gui *Gui) newStringTask(viewName string, str string) error {
-	view, err := gui.g.View(viewName)
-	if err != nil {
-		return nil // swallowing for now
-	}
-
-	manager := gui.getManager(view)
-
-	f := func(stop chan struct{}) error {
-		gui.renderString(viewName, str)
-		return nil
-	}
-
-	if err := manager.NewTask(f); err != nil {
-		return err
-	}
-
+	gui.renderString(viewName, str)
 	return nil
-}
-
-func (gui *Gui) getManager(view *gocui.View) *tasks.ViewBufferManager {
-	manager, ok := gui.viewBufferManagerMap[view.Name()]
-	if !ok {
-		manager = tasks.NewViewBufferManager(
-			gui.Log,
-			view,
-			func() {
-				view.Clear()
-			},
-			func() {
-				gui.g.Update(func(*gocui.Gui) error {
-					return nil
-				})
-			})
-		gui.viewBufferManagerMap[view.Name()] = manager
-	}
-
-	return manager
 }
 
 func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+
+	mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, err := gui.getMainViewDimensions()
+	if err != nil {
+		return err
+	}
+
+	v, err := gui.g.SetView(contextKey, mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, 0)
+	if err != nil {
+		if err.Error() != "unknown view" {
+			return err
+		}
+		v.Wrap = true
+		v.FgColor = theme.GocuiDefaultTextColor
+		v.Autoscroll = true
+	}
+
+	if _, err := gui.g.SetViewOnTop(contextKey); err != nil {
+		return err
+	}
+
+	gui.State.ContextViews[contextKey] = v
+
+	if err := gui.newPtyTask(contextKey, cmd, cmdStr); err != nil {
 		gui.Log.Error(err)
 	}
 	return nil

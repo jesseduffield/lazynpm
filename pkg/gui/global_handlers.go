@@ -41,9 +41,6 @@ func (gui *Gui) scrollDownView(viewName string) error {
 			return err
 		}
 	}
-	if manager, ok := gui.viewBufferManagerMap[viewName]; ok {
-		manager.ReadLines(scrollHeight)
-	}
 	return nil
 }
 

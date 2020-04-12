@@ -43,13 +43,6 @@ func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd, cmdStr string) error 
 
 		view.Clear()
 
-		fmt.Fprint(view, utils.ColoredString(fmt.Sprintf("+ %s\n\n", cmdStr), color.FgYellow))
-
-		// _, height := view.Size()
-		// _, oy := view.Origin()
-
-		// manager := gui.getManager(view)
-
 		ptmx, err := pty.Start(cmd)
 		if err != nil {
 			// swallowing for now (actually continue to swallow this)
@@ -71,15 +64,13 @@ func (gui *Gui) newPtyTask(viewName string, cmd *exec.Cmd, cmdStr string) error 
 			return
 		}
 
+		fmt.Fprint(view, utils.ColoredString(fmt.Sprintf("+ %s\n\n", cmdStr), color.FgYellow))
+
 		_, _ = io.Copy(view, ptmx)
 
 		fmt.Fprint(view, utils.ColoredString("\ncommand has completed", color.FgGreen))
 
 		onClose()
-
-		// if err := manager.NewTask(manager.NewCmdTask(ptmx, cmd, height+oy+10, onClose)); err != nil {
-		// 	return err
-		// }
 	}()
 	return nil
 }

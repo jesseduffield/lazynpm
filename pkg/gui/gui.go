@@ -23,7 +23,6 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/config"
 	"github.com/jesseduffield/lazynpm/pkg/i18n"
-	"github.com/jesseduffield/lazynpm/pkg/tasks"
 	"github.com/jesseduffield/lazynpm/pkg/theme"
 	"github.com/jesseduffield/lazynpm/pkg/updates"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
@@ -71,20 +70,19 @@ type Teml i18n.Teml
 
 // Gui wraps the gocui Gui object which handles rendering and events
 type Gui struct {
-	g                    *gocui.Gui
-	Log                  *logrus.Entry
-	NpmManager           *commands.NpmManager
-	OSCommand            *commands.OSCommand
-	SubProcess           *exec.Cmd
-	State                *guiState
-	Config               config.AppConfigurer
-	Tr                   *i18n.Localizer
-	Errors               SentinelErrors
-	Updater              *updates.Updater
-	statusManager        *statusManager
-	waitForIntro         sync.WaitGroup
-	viewBufferManagerMap map[string]*tasks.ViewBufferManager
-	stopChan             chan struct{}
+	g             *gocui.Gui
+	Log           *logrus.Entry
+	NpmManager    *commands.NpmManager
+	OSCommand     *commands.OSCommand
+	SubProcess    *exec.Cmd
+	State         *guiState
+	Config        config.AppConfigurer
+	Tr            *i18n.Localizer
+	Errors        SentinelErrors
+	Updater       *updates.Updater
+	statusManager *statusManager
+	waitForIntro  sync.WaitGroup
+	stopChan      chan struct{}
 }
 
 type packagesPanelState struct {
@@ -135,6 +133,7 @@ type guiState struct {
 	OldInformation    string
 	StartupStage      int // one of INITIAL and COMPLETE. Allows us to not load everything at once
 	CurrentPackageIdx int
+	ContextViews      map[string]*gocui.View
 }
 
 func (gui *Gui) resetState() {
@@ -147,8 +146,9 @@ func (gui *Gui) resetState() {
 			Scripts:  &scriptsPanelState{SelectedLine: 0},
 			Menu:     &menuPanelState{SelectedLine: 0},
 		},
-		SideView: nil,
-		Ptmx:     nil,
+		SideView:     nil,
+		Ptmx:         nil,
+		ContextViews: map[string]*gocui.View{},
 	}
 }
 
@@ -156,14 +156,13 @@ func (gui *Gui) resetState() {
 // NewGui builds a new gui handler
 func NewGui(log *logrus.Entry, gitCommand *commands.NpmManager, oSCommand *commands.OSCommand, tr *i18n.Localizer, config config.AppConfigurer, updater *updates.Updater) (*Gui, error) {
 	gui := &Gui{
-		Log:                  log,
-		NpmManager:           gitCommand,
-		OSCommand:            oSCommand,
-		Config:               config,
-		Tr:                   tr,
-		Updater:              updater,
-		statusManager:        &statusManager{},
-		viewBufferManagerMap: map[string]*tasks.ViewBufferManager{},
+		Log:           log,
+		NpmManager:    gitCommand,
+		OSCommand:     oSCommand,
+		Config:        config,
+		Tr:            tr,
+		Updater:       updater,
+		statusManager: &statusManager{},
 	}
 
 	gui.resetState()
@@ -244,11 +243,6 @@ func (gui *Gui) refreshScreen() error {
 func (gui *Gui) RunWithSubprocesses() error {
 	for {
 		if err := gui.Run(); err != nil {
-			for _, manager := range gui.viewBufferManagerMap {
-				manager.Close()
-			}
-			gui.viewBufferManagerMap = map[string]*tasks.ViewBufferManager{}
-
 			close(gui.stopChan)
 
 			if err == gocui.ErrQuit {

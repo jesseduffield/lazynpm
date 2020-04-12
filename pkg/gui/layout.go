@@ -125,6 +125,38 @@ func (gui *Gui) getViewHeights() map[string]int {
 	return vHeights
 }
 
+func (gui *Gui) getMainViewDimensions() (int, int, int, int, error) {
+	width, height := gui.g.Size()
+
+	sidePanelWidthRatio := gui.Config.GetUserConfig().GetFloat64("gui.sidePanelWidth")
+
+	var leftSideWidth int
+	switch gui.State.ScreenMode {
+	case SCREEN_NORMAL:
+		leftSideWidth = int(float64(width) * sidePanelWidthRatio)
+	case SCREEN_HALF:
+		leftSideWidth = width/2 - 2
+	case SCREEN_FULL:
+		currentView := gui.g.CurrentView()
+		if currentView != nil && currentView.Name() == "main" {
+			leftSideWidth = 0
+		} else {
+			leftSideWidth = width - 1
+		}
+	}
+
+	mainPanelLeft := leftSideWidth + 1
+	mainPanelRight := width - 1
+	mainPanelTop := 6
+	secondaryView := gui.getSecondaryView()
+	if secondaryView != nil {
+		mainPanelTop = len(secondaryView.BufferLines()) + 2
+	}
+	mainPanelBottom := height - 2
+
+	return mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, nil
+}
+
 // layout is called for every screen re-render e.g. when the screen is resized
 func (gui *Gui) layout(g *gocui.Gui) error {
 	g.Highlight = true
@@ -164,53 +196,18 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 	_, _ = g.SetViewOnBottom("limit")
 	_ = g.DeleteView("limit")
 
-	sidePanelWidthRatio := gui.Config.GetUserConfig().GetFloat64("gui.sidePanelWidth")
-
 	textColor := theme.GocuiDefaultTextColor
-	var leftSideWidth int
-	switch gui.State.ScreenMode {
-	case SCREEN_NORMAL:
-		leftSideWidth = int(float64(width) * sidePanelWidthRatio)
-	case SCREEN_HALF:
-		leftSideWidth = width/2 - 2
-	case SCREEN_FULL:
-		currentView := gui.g.CurrentView()
-		if currentView != nil && currentView.Name() == "main" {
-			leftSideWidth = 0
-		} else {
-			leftSideWidth = width - 1
-		}
-	}
-
-	mainPanelLeft := leftSideWidth + 1
-	mainPanelRight := width - 1
-	secondaryPanelTop := 0
-	mainPanelTop := 6
-	secondaryView := gui.getSecondaryView()
-	if secondaryView != nil {
-		mainPanelTop = len(secondaryView.BufferLines()) + 2
-	}
-	mainPanelBottom := height - 2
 
 	main := "main"
 	secondary := "secondary"
 
-	// reading more lines into main view buffers upon resize
-	prevMainView, err := gui.g.View("main")
-	if err == nil {
-		_, prevMainHeight := prevMainView.Size()
-		heightDiff := mainPanelBottom - prevMainHeight - 1
-		if heightDiff > 0 {
-			if manager, ok := gui.viewBufferManagerMap["main"]; ok {
-				manager.ReadLines(heightDiff)
-			}
-			if manager, ok := gui.viewBufferManagerMap["secondary"]; ok {
-				manager.ReadLines(heightDiff)
-			}
-		}
+	mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, err := gui.getMainViewDimensions()
+	if err != nil {
+		return err
 	}
+	leftSideWidth := mainPanelLeft - 1
 
-	v, err := g.SetView(main, mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, gocui.LEFT)
+	v, err := g.SetView(main, mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, 0)
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
@@ -220,9 +217,13 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		v.Autoscroll = true
 	}
 
+	for _, view := range gui.State.ContextViews {
+		_, _ = g.SetView(view.Name(), mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, 0)
+	}
+
 	hiddenViewOffset := 9999
 
-	secondaryView, err = g.SetView(secondary, mainPanelLeft, secondaryPanelTop, width-1, mainPanelTop-1, gocui.LEFT)
+	secondaryView, err := g.SetView(secondary, mainPanelLeft, 0, width-1, mainPanelTop-1, 0)
 	if err != nil {
 		if err.Error() != "unknown view" {
 			return err
