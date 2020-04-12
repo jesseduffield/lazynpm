@@ -2,7 +2,6 @@ package gui
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
@@ -38,10 +37,9 @@ func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
 func (gui *Gui) handleRunScript() error {
 	script := gui.getSelectedScript()
 
-	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s ", script.Name), func(g *gocui.Gui, v *gocui.View) error {
-		cmdStr := strings.TrimSpace(v.Buffer())
-		cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-		if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s ", script.Name), func(input string) error {
+		cmd := gui.OSCommand.ExecutableFromString(input)
+		if err := gui.newPtyTask("main", cmd, input); err != nil {
 			gui.Log.Error(err)
 		}
 		return nil
@@ -51,7 +49,7 @@ func (gui *Gui) handleRunScript() error {
 func (gui *Gui) handleRemoveScript() error {
 	script := gui.getSelectedScript()
 
-	return gui.createConfirmationPanel(gui.getScriptsView(), true, "Remove script", fmt.Sprintf("are you sure you want to remove script `%s`?", script.Name), func(g *gocui.Gui, v *gocui.View) error {
+	return gui.createConfirmationPanel(gui.getScriptsView(), true, "Remove script", fmt.Sprintf("are you sure you want to remove script `%s`?", script.Name), func() error {
 		return gui.surfaceError(
 			gui.NpmManager.RemoveScript(script.Name, gui.currentPackage().ConfigPath()),
 		)

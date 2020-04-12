@@ -2,6 +2,8 @@ package gui
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/go-errors/errors"
@@ -222,8 +224,22 @@ func (gui *Gui) handleRemovePackage() error {
 		return gui.createErrorPanel("Cannot remove current package")
 	}
 
-	return gui.createConfirmationPanel(gui.getPackagesView(), true, "Remove package", "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.", func(*gocui.Gui, *gocui.View) error {
+	return gui.createConfirmationPanel(gui.getPackagesView(), true, "Remove package", "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.", func() error {
 		return gui.removePackage(selectedPkg.Path)
 	},
 		nil)
+}
+
+func (gui *Gui) handleAddPackage() error {
+	return gui.createPromptPanel(gui.getPackagesView(), "Add package path to add", "", func(input string) error {
+		configPath := input
+		if !strings.HasSuffix(configPath, "package.json") {
+			configPath = filepath.Join(configPath, "package.json")
+		}
+		if !commands.FileExists(configPath) {
+			return gui.createErrorPanel(fmt.Sprintf("%s not found", configPath))
+		}
+
+		return gui.addPackage(strings.TrimSuffix(input, "package.json"))
+	})
 }

@@ -334,44 +334,6 @@ func (gui *Gui) updateRecentPackagesList() error {
 	return errors.New("Must open lazynpm in an npm package")
 }
 
-func (gui *Gui) sendPackageToTop(path string) error {
-	// in case we're not already there, chdir to path
-	if err := os.Chdir(path); err != nil {
-		return err
-	}
-
-	recentPackages := gui.Config.GetAppState().RecentPackages
-	isNew, recentPackages := newRecentPackagesList(recentPackages, path)
-	gui.Config.SetIsNewPackage(isNew)
-	gui.Config.GetAppState().RecentPackages = recentPackages
-	return gui.Config.SaveAppState()
-}
-
-func (gui *Gui) removePackage(path string) error {
-	recentPackages := gui.Config.GetAppState().RecentPackages
-	index, ok := utils.StringIndex(recentPackages, path)
-	if !ok {
-		return nil
-	}
-	recentPackages = append(recentPackages[:index], recentPackages[index+1:]...)
-	gui.Config.GetAppState().RecentPackages = recentPackages
-	return gui.Config.SaveAppState()
-}
-
-// newRecentPackagesList returns a new repo list with a new entry but only when it doesn't exist yet
-func newRecentPackagesList(recentPackages []string, currentPackage string) (bool, []string) {
-	isNew := true
-	newPackages := []string{currentPackage}
-	for _, pkg := range recentPackages {
-		if pkg != currentPackage {
-			newPackages = append(newPackages, pkg)
-		} else {
-			isNew = false
-		}
-	}
-	return isNew, newPackages
-}
-
 func (gui *Gui) showInitialPopups(tasks []func(chan struct{}) error) {
 	gui.waitForIntro.Add(len(tasks))
 	done := make(chan struct{})
@@ -391,7 +353,7 @@ func (gui *Gui) showInitialPopups(tasks []func(chan struct{}) error) {
 }
 
 func (gui *Gui) showShamelessSelfPromotionMessage(done chan struct{}) error {
-	onConfirm := func(g *gocui.Gui, v *gocui.View) error {
+	onConfirm := func() error {
 		done <- struct{}{}
 		return gui.Config.WriteToUserConfig("startupPopupVersion", StartupPopupVersion)
 	}
@@ -400,10 +362,10 @@ func (gui *Gui) showShamelessSelfPromotionMessage(done chan struct{}) error {
 }
 
 func (gui *Gui) promptAnonymousReporting(done chan struct{}) error {
-	return gui.createConfirmationPanel(nil, true, gui.Tr.SLocalize("AnonymousReportingTitle"), gui.Tr.SLocalize("AnonymousReportingPrompt"), func(g *gocui.Gui, v *gocui.View) error {
+	return gui.createConfirmationPanel(nil, true, gui.Tr.SLocalize("AnonymousReportingTitle"), gui.Tr.SLocalize("AnonymousReportingPrompt"), func() error {
 		done <- struct{}{}
 		return gui.Config.WriteToUserConfig("reporting", "on")
-	}, func(g *gocui.Gui, v *gocui.View) error {
+	}, func() error {
 		done <- struct{}{}
 		return gui.Config.WriteToUserConfig("reporting", "off")
 	})

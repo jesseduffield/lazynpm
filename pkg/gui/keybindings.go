@@ -441,6 +441,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.wrappedHandler(gui.handleCheckoutPackage),
 		},
 		{
+			ViewName: "packages",
+			Key:      gui.getKey("universal.new"),
+			Modifier: gocui.ModNone,
+			Handler:  gui.wrappedHandler(gui.handleAddPackage),
+		},
+		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.link"),
 			Modifier:    gocui.ModNone,

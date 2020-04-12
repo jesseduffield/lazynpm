@@ -22,7 +22,6 @@ type AppConfig struct {
 	UserConfig    *viper.Viper
 	UserConfigDir string
 	AppState      *AppState
-	IsNewPackage  bool
 }
 
 // AppConfigurer interface allows individual app config structs to inherit Fields
@@ -40,8 +39,6 @@ type AppConfigurer interface {
 	WriteToUserConfig(string, interface{}) error
 	SaveAppState() error
 	LoadAppState() error
-	SetIsNewPackage(bool)
-	GetIsNewPackage() bool
 }
 
 // NewAppConfig makes a new app config
@@ -65,7 +62,6 @@ func NewAppConfig(name, version, commit, date string, buildSource string, debugg
 		UserConfig:    userConfig,
 		UserConfigDir: filepath.Dir(userConfigPath),
 		AppState:      &AppState{},
-		IsNewPackage:  false,
 	}
 
 	if err := appConfig.LoadAppState(); err != nil {
@@ -73,16 +69,6 @@ func NewAppConfig(name, version, commit, date string, buildSource string, debugg
 	}
 
 	return appConfig, nil
-}
-
-// GetIsNewPackage returns known repo boolean
-func (c *AppConfig) GetIsNewPackage() bool {
-	return c.IsNewPackage
-}
-
-// SetIsNewPackage set if the current repo is known
-func (c *AppConfig) SetIsNewPackage(isNew bool) {
-	c.IsNewPackage = isNew
 }
 
 // GetDebug returns debug flag

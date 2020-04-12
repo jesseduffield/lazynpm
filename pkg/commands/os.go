@@ -418,5 +418,9 @@ func FileExists(filename string) bool {
 	if os.IsNotExist(err) {
 		return false
 	}
+	if err != nil {
+		// should actually do something here
+		return false
+	}
 	return !info.IsDir()
 }
