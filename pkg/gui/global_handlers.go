@@ -4,6 +4,7 @@ import (
 	"os/exec"
 
 	"github.com/jesseduffield/gocui"
+	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
@@ -154,4 +155,20 @@ func (gui *Gui) runSyncOrAsyncCommand(sub *exec.Cmd, err error) (bool, error) {
 		return false, gui.Errors.ErrSubProcess
 	}
 	return true, nil
+}
+
+func (gui *Gui) handleKillCommand() error {
+	contextViewId := gui.currentContextViewID()
+	if contextViewId == "" {
+		return nil
+	}
+
+	commandView := gui.State.CommandMap[contextViewId]
+	if commandView == nil {
+		return nil
+	}
+
+	commandView.Cancelled = true
+
+	return gui.surfaceError(commands.Kill(commandView.Cmd))
 }

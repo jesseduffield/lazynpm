@@ -275,6 +275,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.handleCreateOptionsMenu,
 		},
 		{
+			ViewName:    "",
+			Key:         gui.getKey("universal.kill"),
+			Handler:     gui.wrappedHandler(gui.handleKillCommand),
+			Description: "kill running command",
+		},
+		{
 			ViewName:    "status",
 			Key:         gui.getKey("universal.edit"),
 			Handler:     gui.handleEditConfig,

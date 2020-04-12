@@ -289,7 +289,7 @@ keybinding:
     prevTab: '['
     nextScreenMode: '+'
     prevScreenMode: '_'
-    undo: 'z'
+    kill: 'z'
     redo: '<c-z>'
     install: 'i'
     update: 'u'

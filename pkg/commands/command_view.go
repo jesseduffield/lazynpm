@@ -10,13 +10,18 @@ import (
 
 type CommandView struct {
 	// not super keen on having this dependency on gocui here but alas
-	View *gocui.View
-	Cmd  *exec.Cmd
+	View      *gocui.View
+	Cmd       *exec.Cmd
+	Cancelled bool
 }
 
 func (cv *CommandView) Status() string {
 	if cv == nil {
 		return ""
+	}
+
+	if cv.Cancelled {
+		return utils.ColoredString("*", color.FgRed, color.Bold)
 	}
 
 	if cv.Cmd.ProcessState == nil {
