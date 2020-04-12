@@ -55,7 +55,8 @@ func (gui *Gui) handleStatusSelect(g *gocui.Gui, v *gocui.View) error {
 			magenta.Sprint("Become a sponsor (github is matching all donations for 12 months): https://github.com/sponsors/jesseduffield"), // caffeine ain't free
 		}, "\n\n")
 
-	return gui.newStringTask("main", dashboardString)
+	gui.printToMain(dashboardString)
+	return nil
 }
 
 func (gui *Gui) handleOpenConfig(g *gocui.Gui, v *gocui.View) error {

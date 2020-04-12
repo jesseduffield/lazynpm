@@ -23,8 +23,8 @@ func (gui *Gui) getSelectedDependency() *commands.Dependency {
 func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 	dep := gui.getSelectedDependency()
 	if dep == nil {
-		gui.getMainView().Title = ""
-		return gui.newStringTask("main", gui.Tr.SLocalize("NoDependencies"))
+		gui.printToMain(gui.Tr.SLocalize("NoDependencies"))
+		return nil
 	}
 	if dep.PackageConfig != nil {
 		summary := presentation.PackageSummary(*dep.PackageConfig)
@@ -35,6 +35,7 @@ func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 	} else {
 		gui.renderString("secondary", "dependency not present in node_modules")
 	}
+	gui.activateContextView(gui.depContextKey(dep))
 	return nil
 }
 

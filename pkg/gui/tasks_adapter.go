@@ -2,11 +2,6 @@ package gui
 
 import "github.com/jesseduffield/lazynpm/pkg/theme"
 
-func (gui *Gui) newStringTask(viewName string, str string) error {
-	gui.renderString(viewName, str)
-	return nil
-}
-
 func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
 

@@ -22,12 +22,17 @@ func (gui *Gui) getSelectedPackage() *commands.Package {
 	return gui.State.Packages[gui.State.Panels.Packages.SelectedLine]
 }
 
-func (gui *Gui) bringContextViewToTop(viewName string) {
+func (gui *Gui) activateContextView(viewName string) {
 	if gui.State.ContextViews[viewName] == nil {
 		viewName = "main"
 		gui.getMainView().Clear()
 	}
 	_, _ = gui.g.SetViewOnTop(viewName)
+}
+
+func (gui *Gui) printToMain(str string) {
+	gui.renderString("main", str)
+	_, _ = gui.g.SetViewOnTop("main")
 }
 
 func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
@@ -38,7 +43,7 @@ func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
 	summary := presentation.PackageSummary(pkg.Config)
 	summary = fmt.Sprintf("%s\nPath: %s", summary, utils.ColoredString(pkg.Path, color.FgCyan))
 	gui.renderString("secondary", summary)
-	gui.bringContextViewToTop(gui.packageContextKey(pkg))
+	gui.activateContextView(gui.packageContextKey(pkg))
 	return nil
 }
 

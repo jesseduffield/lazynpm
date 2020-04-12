@@ -27,10 +27,11 @@ func (gui *Gui) getScripts() []*commands.Script {
 func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
 	script := gui.getSelectedScript()
 	if script == nil {
-		gui.getMainView().Title = ""
-		return gui.newStringTask("main", gui.Tr.SLocalize("NoScripts"))
+		gui.printToMain(gui.Tr.SLocalize("NoScripts"))
+		return nil
 	}
 	gui.renderString("secondary", presentation.ScriptSummary(script))
+	gui.activateContextView(gui.scriptContextKey(script))
 	return nil
 }
 
