@@ -172,3 +172,11 @@ func (gui *Gui) handleKillCommand() error {
 
 	return gui.surfaceError(commands.Kill(commandView.Cmd))
 }
+
+func (gui *Gui) finalStep(err error) error {
+	if err != nil {
+		return gui.createErrorPanel(err.Error())
+	}
+
+	return gui.surfaceError(gui.refreshPackages())
+}

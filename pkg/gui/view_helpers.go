@@ -67,7 +67,6 @@ func (gui *Gui) previousView(g *gocui.Gui, v *gocui.View) error {
 	if v == nil || v.Name() == cyclableViews[0] {
 		focusedViewName = cyclableViews[len(cyclableViews)-1]
 	} else {
-		// if we're in the commitFiles view we'll act like we're in the commits view
 		viewName := v.Name()
 		for i := range cyclableViews {
 			if viewName == cyclableViews[i] {
@@ -156,6 +155,10 @@ func (gui *Gui) switchFocus(g *gocui.Gui, oldView, newView *gocui.View) error {
 	// we should never stack popup panels
 	if oldView != nil && !gui.isPopupPanel(oldView.Name()) {
 		gui.State.PreviousView = oldView.Name()
+	}
+
+	if utils.IncludesString(cyclableViews, newView.Name()) {
+		gui.State.CurrentSideView = newView.Name()
 	}
 
 	if _, err := g.SetCurrentView(newView.Name()); err != nil {

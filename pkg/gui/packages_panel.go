@@ -60,17 +60,14 @@ func (gui *Gui) refreshPackages() error {
 		return err
 	}
 
-	gui.g.Update(func(g *gocui.Gui) error {
-		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandViewMap)
-		gui.renderDisplayStrings(packagesView, displayStrings)
+	displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandViewMap)
+	gui.renderDisplayStrings(packagesView, displayStrings)
 
-		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap)
-		gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
+	displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap)
+	gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 
-		displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandViewMap)
-		gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
-		return nil
-	})
+	displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandViewMap)
+	gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 
 	gui.refreshStatus()
 
@@ -192,7 +189,7 @@ func (gui *Gui) handleRemovePackage(pkg *commands.Package) error {
 		prompt:             "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.",
 		returnFocusOnClose: true,
 		handleConfirm: func() error {
-			return gui.removePackage(pkg.Path)
+			return gui.finalStep(gui.removePackage(pkg.Path))
 		},
 	})
 }
@@ -207,7 +204,7 @@ func (gui *Gui) handleAddPackage() error {
 			return gui.createErrorPanel(fmt.Sprintf("%s not found", configPath))
 		}
 
-		return gui.addPackage(strings.TrimSuffix(input, "package.json"))
+		return gui.finalStep(gui.addPackage(strings.TrimSuffix(input, "package.json")))
 	})
 }
 
@@ -273,9 +270,6 @@ func (gui *Gui) wrappedPackageHandler(f func(*commands.Package) error) func(*goc
 			return nil
 		}
 
-		if err := f(pkg); err != nil {
-			return err
-		}
-		return gui.surfaceError(gui.refreshPackages())
+		return gui.finalStep(f(pkg))
 	})
 }

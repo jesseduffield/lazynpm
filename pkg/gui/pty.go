@@ -130,13 +130,6 @@ func (gui *Gui) newPtyTask(viewName string, commandView *commands.CommandView, c
 		view.Pty = true
 
 		gui.State.Ptmx = ptmx
-		onClose := func() {
-			ptmx.Close()
-			gui.State.Ptmx = nil
-			view.Pty = false
-			view.StdinWriter = nil
-			_ = commandView.Cmd.Wait()
-		}
 
 		if err := gui.onResize(); err != nil {
 			// swallowing for now
@@ -147,7 +140,12 @@ func (gui *Gui) newPtyTask(viewName string, commandView *commands.CommandView, c
 
 		_, _ = io.Copy(view, ptmx)
 
-		onClose()
+		ptmx.Close()
+		gui.State.Ptmx = nil
+		view.Pty = false
+		view.StdinWriter = nil
+		_ = commandView.Cmd.Wait()
+		_ = gui.refreshPackages()
 
 		if commandView.Cancelled {
 			fmt.Fprint(view, utils.ColoredString("\n\ncommand cancelled", color.FgRed))

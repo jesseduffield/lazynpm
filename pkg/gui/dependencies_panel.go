@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
-	"github.com/go-errors/errors"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
@@ -63,7 +62,7 @@ func (gui *Gui) handleDepUpdate(dep *commands.Dependency) error {
 
 func (gui *Gui) handleOpenDepPackageConfig(dep *commands.Dependency) error {
 	if dep.PackageConfig == nil {
-		return gui.surfaceError(errors.New("dependency not in node_modules"))
+		return gui.createErrorPanel("dependency not in node_modules")
 	}
 
 	return gui.openFile(dep.ConfigPath())
@@ -129,10 +128,7 @@ func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) fun
 			return nil
 		}
 
-		if err := f(dep); err != nil {
-			return err
-		}
-		return gui.surfaceError(gui.refreshPackages())
+		return gui.finalStep(f(dep))
 	})
 }
 
@@ -185,6 +181,6 @@ func (gui *Gui) handleEditDepConstraint(dep *commands.Dependency) error {
 	return gui.createPromptPanel(gui.getDepsView(), "Edit constraint", dep.Constraint, func(input string) error {
 
 		packageConfigPath := filepath.Join(dep.ParentPackagePath, "package.json")
-		return gui.NpmManager.EditDepConstraint(dep, packageConfigPath, input)
+		return gui.finalStep(gui.NpmManager.EditDepConstraint(dep, packageConfigPath, input))
 	})
 }

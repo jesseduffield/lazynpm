@@ -48,9 +48,7 @@ func (gui *Gui) handleRemoveScript(script *commands.Script) error {
 		prompt:             fmt.Sprintf("are you sure you want to remove script `%s`?", script.Name),
 		returnFocusOnClose: true,
 		handleConfirm: func() error {
-			return gui.surfaceError(
-				gui.NpmManager.RemoveScript(script.Name, gui.currentPackage().ConfigPath()),
-			)
+			return gui.finalStep(gui.NpmManager.RemoveScript(script.Name, gui.currentPackage().ConfigPath()))
 		},
 	})
 }
@@ -71,17 +69,14 @@ func (gui *Gui) wrappedScriptHandler(f func(*commands.Script) error) func(*gocui
 			return nil
 		}
 
-		if err := f(script); err != nil {
-			return err
-		}
-		return gui.surfaceError(gui.refreshPackages())
+		return gui.finalStep(f(script))
 	})
 }
 
 func (gui *Gui) handleEditScript(script *commands.Script) error {
 	return gui.createPromptPanel(gui.getScriptsView(), "Script name:", script.Name, func(newName string) error {
 		return gui.createPromptPanel(gui.getScriptsView(), "Script command:", script.Command, func(newCommand string) error {
-			return gui.surfaceError(
+			return gui.finalStep(
 				gui.NpmManager.EditOrAddScript(script.Name, gui.currentPackage().ConfigPath(), newName, newCommand),
 			)
 		})
@@ -91,7 +86,7 @@ func (gui *Gui) handleEditScript(script *commands.Script) error {
 func (gui *Gui) handleAddScript() error {
 	return gui.createPromptPanel(gui.getScriptsView(), "Script name:", "", func(newName string) error {
 		return gui.createPromptPanel(gui.getScriptsView(), "Script command:", "", func(newCommand string) error {
-			return gui.surfaceError(
+			return gui.finalStep(
 				gui.NpmManager.EditOrAddScript(newName, gui.currentPackage().ConfigPath(), newName, newCommand),
 			)
 		})

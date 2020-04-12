@@ -121,13 +121,13 @@ type guiState struct {
 	Deps              []*commands.Dependency
 	MenuItemCount     int // can't store the actual list because it's of interface{} type
 	PreviousView      string
+	CurrentSideView   string
 	Updating          bool
 	Panels            *panelStates
 	MainContext       string // used to keep the main and secondary views' contexts in sync
 	RetainOriginalDir bool
 	Searching         searchingState
 	ScreenMode        int
-	SideView          *gocui.View
 	Ptmx              *os.File
 	PrevMainWidth     int
 	PrevMainHeight    int
@@ -146,7 +146,6 @@ func (gui *Gui) resetState() {
 			Scripts:  &scriptsPanelState{SelectedLine: 0},
 			Menu:     &menuPanelState{SelectedLine: 0},
 		},
-		SideView:       nil,
 		Ptmx:           nil,
 		CommandViewMap: commands.CommandViewMap{},
 	}
@@ -215,7 +214,8 @@ func (gui *Gui) Run() error {
 
 	gui.waitForIntro.Add(1)
 
-	gui.goEvery(time.Millisecond*250, gui.stopChan, gui.refreshPackages)
+	gui.goEvery(time.Second*5, gui.stopChan, gui.slowRefreshPackages)
+	gui.goEvery(time.Millisecond*250, gui.stopChan, gui.fastRefreshPackages)
 	gui.goEvery(time.Millisecond*50, gui.stopChan, gui.refreshScreen)
 
 	g.SetManager(gocui.ManagerFunc(gui.layout), gocui.ManagerFunc(gui.getFocusLayout()))
@@ -228,6 +228,22 @@ func (gui *Gui) Run() error {
 
 	err = g.MainLoop()
 	return err
+}
+
+func (gui *Gui) slowRefreshPackages() error {
+	if gui.isCommandRunning() {
+		return nil
+	}
+
+	return gui.refreshPackages()
+}
+
+func (gui *Gui) fastRefreshPackages() error {
+	if !gui.isCommandRunning() {
+		return nil
+	}
+
+	return gui.refreshPackages()
 }
 
 func (gui *Gui) isCommandRunning() bool {

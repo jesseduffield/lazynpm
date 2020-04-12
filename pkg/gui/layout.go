@@ -46,11 +46,6 @@ func (gui *Gui) onFocusLost(v *gocui.View, newView *gocui.View) error {
 			return err
 		}
 	}
-	switch v.Name() {
-	case "main":
-		// if we have lost focus to a first-class panel, we need to do some cleanup
-		gui.changeMainViewsContext("normal")
-	}
 	gui.Log.Info(v.Name() + " focus lost")
 	return nil
 }
@@ -64,22 +59,7 @@ func (gui *Gui) onFocus(v *gocui.View) error {
 }
 
 func (gui *Gui) getViewHeights() map[string]int {
-	currView := gui.g.CurrentView()
-	currentCyclebleView := gui.State.PreviousView
-	if currView != nil {
-		viewName := currView.Name()
-		usePreviousView := true
-		for _, view := range cyclableViews {
-			if view == viewName {
-				currentCyclebleView = viewName
-				usePreviousView = false
-				break
-			}
-		}
-		if usePreviousView {
-			currentCyclebleView = gui.State.PreviousView
-		}
-	}
+	currentCyclebleView := gui.State.CurrentSideView
 
 	_, height := gui.g.Size()
 
@@ -397,10 +377,6 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 }
 
 func (gui *Gui) onInitialViewsCreation() error {
-	gui.changeMainViewsContext("normal")
-
-	// here is where you would set initial contexts for views with tabs
-
 	return gui.loadNewRepo()
 }
 
