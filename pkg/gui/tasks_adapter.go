@@ -89,3 +89,11 @@ func (gui *Gui) getManager(view *gocui.View) *tasks.ViewBufferManager {
 
 	return manager
 }
+
+func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+		gui.Log.Error(err)
+	}
+	return nil
+}

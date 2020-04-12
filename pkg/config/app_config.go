@@ -303,6 +303,7 @@ keybinding:
     link: 'l'
     globalLink: 'L'
     build: 'b'
+    pack: 'p'
 `)
 }
 

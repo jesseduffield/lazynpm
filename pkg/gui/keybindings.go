@@ -441,10 +441,18 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:  gui.wrappedHandler(gui.handleCheckoutPackage),
 		},
 		{
-			ViewName: "packages",
-			Key:      gui.getKey("universal.new"),
-			Modifier: gocui.ModNone,
-			Handler:  gui.wrappedHandler(gui.handleAddPackage),
+			ViewName:    "packages",
+			Key:         gui.getKey("universal.new"),
+			Modifier:    gocui.ModNone,
+			Handler:     gui.wrappedHandler(gui.handleAddPackage),
+			Description: "add package to list",
+		},
+		{
+			ViewName:    "packages",
+			Key:         gui.getKey("packages.pack"),
+			Modifier:    gocui.ModNone,
+			Handler:     gui.wrappedHandler(gui.handlePackPackage),
+			Description: "`npm pack` package",
 		},
 		{
 			ViewName:    "packages",

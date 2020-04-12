@@ -127,12 +127,11 @@ func (gui *Gui) handleLinkPackage() error {
 		}
 	}
 
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
+	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
+}
 
-	return nil
+func (gui *Gui) packageContextKey(pkg *commands.Package) string {
+	return pkg.Path
 }
 
 func (gui *Gui) handleGlobalLinkPackage() error {
@@ -152,12 +151,7 @@ func (gui *Gui) handleGlobalLinkPackage() error {
 		cmdStr = "npm link"
 	}
 
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
-
-	return nil
+	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
 }
 
 func (gui *Gui) handleInstall() error {
@@ -173,11 +167,7 @@ func (gui *Gui) handleInstall() error {
 		cmdStr = "npm install --prefix " + selectedPkg.Path
 	}
 
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
-	return nil
+	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
 }
 
 func (gui *Gui) handleBuild() error {
@@ -193,11 +183,7 @@ func (gui *Gui) handleBuild() error {
 		cmdStr = "npm run build --prefix " + selectedPkg.Path
 	}
 
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
-	return nil
+	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
 }
 
 func (gui *Gui) handleOpenPackageConfig() error {
@@ -215,12 +201,7 @@ func (gui *Gui) handleRemovePackage() error {
 		return nil
 	}
 
-	currentPkg := gui.currentPackage()
-	if currentPkg == nil {
-		return nil
-	}
-
-	if selectedPkg == currentPkg {
+	if selectedPkg == gui.currentPackage() {
 		return gui.createErrorPanel("Cannot remove current package")
 	}
 
@@ -247,4 +228,18 @@ func (gui *Gui) handleAddPackage() error {
 
 		return gui.addPackage(strings.TrimSuffix(input, "package.json"))
 	})
+}
+
+func (gui *Gui) handlePackPackage() error {
+	selectedPkg := gui.getSelectedPackage()
+	if selectedPkg == nil {
+		return nil
+	}
+
+	cmdStr := "npm pack"
+	if selectedPkg != gui.currentPackage() {
+		cmdStr = fmt.Sprintf("npm pack %s", selectedPkg.Path)
+	}
+
+	return gui.newMainCommand(cmdStr, gui.packageContextKey(selectedPkg))
 }

@@ -56,11 +56,7 @@ func (gui *Gui) handleDepInstall() error {
 	}
 
 	cmdStr := fmt.Sprintf("npm install %s", dep.Name)
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
-	return nil
+	return gui.newMainCommand(cmdStr, gui.depContextKey(dep))
 }
 
 func (gui *Gui) handleDepUpdate() error {
@@ -70,11 +66,7 @@ func (gui *Gui) handleDepUpdate() error {
 	}
 
 	cmdStr := fmt.Sprintf("npm update %s", dep.Name)
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
-	return nil
+	return gui.newMainCommand(cmdStr, gui.depContextKey(dep))
 }
 
 func (gui *Gui) handleOpenDepPackageConfig() error {
@@ -106,11 +98,7 @@ func (gui *Gui) handleDepUninstall() error {
 			{
 				displayStrings: []string{"uninstall", utils.ColoredString(uninstallStr, color.FgYellow)},
 				onPress: func() error {
-					cmd := gui.OSCommand.ExecutableFromString(uninstallStr)
-					if err := gui.newPtyTask("main", cmd, uninstallStr); err != nil {
-						gui.Log.Error(err)
-					}
-					return nil
+					return gui.newMainCommand(uninstallStr, gui.depContextKey(selectedDep))
 				},
 			},
 		}
@@ -128,21 +116,13 @@ func (gui *Gui) handleDepUninstall() error {
 			{
 				displayStrings: []string{"uninstall and save", utils.ColoredString(uninstallAndSaveCmdStr, color.FgYellow)},
 				onPress: func() error {
-					cmd := gui.OSCommand.ExecutableFromString(uninstallAndSaveCmdStr)
-					if err := gui.newPtyTask("main", cmd, uninstallAndSaveCmdStr); err != nil {
-						gui.Log.Error(err)
-					}
-					return nil
+					return gui.newMainCommand(uninstallAndSaveCmdStr, gui.depContextKey(selectedDep))
 				},
 			},
 			{
 				displayStrings: []string{"just uninstall", utils.ColoredString(uninstallCmdStr, color.FgYellow)},
 				onPress: func() error {
-					cmd := gui.OSCommand.ExecutableFromString(uninstallCmdStr)
-					if err := gui.newPtyTask("main", cmd, uninstallCmdStr); err != nil {
-						gui.Log.Error(err)
-					}
-					return nil
+					return gui.newMainCommand(uninstallCmdStr, gui.depContextKey(selectedDep))
 				},
 			},
 		}
@@ -151,18 +131,6 @@ func (gui *Gui) handleDepUninstall() error {
 	return gui.createMenu("Uninstall dependency", menuItems, createMenuOptions{showCancel: true})
 }
 
-func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
-	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
-	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
-		gui.Log.Error(err)
-	}
-	return nil
-}
-
-func (gui *Gui) selectedDepContextKey() (string, error) {
-	selectedDep := gui.getSelectedDependency()
-	if selectedDep == nil {
-		return "", gui.createErrorPanel("no selected dependency")
-	}
-	return fmt.Sprintf("package:%s|dep:%s|kind:%s", gui.currentPackage().Path, selectedDep.Name, selectedDep.Kind), nil
+func (gui *Gui) depContextKey(dep *commands.Dependency) string {
+	return fmt.Sprintf("package:%s|dep:%s|kind:%s", gui.currentPackage().Path, dep.Name, dep.Kind)
 }

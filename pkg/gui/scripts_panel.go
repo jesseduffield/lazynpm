@@ -38,12 +38,12 @@ func (gui *Gui) handleRunScript() error {
 	script := gui.getSelectedScript()
 
 	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s ", script.Name), func(input string) error {
-		cmd := gui.OSCommand.ExecutableFromString(input)
-		if err := gui.newPtyTask("main", cmd, input); err != nil {
-			gui.Log.Error(err)
-		}
-		return nil
+		return gui.newMainCommand(input, gui.scriptContextKey(script))
 	})
+}
+
+func (gui *Gui) scriptContextKey(script *commands.Script) string {
+	return fmt.Sprintf("package:%s|script:%s", gui.currentPackage().Path, script.Name)
 }
 
 func (gui *Gui) handleRemoveScript() error {
