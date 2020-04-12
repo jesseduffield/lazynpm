@@ -59,7 +59,7 @@ func TestUnmarshalPackageConfig(t *testing.T) {
 			panic(err)
 		}
 
-		config, err := UnmarshalPackageConfig(file)
+		config, err := UnmarshalPackageConfig(file, nil)
 
 		assert.NoError(t, err)
 		assert.EqualValues(t, s.expectedPackageConfig, config)

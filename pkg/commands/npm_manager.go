@@ -63,7 +63,12 @@ func (m *NpmManager) IsLinked(name string, path string) (bool, error) {
 	return false, nil
 }
 
-func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
+func (m *NpmManager) GetPackages(paths []string, previousPackages []*Package) ([]*Package, error) {
+
+	previousPackageConfigMap := map[string]*PackageConfig{}
+	for _, prevPkg := range previousPackages {
+		previousPackageConfigMap[prevPkg.Path] = &prevPkg.Config
+	}
 
 	pkgs := make([]*Package, 0, len(paths))
 
@@ -78,7 +83,7 @@ func (m *NpmManager) GetPackages(paths []string) ([]*Package, error) {
 			m.Log.Error(err)
 			continue
 		}
-		pkgConfig, err := UnmarshalPackageConfig(file)
+		pkgConfig, err := UnmarshalPackageConfig(file, previousPackageConfigMap[path])
 		if err != nil {
 			return nil, err
 		}
@@ -121,12 +126,13 @@ func (m *NpmManager) ChdirToPackageRoot() (bool, error) {
 	}
 }
 
-func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
-	deps := currentPkg.SortedDependencies()
+func (m *NpmManager) GetDeps(currentPkg *Package, previousDeps []*Dependency) ([]*Dependency, error) {
+	deps := currentPkg.SortedDependencies(previousDeps)
 
 	for _, dep := range deps {
 		depPath := filepath.Join(currentPkg.Path, "node_modules", dep.Name)
 		dep.Path = depPath
+		dep.LinkPath = ""
 		dep.ParentPackagePath = currentPkg.Path
 		fileInfo, err := os.Lstat(depPath)
 		if err != nil {
@@ -143,8 +149,10 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 			m.Log.Error(err)
 			continue
 		}
-		pkgConfig, err := UnmarshalPackageConfig(file)
+
+		pkgConfig, err := UnmarshalPackageConfig(file, dep.PackageConfig)
 		if err != nil {
+			dep.PackageConfig = nil
 			// swallowing error
 			m.Log.Error(err)
 		} else {
@@ -160,6 +168,7 @@ func (m *NpmManager) GetDeps(currentPkg *Package) ([]*Dependency, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		dep.LinkPath = linkPath
 	}
 

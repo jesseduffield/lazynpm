@@ -155,9 +155,8 @@ func (gui *Gui) packagesListView() *listView {
 
 func (gui *Gui) depsListView() *listView {
 	return &listView{
-		viewName: "deps",
-		// TODO: handle more dep types
-		getItemsLength:        func() int { return len(gui.currentPackage().SortedDependencies()) },
+		viewName:              "deps",
+		getItemsLength:        func() int { return len(gui.State.Deps) },
 		getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Deps.SelectedLine },
 		handleFocus:           gui.handleDepSelect,
 		handleItemSelect:      gui.handleDepSelect,

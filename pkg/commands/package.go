@@ -8,6 +8,8 @@ import (
 )
 
 type PackageConfig struct {
+	// this is the sha256 of the pakage.json file
+	Sha                  []byte
 	Name                 string
 	Version              string
 	License              string
@@ -83,7 +85,7 @@ type Package struct {
 	LinkedGlobally bool
 }
 
-func (p *Package) SortedDependencies() []*Dependency {
+func (p *Package) SortedDependencies(previousDeps []*Dependency) []*Dependency {
 	deps := make([]*Dependency, 0, len(p.Config.Dependencies)+len(p.Config.DevDependencies)+len(p.Config.PeerDependencies)+len(p.Config.OptionalDependencies))
 
 	type blah struct {
@@ -123,7 +125,25 @@ func (p *Package) SortedDependencies() []*Dependency {
 		deps = append(deps, depsForKind...)
 	}
 
+	// if what we get is exactly the same as last time in terms of constraint, kind, and name, then just return last time's things because they've got even more data that we can cache
+	if DepArraysMatch(deps, previousDeps) {
+		return previousDeps
+	}
+
 	return deps
+}
+
+func DepArraysMatch(d1, d2 []*Dependency) bool {
+	if len(d1) != len(d2) {
+		return false
+	}
+
+	for i := range d1 {
+		if d1[i].Name != d2[i].Name || d1[i].Constraint != d2[i].Constraint || d1[i].Kind != d2[i].Kind {
+			return false
+		}
+	}
+	return true
 }
 
 func (p *Package) SortedScripts() []*Script {

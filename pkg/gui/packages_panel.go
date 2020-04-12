@@ -86,12 +86,12 @@ func (gui *Gui) currentPackage() *commands.Package {
 func (gui *Gui) refreshStatePackages() error {
 	// get files to stage
 	var err error
-	gui.State.Packages, err = gui.NpmManager.GetPackages(gui.Config.GetAppState().RecentPackages)
+	gui.State.Packages, err = gui.NpmManager.GetPackages(gui.Config.GetAppState().RecentPackages, gui.State.Packages)
 	if err != nil {
 		return err
 	}
 
-	gui.State.Deps, err = gui.NpmManager.GetDeps(gui.currentPackage())
+	gui.State.Deps, err = gui.NpmManager.GetDeps(gui.currentPackage(), gui.State.Deps)
 	if err != nil {
 		return err
 	}

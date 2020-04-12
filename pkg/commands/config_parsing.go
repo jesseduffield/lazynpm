@@ -1,8 +1,9 @@
 package commands
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"io"
-	"io/ioutil"
 
 	"github.com/buger/jsonparser"
 )
@@ -16,13 +17,25 @@ func unescape(b []byte) string {
 	return string(buf)
 }
 
-func UnmarshalPackageConfig(r io.Reader) (*PackageConfig, error) {
-	configData, err := ioutil.ReadAll(r)
+func UnmarshalPackageConfig(r io.Reader, previousPackageConfig *PackageConfig) (*PackageConfig, error) {
+	var buf bytes.Buffer
+	h := sha256.New()
+	wr := io.MultiWriter(&buf, h)
+
+	_, err := io.Copy(wr, r)
 	if err != nil {
 		return nil, err
 	}
+	configData := buf.Bytes()
 
-	pkgConfig := &PackageConfig{}
+	// we need to create a hash of this thing and see if it's changed. If it hasn't we'll use the previous one.
+	sha := h.Sum(nil)
+
+	if previousPackageConfig != nil && bytes.Equal(sha, previousPackageConfig.Sha) {
+		return previousPackageConfig, nil
+	}
+
+	pkgConfig := &PackageConfig{Sha: sha}
 
 	type stringMapping struct {
 		path []string
