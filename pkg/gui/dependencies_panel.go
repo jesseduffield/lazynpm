@@ -150,3 +150,19 @@ func (gui *Gui) handleDepUninstall() error {
 
 	return gui.createMenu("Uninstall dependency", menuItems, createMenuOptions{showCancel: true})
 }
+
+func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
+	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
+	if err := gui.newPtyTask("main", cmd, cmdStr); err != nil {
+		gui.Log.Error(err)
+	}
+	return nil
+}
+
+func (gui *Gui) selectedDepContextKey() (string, error) {
+	selectedDep := gui.getSelectedDependency()
+	if selectedDep == nil {
+		return "", gui.createErrorPanel("no selected dependency")
+	}
+	return fmt.Sprintf("package:%s|dep:%s|kind:%s", gui.currentPackage().Path, selectedDep.Name, selectedDep.Kind), nil
+}
