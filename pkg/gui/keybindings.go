@@ -1,10 +1,13 @@
 package gui
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/jesseduffield/gocui"
+	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
 // Binding - a keybinding mapping a key and modifier to a handler. The keypress
@@ -408,21 +411,21 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:         gui.getKey("packages.pack"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handlePackPackage),
-			Description: "`npm pack` package",
+			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm pack`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.link"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleLinkPackage),
-			Description: "npm link <package> (or unlink if already linked)",
+			Description: fmt.Sprintf("%s (or unlink if already linked)", utils.ColoredString("`npm link <package>`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.globalLink"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleGlobalLinkPackage),
-			Description: "`npm link` package (or unlink if already linked)",
+			Description: fmt.Sprintf("%s (i.e. globally link) (or unlink if already linked)", utils.ColoredString("`npm link`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
@@ -436,14 +439,14 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:         gui.getKey("universal.install"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleInstall),
-			Description: "`npm install` package",
+			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm install`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
 			Key:         gui.getKey("packages.build"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleBuild),
-			Description: "`npm run build` package",
+			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm run build`", color.FgYellow)),
 		},
 		{
 			ViewName:    "packages",
@@ -457,7 +460,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:         gui.getKey("universal.select"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleRunScript),
-			Description: "`npm run` script",
+			Description: fmt.Sprintf("%s script", utils.ColoredString("`npm run`", color.FgYellow)),
 		},
 		{
 			ViewName:    "scripts",
@@ -471,7 +474,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:         gui.getKey("universal.install"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleDepInstall),
-			Description: "`npm install` dependency",
+			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm install`", color.FgYellow)),
 		},
 		{
 			ViewName:    "deps",
@@ -485,14 +488,14 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Key:         gui.getKey("universal.update"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleDepUpdate),
-			Description: "`npm update` dependency",
+			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm update`", color.FgYellow)),
 		},
 		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.remove"),
 			Modifier:    gocui.ModNone,
 			Handler:     gui.wrappedHandler(gui.handleDepUninstall),
-			Description: "`npm uninstall` dependency",
+			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm uninstall`", color.FgYellow)),
 		},
 	}
 

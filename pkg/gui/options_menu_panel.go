@@ -3,6 +3,7 @@ package gui
 import (
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
@@ -41,7 +42,7 @@ func (gui *Gui) handleCreateOptionsMenu(g *gocui.Gui, v *gocui.View) error {
 	for i, binding := range bindings {
 		innerBinding := binding // note to self, never close over loop variables
 		menuItems[i] = &menuItem{
-			displayStrings: []string{GetKeyDisplay(innerBinding.Key), innerBinding.Description},
+			displayStrings: []string{utils.ColoredString(GetKeyDisplay(innerBinding.Key), color.FgYellow), innerBinding.Description},
 			onPress: func() error {
 				if innerBinding.Key == nil {
 					return nil
