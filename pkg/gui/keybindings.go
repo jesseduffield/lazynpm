@@ -517,6 +517,13 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:     gui.wrappedHandler(gui.handleDepUpdate),
 			Description: "`npm update` dependency",
 		},
+		{
+			ViewName:    "deps",
+			Key:         gui.getKey("universal.remove"),
+			Modifier:    gocui.ModNone,
+			Handler:     gui.wrappedHandler(gui.handleDepUninstall),
+			Description: "`npm uninstall` dependency",
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {

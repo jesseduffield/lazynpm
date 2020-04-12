@@ -89,3 +89,64 @@ func (gui *Gui) handleOpenDepPackageConfig() error {
 
 	return gui.openFile(selectedDep.ConfigPath())
 }
+
+func (gui *Gui) handleDepUninstall() error {
+	selectedDep := gui.getSelectedDependency()
+	if selectedDep == nil {
+		return nil
+	}
+
+	var menuItems []*menuItem
+
+	if selectedDep.Kind == "peer" {
+		// I have no idea how peer dependencies work, so we're just using the one option here
+		uninstallStr := fmt.Sprintf("npm uninstall %s", selectedDep.Name)
+
+		menuItems = []*menuItem{
+			{
+				displayStrings: []string{"uninstall", utils.ColoredString(uninstallStr, color.FgYellow)},
+				onPress: func() error {
+					cmd := gui.OSCommand.ExecutableFromString(uninstallStr)
+					if err := gui.newPtyTask("main", cmd, uninstallStr); err != nil {
+						gui.Log.Error(err)
+					}
+					return nil
+				},
+			},
+		}
+	} else {
+		kindMap := map[string]string{
+			"prod":     " --save",
+			"dev":      " --save-dev",
+			"optional": " --save-optional",
+		}
+
+		uninstallCmdStr := fmt.Sprintf("npm uninstall --no-save %s", selectedDep.Name)
+		uninstallAndSaveCmdStr := fmt.Sprintf("npm uninstall%s %s", kindMap[selectedDep.Kind], selectedDep.Name)
+
+		menuItems = []*menuItem{
+			{
+				displayStrings: []string{"uninstall and save", utils.ColoredString(uninstallAndSaveCmdStr, color.FgYellow)},
+				onPress: func() error {
+					cmd := gui.OSCommand.ExecutableFromString(uninstallAndSaveCmdStr)
+					if err := gui.newPtyTask("main", cmd, uninstallAndSaveCmdStr); err != nil {
+						gui.Log.Error(err)
+					}
+					return nil
+				},
+			},
+			{
+				displayStrings: []string{"just uninstall", utils.ColoredString(uninstallCmdStr, color.FgYellow)},
+				onPress: func() error {
+					cmd := gui.OSCommand.ExecutableFromString(uninstallCmdStr)
+					if err := gui.newPtyTask("main", cmd, uninstallCmdStr); err != nil {
+						gui.Log.Error(err)
+					}
+					return nil
+				},
+			},
+		}
+	}
+
+	return gui.createMenu("Uninstall dependency", menuItems, createMenuOptions{showCancel: true})
+}
