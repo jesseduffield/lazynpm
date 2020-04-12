@@ -463,6 +463,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:     gui.wrappedDependencyHandler(gui.handleChangeDepType),
 			Description: "change dependency type (prod/dev/optional)",
 		},
+		{
+			ViewName:    "deps",
+			Key:         gui.getKey("universal.new"),
+			Handler:     gui.wrappedDependencyHandler(gui.handleAddDependency),
+			Description: fmt.Sprintf("%s new dependency", utils.ColoredString("`npm install`", color.FgYellow)),
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {

@@ -160,3 +160,41 @@ func (gui *Gui) handleChangeDepType(dep *commands.Dependency) error {
 
 	return gui.createMenu("Change dependency type", menuItems, createMenuOptions{showCancel: true})
 }
+
+// this is admittedly a little weird. We're going to store the command against
+// the dep where you initiated the command, but it has nothing to do with that dep.
+func (gui *Gui) handleAddDependency(dep *commands.Dependency) error {
+	prompt := func(cmdStr string) error {
+		return gui.createPromptPanel(gui.getDepsView(), "enter dependency name", "", func(input string) error {
+			newCmdStr := fmt.Sprintf("%s %s", cmdStr, input)
+			return gui.newMainCommand(newCmdStr, dep.ID())
+		})
+	}
+
+	installProd := "npm install --save-prod"
+	installDev := "npm install --save-dev"
+	installOptional := "npm install --save-optional"
+
+	menuItems := []*menuItem{
+		{
+			displayStrings: []string{"dependencies", utils.ColoredString(installProd, color.FgYellow)},
+			onPress: func() error {
+				return prompt(installProd)
+			},
+		},
+		{
+			displayStrings: []string{"devDependencies", utils.ColoredString(installDev, color.FgYellow)},
+			onPress: func() error {
+				return prompt(installDev)
+			},
+		},
+		{
+			displayStrings: []string{"optionalDependencies", utils.ColoredString(installOptional, color.FgYellow)},
+			onPress: func() error {
+				return prompt(installOptional)
+			},
+		},
+	}
+
+	return gui.createMenu("Install dependency to:", menuItems, createMenuOptions{showCancel: true})
+}
