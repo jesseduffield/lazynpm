@@ -131,3 +131,32 @@ func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) fun
 		return f(dep)
 	})
 }
+
+func (gui *Gui) handleChangeDepType(dep *commands.Dependency) error {
+	installProd := "npm install --save-prod"
+	installDev := "npm install --save-dev"
+	installOptional := "npm install --save-optional"
+
+	menuItems := []*menuItem{
+		{
+			displayStrings: []string{"dependencies", utils.ColoredString(installProd, color.FgYellow)},
+			onPress: func() error {
+				return gui.newMainCommand(installProd, dep.ID())
+			},
+		},
+		{
+			displayStrings: []string{"devDependencies", utils.ColoredString(installDev, color.FgYellow)},
+			onPress: func() error {
+				return gui.newMainCommand(installDev, dep.ID())
+			},
+		},
+		{
+			displayStrings: []string{"optionalDependencies", utils.ColoredString(installOptional, color.FgYellow)},
+			onPress: func() error {
+				return gui.newMainCommand(installOptional, dep.ID())
+			},
+		},
+	}
+
+	return gui.createMenu("Change dependency type", menuItems, createMenuOptions{showCancel: true})
+}

@@ -1,7 +1,6 @@
 package gui
 
 import (
-	"math"
 	"os/exec"
 
 	"github.com/jesseduffield/gocui"
@@ -21,26 +20,32 @@ func (gui *Gui) prevScreenMode(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) scrollUpView(viewName string) error {
-	mainView, _ := gui.g.View(viewName)
-	ox, oy := mainView.Origin()
-	newOy := int(math.Max(0, float64(oy-gui.Config.GetUserConfig().GetInt("gui.scrollHeight"))))
-	return mainView.SetOrigin(ox, newOy)
+	view, _ := gui.g.View(viewName)
+	view.Autoscroll = false
+	ox, oy := view.Origin()
+	scrollHeight := gui.Config.GetUserConfig().GetInt("gui.scrollHeight")
+	newOy := oy - scrollHeight
+	if newOy <= 0 {
+		newOy = 0
+	}
+	return view.SetOrigin(ox, newOy)
 }
 
 func (gui *Gui) scrollDownView(viewName string) error {
-	mainView, _ := gui.g.View(viewName)
-	ox, oy := mainView.Origin()
-	y := oy
-	if !gui.Config.GetUserConfig().GetBool("gui.scrollPastBottom") {
-		_, sy := mainView.Size()
-		y += sy
-	}
+	view, _ := gui.g.View(viewName)
+	view.Autoscroll = false
+	ox, oy := view.Origin()
+	_, sy := view.Size()
+	y := oy + sy
 	scrollHeight := gui.Config.GetUserConfig().GetInt("gui.scrollHeight")
-	if y < mainView.LinesHeight() {
-		if err := mainView.SetOrigin(ox, oy+scrollHeight); err != nil {
+	if y < view.LinesHeight()-1 {
+		if err := view.SetOrigin(ox, oy+scrollHeight); err != nil {
 			return err
 		}
+	} else {
+		view.Autoscroll = true
 	}
+
 	return nil
 }
 

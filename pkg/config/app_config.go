@@ -305,6 +305,8 @@ keybinding:
     build: 'b'
     pack: 'p'
     publish: 'P'
+  dependencies:
+    changeType: 't'
 `)
 }
 

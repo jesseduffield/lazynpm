@@ -457,6 +457,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:     gui.wrappedDependencyHandler(gui.handleDepUninstall),
 			Description: fmt.Sprintf("%s dependency", utils.ColoredString("`npm uninstall`", color.FgYellow)),
 		},
+		{
+			ViewName:    "deps",
+			Key:         gui.getKey("dependencies.changeType"),
+			Handler:     gui.wrappedDependencyHandler(gui.handleChangeDepType),
+			Description: "change dependency type (prod/dev/optional)",
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {

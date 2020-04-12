@@ -21,7 +21,6 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 		}
 		v.Wrap = true
 		v.FgColor = theme.GocuiDefaultTextColor
-		v.Autoscroll = true
 
 		bindings := []*Binding{
 			{
@@ -60,6 +59,9 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 			}
 		}
 	}
+
+	// autoscroll might have been turned off if the user scrolled midway through the last command
+	v.Autoscroll = true
 
 	if _, err := gui.g.SetViewOnTop(contextKey); err != nil {
 		return err
