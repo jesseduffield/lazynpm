@@ -73,5 +73,7 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 	if err := gui.newPtyTask(contextKey, cmd, cmdStr); err != nil {
 		gui.Log.Error(err)
 	}
-	return nil
+
+	// we need to refresh packages to show that a command is now in flight
+	return gui.refreshPackages()
 }

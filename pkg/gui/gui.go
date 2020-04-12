@@ -83,6 +83,7 @@ type Gui struct {
 	statusManager *statusManager
 	waitForIntro  sync.WaitGroup
 	stopChan      chan struct{}
+	RefreshMutex  sync.Mutex
 }
 
 type packagesPanelState struct {

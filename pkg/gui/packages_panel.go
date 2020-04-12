@@ -48,6 +48,9 @@ func (gui *Gui) handlePackageSelect(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) refreshPackages() error {
+	gui.RefreshMutex.Lock()
+	defer gui.RefreshMutex.Unlock()
+
 	packagesView := gui.getPackagesView()
 	if packagesView == nil {
 		// if the filesView hasn't been instantiated yet we just return
