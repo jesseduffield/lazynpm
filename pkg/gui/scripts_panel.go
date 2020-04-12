@@ -79,7 +79,17 @@ func (gui *Gui) handleEditScript(script *commands.Script) error {
 	return gui.createPromptPanel(gui.getScriptsView(), "Script name:", script.Name, func(newName string) error {
 		return gui.createPromptPanel(gui.getScriptsView(), "Script command:", script.Command, func(newCommand string) error {
 			return gui.surfaceError(
-				gui.NpmManager.EditScript(script.Name, gui.currentPackage().ConfigPath(), newName, newCommand),
+				gui.NpmManager.EditOrAddScript(script.Name, gui.currentPackage().ConfigPath(), newName, newCommand),
+			)
+		})
+	})
+}
+
+func (gui *Gui) handleAddScript() error {
+	return gui.createPromptPanel(gui.getScriptsView(), "Script name:", "", func(newName string) error {
+		return gui.createPromptPanel(gui.getScriptsView(), "Script command:", "", func(newCommand string) error {
+			return gui.surfaceError(
+				gui.NpmManager.EditOrAddScript(newName, gui.currentPackage().ConfigPath(), newName, newCommand),
 			)
 		})
 	})

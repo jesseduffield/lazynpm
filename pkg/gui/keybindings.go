@@ -440,6 +440,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Description: "edit script",
 		},
 		{
+			ViewName:    "scripts",
+			Key:         gui.getKey("universal.new"),
+			Handler:     gui.wrappedHandler(gui.handleAddScript),
+			Description: "add script",
+		},
+		{
 			ViewName:    "deps",
 			Key:         gui.getKey("universal.install"),
 			Handler:     gui.wrappedDependencyHandler(gui.handleDepInstall),
