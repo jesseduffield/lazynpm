@@ -5,6 +5,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
+	"github.com/jesseduffield/lazynpm/pkg/theme"
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 	"github.com/jesseduffield/semver/v3"
 )
@@ -35,7 +36,14 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 		localVersionCol = utils.ColoredString("missing", color.FgRed)
 	}
 
-	return []string{d.Name, d.Kind, utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
+	kindColorMap := map[string]color.Attribute{
+		"prod":     color.FgYellow,
+		"dev":      color.FgGreen,
+		"peer":     color.FgMagenta,
+		"optional": theme.DefaultTextColor,
+	}
+
+	return []string{d.Name, utils.ColoredString(d.Kind, kindColorMap[d.Kind]), utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
 }
 
 func statusMap() map[int]string {
