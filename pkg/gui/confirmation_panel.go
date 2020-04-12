@@ -115,16 +115,18 @@ func (gui *Gui) onNewPopupPanel() {
 }
 
 type createPopupPanelOpts struct {
+	returnToView        *gocui.View
 	hasLoader           bool
 	returnFocusOnClose  bool
 	editable            bool
+	title               string
 	prompt              string
 	handleConfirm       func() error
 	handleConfirmPrompt func(string) error
 	handleClose         func() error
 }
 
-func (gui *Gui) createPopupPanel(currentView *gocui.View, title string, opts createPopupPanelOpts) error {
+func (gui *Gui) createPopupPanel(opts createPopupPanelOpts) error {
 	gui.onNewPopupPanel()
 	gui.g.Update(func(g *gocui.Gui) error {
 		// delete the existing confirmation panel if it exists
@@ -133,7 +135,7 @@ func (gui *Gui) createPopupPanel(currentView *gocui.View, title string, opts cre
 				gui.Log.Error(err)
 			}
 		}
-		confirmationView, err := gui.prepareConfirmationPanel(currentView, title, opts.prompt, opts.hasLoader)
+		confirmationView, err := gui.prepareConfirmationPanel(opts.returnToView, opts.title, opts.prompt, opts.hasLoader)
 		if err != nil {
 			return err
 		}
@@ -148,26 +150,39 @@ func (gui *Gui) createPopupPanel(currentView *gocui.View, title string, opts cre
 	return nil
 }
 
-func (gui *Gui) createLoaderPanel(g *gocui.Gui, currentView *gocui.View, prompt string) error {
-	return gui.createPopupPanel(currentView, "", createPopupPanelOpts{
+func (gui *Gui) createLoaderPanel(currentView *gocui.View, prompt string) error {
+	return gui.createPopupPanel(createPopupPanelOpts{
+		returnToView:       currentView,
 		prompt:             prompt,
 		hasLoader:          true,
 		returnFocusOnClose: true,
 	})
 }
 
-// it is very important that within this function we never include the original prompt in any error messages, because it may contain e.g. a user password
-func (gui *Gui) createConfirmationPanel(currentView *gocui.View, returnFocusOnClose bool, title, prompt string, handleConfirm, handleClose func() error) error {
-	return gui.createPopupPanel(currentView, title, createPopupPanelOpts{
-		prompt:             prompt,
-		returnFocusOnClose: returnFocusOnClose,
-		handleConfirm:      handleConfirm,
-		handleClose:        handleClose,
+type createConfirmationPanelOpts struct {
+	returnToView       *gocui.View
+	returnFocusOnClose bool
+	title              string
+	prompt             string
+	handleConfirm      func() error
+	handleClose        func() error
+}
+
+func (gui *Gui) createConfirmationPanel(opts createConfirmationPanelOpts) error {
+	return gui.createPopupPanel(createPopupPanelOpts{
+		returnToView:       opts.returnToView,
+		title:              opts.title,
+		prompt:             opts.prompt,
+		returnFocusOnClose: opts.returnFocusOnClose,
+		handleConfirm:      opts.handleConfirm,
+		handleClose:        opts.handleClose,
 	})
 }
 
 func (gui *Gui) createPromptPanel(currentView *gocui.View, title string, initialContent string, handleConfirm func(string) error) error {
-	return gui.createPopupPanel(currentView, title, createPopupPanelOpts{
+	return gui.createPopupPanel(createPopupPanelOpts{
+		returnToView:        currentView,
+		title:               title,
 		prompt:              initialContent,
 		returnFocusOnClose:  true,
 		editable:            true,
@@ -214,7 +229,12 @@ func (gui *Gui) createErrorPanel(message string) error {
 	}
 
 	// TODO: see if returning to the current view is bad in the case of popup views
-	return gui.createConfirmationPanel(gui.g.CurrentView(), true, gui.Tr.SLocalize("Error"), coloredMessage, nil, nil)
+	return gui.createConfirmationPanel(createConfirmationPanelOpts{
+		returnToView:       gui.g.CurrentView(),
+		title:              gui.Tr.SLocalize("Error"),
+		prompt:             coloredMessage,
+		returnFocusOnClose: true,
+	})
 }
 
 func (gui *Gui) surfaceError(err error) error {

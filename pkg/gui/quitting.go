@@ -40,9 +40,14 @@ func (gui *Gui) quit(v *gocui.View) error {
 	}
 
 	if gui.Config.GetUserConfig().GetBool("confirmOnQuit") {
-		return gui.createConfirmationPanel(v, true, "", gui.Tr.SLocalize("ConfirmQuit"), func() error {
-			return gocui.ErrQuit
-		}, nil)
+		return gui.createConfirmationPanel(createConfirmationPanelOpts{
+			returnToView:       v,
+			returnFocusOnClose: true,
+			prompt:             gui.Tr.SLocalize("ConfirmQuit"),
+			handleConfirm: func() error {
+				return gocui.ErrQuit
+			},
+		})
 	}
 
 	return gocui.ErrQuit

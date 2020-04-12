@@ -358,16 +358,31 @@ func (gui *Gui) showShamelessSelfPromotionMessage(done chan struct{}) error {
 		return gui.Config.WriteToUserConfig("startupPopupVersion", StartupPopupVersion)
 	}
 
-	return gui.createConfirmationPanel(nil, true, gui.Tr.SLocalize("ShamelessSelfPromotionTitle"), gui.Tr.SLocalize("ShamelessSelfPromotionMessage"), onConfirm, onConfirm)
+	return gui.createConfirmationPanel(createConfirmationPanelOpts{
+		title:              gui.Tr.SLocalize("ShamelessSelfPromotionTitle"),
+		prompt:             gui.Tr.SLocalize("ShamelessSelfPromotionMessage"),
+		returnFocusOnClose: true,
+		handleConfirm:      onConfirm,
+		handleClose:        onConfirm,
+	})
 }
 
 func (gui *Gui) promptAnonymousReporting(done chan struct{}) error {
-	return gui.createConfirmationPanel(nil, true, gui.Tr.SLocalize("AnonymousReportingTitle"), gui.Tr.SLocalize("AnonymousReportingPrompt"), func() error {
+	writeToConfig := func(onOff string) error {
 		done <- struct{}{}
-		return gui.Config.WriteToUserConfig("reporting", "on")
-	}, func() error {
-		done <- struct{}{}
-		return gui.Config.WriteToUserConfig("reporting", "off")
+		return gui.Config.WriteToUserConfig("reporting", onOff)
+	}
+
+	return gui.createConfirmationPanel(createConfirmationPanelOpts{
+		title:              gui.Tr.SLocalize("AnonymousReportingTitle"),
+		prompt:             gui.Tr.SLocalize("AnonymousReportingPrompt"),
+		returnFocusOnClose: true,
+		handleConfirm: func() error {
+			return writeToConfig("on")
+		},
+		handleClose: func() error {
+			return writeToConfig("off")
+		},
 	})
 }
 

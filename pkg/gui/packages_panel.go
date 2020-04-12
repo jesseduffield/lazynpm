@@ -224,10 +224,15 @@ func (gui *Gui) handleRemovePackage() error {
 		return gui.createErrorPanel("Cannot remove current package")
 	}
 
-	return gui.createConfirmationPanel(gui.getPackagesView(), true, "Remove package", "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.", func() error {
-		return gui.removePackage(selectedPkg.Path)
-	},
-		nil)
+	return gui.createConfirmationPanel(createConfirmationPanelOpts{
+		returnToView:       gui.getPackagesView(),
+		title:              "Remove package",
+		prompt:             "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.",
+		returnFocusOnClose: true,
+		handleConfirm: func() error {
+			return gui.removePackage(selectedPkg.Path)
+		},
+	})
 }
 
 func (gui *Gui) handleAddPackage() error {

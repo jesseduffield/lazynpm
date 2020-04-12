@@ -49,9 +49,15 @@ func (gui *Gui) handleRunScript() error {
 func (gui *Gui) handleRemoveScript() error {
 	script := gui.getSelectedScript()
 
-	return gui.createConfirmationPanel(gui.getScriptsView(), true, "Remove script", fmt.Sprintf("are you sure you want to remove script `%s`?", script.Name), func() error {
-		return gui.surfaceError(
-			gui.NpmManager.RemoveScript(script.Name, gui.currentPackage().ConfigPath()),
-		)
-	}, nil)
+	return gui.createConfirmationPanel(createConfirmationPanelOpts{
+		returnToView:       gui.getScriptsView(),
+		title:              "Remove script",
+		prompt:             fmt.Sprintf("are you sure you want to remove script `%s`?", script.Name),
+		returnFocusOnClose: true,
+		handleConfirm: func() error {
+			return gui.surfaceError(
+				gui.NpmManager.RemoveScript(script.Name, gui.currentPackage().ConfigPath()),
+			)
+		},
+	})
 }
