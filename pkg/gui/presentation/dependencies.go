@@ -10,17 +10,18 @@ import (
 	"github.com/jesseduffield/semver/v3"
 )
 
-func GetDependencyListDisplayStrings(dependencies []*commands.Dependency) [][]string {
+func GetDependencyListDisplayStrings(dependencies []*commands.Dependency, commandMap commands.CommandViewMap) [][]string {
 	lines := make([][]string, len(dependencies))
 
 	for i := range dependencies {
-		lines[i] = getDepDisplayStrings(dependencies[i])
+		dep := dependencies[i]
+		lines[i] = getDepDisplayStrings(dep, commandMap[dep.ID()])
 	}
 
 	return lines
 }
 
-func getDepDisplayStrings(d *commands.Dependency) []string {
+func getDepDisplayStrings(d *commands.Dependency, commandView *commands.CommandView) []string {
 
 	localVersionCol := ""
 	if d.Linked() {
@@ -43,7 +44,7 @@ func getDepDisplayStrings(d *commands.Dependency) []string {
 		"optional": theme.DefaultTextColor,
 	}
 
-	return []string{d.Name, utils.ColoredString(d.Kind, kindColorMap[d.Kind]), utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
+	return []string{commandView.Status(), d.Name, utils.ColoredString(d.Kind, kindColorMap[d.Kind]), utils.ColoredString(d.Version, color.FgMagenta), localVersionCol}
 }
 
 func statusMap() map[int]string {

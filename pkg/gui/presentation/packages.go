@@ -9,7 +9,7 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
-func GetPackageListDisplayStrings(packages []*commands.Package, linkPathMap map[string]bool, commandMap map[string]*commands.CommandView) [][]string {
+func GetPackageListDisplayStrings(packages []*commands.Package, linkPathMap map[string]bool, commandMap commands.CommandViewMap) [][]string {
 	lines := make([][]string, len(packages))
 
 	for i := range packages {

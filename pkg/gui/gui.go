@@ -132,7 +132,7 @@ type guiState struct {
 	PrevMainHeight    int
 	OldInformation    string
 	CurrentPackageIdx int
-	CommandMap        map[string]*commands.CommandView
+	CommandMap        commands.CommandViewMap
 }
 
 func (gui *Gui) resetState() {
@@ -147,7 +147,7 @@ func (gui *Gui) resetState() {
 		},
 		SideView:   nil,
 		Ptmx:       nil,
-		CommandMap: map[string]*commands.CommandView{},
+		CommandMap: commands.CommandViewMap{},
 	}
 }
 

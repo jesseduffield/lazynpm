@@ -156,7 +156,11 @@ func getPaddedDisplayStrings(stringArrays [][]string, padWidths []int) []string 
 			if len(stringArray)-1 < j {
 				continue
 			}
-			paddedDisplayStrings[i] += WithPadding(stringArray[j], padWidth) + " "
+			columnSeparator := " "
+			if padWidth == 0 {
+				columnSeparator = ""
+			}
+			paddedDisplayStrings[i] += WithPadding(stringArray[j], padWidth) + columnSeparator
 		}
 		if len(stringArray)-1 < len(padWidths) {
 			continue

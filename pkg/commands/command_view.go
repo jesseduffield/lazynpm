@@ -20,12 +20,14 @@ func (cv *CommandView) Status() string {
 	}
 
 	if cv.Cmd.ProcessState == nil {
-		return utils.ColoredString(utils.Loader(), color.FgCyan)
+		return utils.ColoredString(utils.Loader(), color.FgCyan, color.Bold)
 	} else {
 		if cv.Cmd.ProcessState.Success() {
-			return utils.ColoredString("!", color.FgGreen)
+			return utils.ColoredString("!", color.FgGreen, color.Bold)
 		} else {
-			return utils.ColoredString("X", color.FgRed)
+			return utils.ColoredString("X", color.FgRed, color.Bold)
 		}
 	}
 }
+
+type CommandViewMap map[string]*CommandView

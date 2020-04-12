@@ -61,10 +61,10 @@ func (gui *Gui) refreshPackages() error {
 		displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandMap)
 		gui.renderDisplayStrings(packagesView, displayStrings)
 
-		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps)
+		displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandMap)
 		gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 
-		displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts())
+		displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandMap)
 		gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 		return nil
 	})

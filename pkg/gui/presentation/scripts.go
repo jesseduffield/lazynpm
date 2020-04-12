@@ -8,18 +8,19 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
-func GetScriptListDisplayStrings(scripts []*commands.Script) [][]string {
+func GetScriptListDisplayStrings(scripts []*commands.Script, commandMap commands.CommandViewMap) [][]string {
 	lines := make([][]string, len(scripts))
 
 	for i := range scripts {
-		lines[i] = getScriptDisplayStrings(scripts[i])
+		script := scripts[i]
+		lines[i] = getScriptDisplayStrings(script, commandMap[script.ID()])
 	}
 
 	return lines
 }
 
-func getScriptDisplayStrings(p *commands.Script) []string {
-	return []string{p.Name, utils.ColoredString(p.Command, color.FgBlue)}
+func getScriptDisplayStrings(p *commands.Script, commandView *commands.CommandView) []string {
+	return []string{commandView.Status(), p.Name, utils.ColoredString(p.Command, color.FgBlue)}
 }
 
 func ScriptSummary(s *commands.Script) string {
