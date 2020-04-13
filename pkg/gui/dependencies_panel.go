@@ -134,13 +134,13 @@ func (gui *Gui) wrappedDependencyHandler(f func(*commands.Dependency) error) fun
 
 func (gui *Gui) handleChangeDepType(dep *commands.Dependency) error {
 	kindKeyMap := commands.KindKeyMap()
-	kindFlagMap := commands.KindFlagMap()
-	menuItems := make([]*menuItem, 0, len(commands.KindKeyMap()))
-	for kind := range kindFlagMap {
-		kind := kind
-		cmdStr := fmt.Sprintf("npm install %s %s", kindFlagMap[kind], dep.Name)
+	kindFlags := commands.KindFlags()
+	menuItems := make([]*menuItem, 0, len(kindFlags))
+	for _, kindFlag := range kindFlags {
+		kindFlag := kindFlag
+		cmdStr := fmt.Sprintf("npm install %s %s", kindFlag.Flag, dep.Name)
 		menuItems = append(menuItems, &menuItem{
-			displayStrings: []string{kindKeyMap[kind], utils.ColoredString(cmdStr, color.FgYellow)},
+			displayStrings: []string{kindKeyMap[kindFlag.Kind], utils.ColoredString(cmdStr, color.FgYellow)},
 			onPress: func() error {
 				return gui.newMainCommand(cmdStr, dep.ID())
 			},
@@ -161,13 +161,13 @@ func (gui *Gui) handleAddDependency(dep *commands.Dependency) error {
 	}
 
 	kindKeyMap := commands.KindKeyMap()
-	kindFlagMap := commands.KindFlagMap()
-	menuItems := make([]*menuItem, 0, len(commands.KindKeyMap()))
-	for kind := range kindFlagMap {
-		kind := kind
-		cmdStr := fmt.Sprintf("npm install %s", kindFlagMap[kind])
+	kindFlags := commands.KindFlags()
+	menuItems := make([]*menuItem, 0, len(kindFlags))
+	for _, kindFlag := range kindFlags {
+		kindFlag := kindFlag
+		cmdStr := fmt.Sprintf("npm install %s", kindFlag.Flag)
 		menuItems = append(menuItems, &menuItem{
-			displayStrings: []string{kindKeyMap[kind], utils.ColoredString(cmdStr, color.FgYellow)},
+			displayStrings: []string{kindKeyMap[kindFlag.Kind], utils.ColoredString(cmdStr, color.FgYellow)},
 			onPress: func() error {
 				return prompt(cmdStr)
 			},

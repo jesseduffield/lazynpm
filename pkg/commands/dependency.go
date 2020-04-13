@@ -45,6 +45,19 @@ func KindFlagMap() map[string]string {
 	}
 }
 
+type KindFlag struct {
+	Kind string
+	Flag string
+}
+
+func KindFlags() []KindFlag {
+	return []KindFlag{
+		{Kind: "prod", Flag: "--save-prod"},
+		{Kind: "dev", Flag: "--save-dev"},
+		{Kind: "optional", Flag: "--save-optional"},
+	}
+}
+
 func (d *Dependency) kindKey() string {
 	return KindKeyMap()[d.Kind]
 }
