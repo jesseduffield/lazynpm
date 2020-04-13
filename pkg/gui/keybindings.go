@@ -493,6 +493,24 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:     gui.wrappedTarballHandler(gui.handleDeleteTarball),
 			Description: "delete tarball",
 		},
+		{
+			ViewName:    "tarballs",
+			Key:         gui.getKey("universal.remove"),
+			Handler:     gui.wrappedTarballHandler(gui.handleDeleteTarball),
+			Description: "delete tarball",
+		},
+		{
+			ViewName:    "tarballs",
+			Key:         gui.getKey("universal.install"),
+			Handler:     gui.wrappedTarballHandler(gui.handleInstallTarball),
+			Description: fmt.Sprintf("%s tarball", utils.ColoredString("`npm install`", color.FgYellow)),
+		},
+		{
+			ViewName:    "tarballs",
+			Key:         gui.getKey("packages.publish"),
+			Handler:     gui.wrappedTarballHandler(gui.handlePublishTarball),
+			Description: fmt.Sprintf("%s tarball", utils.ColoredString("`npm publish`", color.FgYellow)),
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "tarballs", "menu"} {

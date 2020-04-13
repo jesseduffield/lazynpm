@@ -59,3 +59,15 @@ func (gui *Gui) handleDeleteTarball(tarball *commands.Tarball) error {
 		},
 	})
 }
+
+func (gui *Gui) handleInstallTarball(tarball *commands.Tarball) error {
+	cmdStr := fmt.Sprintf("npm install %s", tarball.Name)
+	return gui.newMainCommand(cmdStr, tarball.ID())
+}
+
+func (gui *Gui) handlePublishTarball(tarball *commands.Tarball) error {
+	// saying scoped: true because that forces us to specify whether we want to publish
+	// as public or restricted. Can't know whether it's a scoped tarball just from
+	// the name because the @ is missing
+	return gui.handlePublish(tarball.Name, true, tarball.ID())
+}

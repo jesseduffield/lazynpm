@@ -60,7 +60,7 @@ func (gui *Gui) currentContextViewID() string {
 	case "scripts":
 		return gui.selectedScriptID()
 	case "tarballs":
-		panic("remind me to implement scrolling for the tarballs panel")
+		return gui.selectedTarballID()
 	}
 	return ""
 }

@@ -236,19 +236,23 @@ func (gui *Gui) selectedPackageID() string {
 }
 
 func (gui *Gui) handlePublishPackage(pkg *commands.Package) error {
+	return gui.handlePublish(pkg.Config.Name, pkg.Scoped(), pkg.ID())
+}
+
+func (gui *Gui) handlePublish(name string, scoped bool, id string) error {
 	cmdStr := "npm publish"
 
 	tagPrompt := func() error {
-		return gui.createPromptPanel(gui.getPackagesView(), "Enter tag name (leave blank for no tag)", "", func(tag string) error {
+		return gui.createPromptPanel(gui.g.CurrentView(), "Enter tag name (leave blank for no tag)", "", func(tag string) error {
 			if tag != "" {
 				cmdStr = fmt.Sprintf("%s --tag=%s", cmdStr, tag)
 			}
-			cmdStr = fmt.Sprintf("%s %s", cmdStr, pkg.Config.Name)
-			return gui.newMainCommand(cmdStr, pkg.ID())
+			cmdStr = fmt.Sprintf("%s %s", cmdStr, name)
+			return gui.newMainCommand(cmdStr, id)
 		})
 	}
 
-	if pkg.Scoped() {
+	if scoped {
 		menuItems := []*menuItem{
 			{
 				displayStrings: []string{"restricted (default)", utils.ColoredString("--access=restricted", color.FgYellow)},
