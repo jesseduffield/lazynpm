@@ -730,11 +730,6 @@ func (v *View) Write(p []byte) (n int, err error) {
 				}
 			}
 			sanityCheck()
-
-			_, height := v.Size()
-			if v.Pty && v.wcy >= height {
-				v.Autoscroll = true
-			}
 		}
 	}
 

@@ -65,6 +65,8 @@ github.com/jesseduffield/gocui v0.3.1-0.20200405034337-066b5b6ca1ba h1:hHITZ7ar+
 github.com/jesseduffield/gocui v0.3.1-0.20200405034337-066b5b6ca1ba/go.mod h1:2RtZznzYKt8RLRwvFiSkXjU0Ei8WwHdubgnlaYH47dw=
 github.com/jesseduffield/gocui v0.3.1-0.20200411093505-aaa030344787 h1:c2+NmVOLsmH9GNKfv8uO/M1rlPkPZHipWNqKlyUAIBI=
 github.com/jesseduffield/gocui v0.3.1-0.20200411093505-aaa030344787/go.mod h1:2RtZznzYKt8RLRwvFiSkXjU0Ei8WwHdubgnlaYH47dw=
+github.com/jesseduffield/gocui v0.3.1-0.20200413000446-b3ab1240f59e h1:VbSini2EPChm0p4jJDC/xec2IlZKsdmhV9Ki3MYV434=
+github.com/jesseduffield/gocui v0.3.1-0.20200413000446-b3ab1240f59e/go.mod h1:2RtZznzYKt8RLRwvFiSkXjU0Ei8WwHdubgnlaYH47dw=
 github.com/jesseduffield/semver/v3 v3.0.4-0.20200411092651-8f1f2b3d1bc1 h1:dYbhdQfMw+9HmcPw53EffJusPOHRRzVuFgt1Q4TQ1OQ=
 github.com/jesseduffield/semver/v3 v3.0.4-0.20200411092651-8f1f2b3d1bc1/go.mod h1:ACtpq+KxLwZY+fsQbSoKzlXIR10Xs4epLdg5Y8f1DfM=
 github.com/jesseduffield/termbox-go v0.0.0-20200405031649-4dc645f7e8ba h1:hWBdYchM9nZ2+GldroQQ627ISOC83iRDdpfwY+uyJeI=
