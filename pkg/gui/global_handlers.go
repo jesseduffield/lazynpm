@@ -51,8 +51,7 @@ func (gui *Gui) scrollDownView(viewName string) error {
 }
 
 func (gui *Gui) currentContextViewID() string {
-	currentView := gui.g.CurrentView()
-	switch currentView.Name() {
+	switch gui.State.CurrentSideView {
 	case "packages":
 		return gui.selectedPackageID()
 	case "deps":

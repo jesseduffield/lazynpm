@@ -30,6 +30,22 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 		v.Wrap = true
 		v.FgColor = theme.GocuiDefaultTextColor
 
+		selectedLine := 0
+
+		lv := &listView{
+			viewName:              contextKey,
+			getItemsLength:        func() int { return len(v.BufferLines()) },
+			getSelectedLineIdxPtr: func() *int { return &selectedLine },
+			handleItemSelect: gui.wrappedHandler(func() error {
+				if selectedLine >= len(v.BufferLines())-1 {
+					v.Autoscroll = true
+				}
+				return nil
+			}),
+			gui:               gui,
+			rendersToMainView: false,
+		}
+
 		bindings := []*Binding{
 			{
 				ViewName:    contextKey,
@@ -59,6 +75,30 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 				Modifier: gocui.ModNone,
 				Handler:  gui.wrappedHandler(gui.handleEscapeMain),
 			},
+			{
+				ViewName: contextKey,
+				Key:      gui.getKey("universal.return"),
+				Handler:  gui.handleSearchEscape,
+			},
+			{
+				ViewName:    contextKey,
+				Key:         gui.getKey("universal.startSearch"),
+				Handler:     gui.handleOpenSearch,
+				Description: gui.Tr.SLocalize("startSearch"),
+			},
+			{ViewName: contextKey, Key: gui.getKey("universal.prevItem-alt"), Handler: gui.unsetAutoScrollWrapper(gui.scrollUpMain)},
+			{ViewName: contextKey, Key: gui.getKey("universal.prevItem"), Handler: gui.unsetAutoScrollWrapper(gui.scrollUpMain)},
+			{ViewName: contextKey, Key: gui.getKey("universal.nextItem-alt"), Handler: gui.scrollDownMain},
+			{ViewName: contextKey, Key: gui.getKey("universal.nextItem"), Handler: gui.scrollDownMain},
+			{ViewName: contextKey, Key: gui.getKey("universal.prevPage"), Handler: gui.unsetAutoScrollWrapper(lv.handlePrevPage), Description: gui.Tr.SLocalize("prevPage")},
+			{ViewName: contextKey, Key: gui.getKey("universal.nextPage"), Handler: lv.handleNextPage, Description: gui.Tr.SLocalize("nextPage")},
+			{ViewName: contextKey, Key: gui.getKey("universal.gotoTop"), Handler: gui.unsetAutoScrollWrapper(lv.handleGotoTop), Description: gui.Tr.SLocalize("gotoTop")},
+			{
+				ViewName:    contextKey,
+				Key:         gui.getKey("universal.gotoBottom"),
+				Handler:     lv.handleGotoBottom,
+				Description: gui.Tr.SLocalize("gotoBottom"),
+			},
 		}
 
 		for _, binding := range bindings {
@@ -67,6 +107,11 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 			}
 		}
 	}
+
+	v.SetOnSelectItem(gui.onSelectItemWrapper(func(selectedLineIdx int) error {
+		v.FocusPoint(0, selectedLineIdx)
+		return nil
+	}))
 
 	if _, err := gui.g.SetViewOnTop(contextKey); err != nil {
 		return err
@@ -85,6 +130,13 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 
 	// we need to refresh packages to show that a command is now in flight
 	return gui.refreshPackages()
+}
+
+func (gui *Gui) unsetAutoScrollWrapper(f func(g *gocui.Gui, v *gocui.View) error) func(g *gocui.Gui, v *gocui.View) error {
+	return func(g *gocui.Gui, v *gocui.View) error {
+		v.Autoscroll = false
+		return f(g, v)
+	}
 }
 
 func (gui *Gui) onResize() error {

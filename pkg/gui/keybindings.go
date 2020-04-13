@@ -539,6 +539,13 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			{ViewName: listView.viewName, Contexts: []string{listView.context}, Key: gui.getKey("universal.prevPage"), Handler: listView.handlePrevPage, Description: gui.Tr.SLocalize("prevPage")},
 			{ViewName: listView.viewName, Contexts: []string{listView.context}, Key: gui.getKey("universal.nextPage"), Handler: listView.handleNextPage, Description: gui.Tr.SLocalize("nextPage")},
 			{ViewName: listView.viewName, Contexts: []string{listView.context}, Key: gui.getKey("universal.gotoTop"), Handler: listView.handleGotoTop, Description: gui.Tr.SLocalize("gotoTop")},
+			{
+				ViewName:    listView.viewName,
+				Contexts:    []string{listView.context},
+				Key:         gui.getKey("universal.gotoBottom"),
+				Handler:     listView.handleGotoBottom,
+				Description: gui.Tr.SLocalize("gotoBottom"),
+			},
 			{ViewName: listView.viewName, Contexts: []string{listView.context}, Key: gocui.MouseWheelDown, Handler: listView.handleNextLine},
 			{ViewName: listView.viewName, Contexts: []string{listView.context}, Key: gocui.MouseLeft, Handler: listView.handleClick},
 			{
@@ -547,13 +554,6 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 				Key:         gui.getKey("universal.startSearch"),
 				Handler:     gui.handleOpenSearch,
 				Description: gui.Tr.SLocalize("startSearch"),
-			},
-			{
-				ViewName:    listView.viewName,
-				Contexts:    []string{listView.context},
-				Key:         gui.getKey("universal.gotoBottom"),
-				Handler:     listView.handleGotoBottom,
-				Description: gui.Tr.SLocalize("gotoBottom"),
 			},
 		}...)
 	}

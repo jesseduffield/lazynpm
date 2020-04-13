@@ -44,7 +44,10 @@ func (lv *listView) handleLineChange(change int) error {
 		}
 	}
 
-	return lv.handleItemSelect(lv.gui.g, view)
+	if lv.handleItemSelect != nil {
+		return lv.handleItemSelect(lv.gui.g, view)
+	}
+	return nil
 }
 
 func (lv *listView) handleNextPage(g *gocui.Gui, v *gocui.View) error {
@@ -114,7 +117,10 @@ func (lv *listView) handleClick(g *gocui.Gui, v *gocui.View) error {
 	if prevSelectedLineIdx == newSelectedLineIdx && prevViewName == lv.viewName && lv.handleClickSelectedItem != nil {
 		return lv.handleClickSelectedItem(lv.gui.g, v)
 	}
-	return lv.handleItemSelect(lv.gui.g, v)
+	if lv.handleItemSelect != nil {
+		return lv.handleItemSelect(lv.gui.g, v)
+	}
+	return nil
 }
 
 func (lv *listView) onSearchSelect(selectedLineIdx int) error {
@@ -124,7 +130,10 @@ func (lv *listView) onSearchSelect(selectedLineIdx int) error {
 	}
 
 	*lv.getSelectedLineIdxPtr() = selectedLineIdx
-	return lv.handleItemSelect(lv.gui.g, view)
+	if lv.handleItemSelect != nil {
+		return lv.handleItemSelect(lv.gui.g, view)
+	}
+	return nil
 }
 
 func (gui *Gui) menuListView() *listView {
