@@ -28,6 +28,8 @@ func (gui *Gui) handleDepSelect(g *gocui.Gui, v *gocui.View) error {
 	}
 	if dep.PackageConfig != nil {
 		summary := presentation.PackageSummary(*dep.PackageConfig)
+		summary = fmt.Sprintf("%s\nConstraint: %s", summary, utils.ColoredString(dep.Constraint, color.FgMagenta))
+		summary = fmt.Sprintf("%s\nType: %s", summary, utils.ColoredString(dep.KindKey(), presentation.KindColor(dep.Kind)))
 		if dep.Linked() {
 			summary = fmt.Sprintf("%s\nLinked to: %s", summary, utils.ColoredString(dep.LinkPath, color.FgCyan))
 		}

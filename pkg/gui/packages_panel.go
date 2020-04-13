@@ -60,10 +60,16 @@ func (gui *Gui) refreshPackages() error {
 		return err
 	}
 
-	displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandViewMap)
-	gui.renderDisplayStrings(packagesView, displayStrings)
+	gui.refreshListViews()
 
-	displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap)
+	return nil
+}
+
+func (gui *Gui) refreshListViews() {
+	displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandViewMap)
+	gui.renderDisplayStrings(gui.getPackagesView(), displayStrings)
+
+	displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap, gui.getLeftSideWidth() > 70)
 	gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 
 	displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandViewMap)
@@ -73,8 +79,6 @@ func (gui *Gui) refreshPackages() error {
 	gui.renderDisplayStrings(gui.getTarballsView(), displayStrings)
 
 	gui.refreshStatus()
-
-	return nil
 }
 
 func (gui *Gui) currentPackage() *commands.Package {

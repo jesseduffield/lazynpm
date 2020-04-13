@@ -58,6 +58,6 @@ func KindFlags() []KindFlag {
 	}
 }
 
-func (d *Dependency) kindKey() string {
+func (d *Dependency) KindKey() string {
 	return KindKeyMap()[d.Kind]
 }

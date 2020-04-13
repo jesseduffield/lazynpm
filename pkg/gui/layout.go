@@ -118,25 +118,32 @@ func (gui *Gui) getViewHeights() map[string]int {
 	return vHeights
 }
 
-func (gui *Gui) getMainViewDimensions() (int, int, int, int, error) {
-	width, height := gui.g.Size()
+func (gui *Gui) getLeftSideWidth() int {
+	width, _ := gui.g.Size()
 
 	sidePanelWidthRatio := gui.Config.GetUserConfig().GetFloat64("gui.sidePanelWidth")
 
-	var leftSideWidth int
 	switch gui.State.ScreenMode {
 	case SCREEN_NORMAL:
-		leftSideWidth = int(float64(width) * sidePanelWidthRatio)
+		return int(float64(width) * sidePanelWidthRatio)
 	case SCREEN_HALF:
-		leftSideWidth = width/2 - 2
+		return width/2 - 2
 	case SCREEN_FULL:
 		currentView := gui.g.CurrentView()
 		if currentView != nil && currentView.Name() == "main" {
-			leftSideWidth = 0
+			return 0
 		} else {
-			leftSideWidth = width - 1
+			return width - 1
 		}
 	}
+
+	return 0
+}
+
+func (gui *Gui) getMainViewDimensions() (int, int, int, int, error) {
+	width, height := gui.g.Size()
+
+	leftSideWidth := gui.getLeftSideWidth()
 
 	mainPanelLeft := leftSideWidth + 1
 	mainPanelRight := width - 1

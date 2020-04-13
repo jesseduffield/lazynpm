@@ -11,11 +11,15 @@ import (
 func (gui *Gui) nextScreenMode(g *gocui.Gui, v *gocui.View) error {
 	gui.State.ScreenMode = utils.NextIntInCycle([]int{SCREEN_NORMAL, SCREEN_HALF, SCREEN_FULL}, gui.State.ScreenMode)
 
+	gui.refreshListViews()
+
 	return nil
 }
 
 func (gui *Gui) prevScreenMode(g *gocui.Gui, v *gocui.View) error {
 	gui.State.ScreenMode = utils.PrevIntInCycle([]int{SCREEN_NORMAL, SCREEN_HALF, SCREEN_FULL}, gui.State.ScreenMode)
+
+	gui.refreshListViews()
 
 	return nil
 }

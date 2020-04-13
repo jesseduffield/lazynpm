@@ -10,19 +10,18 @@ import (
 	"github.com/jesseduffield/semver/v3"
 )
 
-func GetDependencyListDisplayStrings(dependencies []*commands.Dependency, commandMap commands.CommandViewMap) [][]string {
+func GetDependencyListDisplayStrings(dependencies []*commands.Dependency, commandMap commands.CommandViewMap, wide bool) [][]string {
 	lines := make([][]string, len(dependencies))
 
 	for i := range dependencies {
 		dep := dependencies[i]
-		lines[i] = getDepDisplayStrings(dep, commandMap[dep.ID()])
+		lines[i] = getDepDisplayStrings(dep, commandMap[dep.ID()], wide)
 	}
 
 	return lines
 }
 
-func getDepDisplayStrings(d *commands.Dependency, commandView *commands.CommandView) []string {
-
+func getDepDisplayStrings(d *commands.Dependency, commandView *commands.CommandView, wide bool) []string {
 	localVersionCol := ""
 	if d.Linked() {
 		localVersionCol = utils.ColoredString("linked: "+d.LinkPath, color.FgCyan)
@@ -37,14 +36,20 @@ func getDepDisplayStrings(d *commands.Dependency, commandView *commands.CommandV
 		localVersionCol = utils.ColoredString("missing", color.FgRed)
 	}
 
-	kindColorMap := map[string]color.Attribute{
-		"prod":     color.FgYellow,
-		"dev":      color.FgGreen,
-		"peer":     color.FgMagenta,
-		"optional": theme.DefaultTextColor,
+	return []string{
+		commandView.Status(),
+		utils.ColoredString(truncateWithEllipsis(d.Name, 30, wide), KindColor(d.Kind)),
+		utils.ColoredString(truncateWithEllipsis(d.Constraint, 20, wide), color.FgMagenta),
+		localVersionCol,
+	}
+}
+
+func truncateWithEllipsis(str string, limit int, wide bool) string {
+	if wide {
+		return str
 	}
 
-	return []string{commandView.Status(), d.Name, utils.ColoredString(d.Kind, kindColorMap[d.Kind]), utils.ColoredString(d.Constraint, color.FgMagenta), localVersionCol}
+	return utils.TruncateWithEllipsis(str, limit)
 }
 
 func statusMap() map[int]string {
@@ -72,4 +77,13 @@ func semverStatus(version, constraint string) (int, bool) {
 	status := c.Status(v)
 
 	return status, status == semver.GOOD
+}
+
+func KindColor(kind string) color.Attribute {
+	return map[string]color.Attribute{
+		"prod":     theme.DefaultTextColor,
+		"dev":      color.FgGreen,
+		"optional": color.FgCyan,
+		"peer":     color.FgMagenta,
+	}[kind]
 }

@@ -210,7 +210,7 @@ func (m *NpmManager) EditDepConstraint(dep *Dependency, packageJsonPath string, 
 		return err
 	}
 
-	updatedConfig, err := jsonparser.Set(config, jsonStringValue(constraint), dep.kindKey(), dep.Name)
+	updatedConfig, err := jsonparser.Set(config, jsonStringValue(constraint), dep.KindKey(), dep.Name)
 	if err != nil {
 		return err
 	}
