@@ -69,6 +69,7 @@ func (gui *Gui) getViewHeights() map[string]int {
 			"packages": 0,
 			"deps":     0,
 			"scripts":  0,
+			"tarballs": 0,
 			"options":  0,
 		}
 		vHeights[currentCyclebleView] = height - 1
@@ -78,12 +79,15 @@ func (gui *Gui) getViewHeights() map[string]int {
 	usableSpace := height - 4
 	extraSpace := usableSpace - (usableSpace/3)*3
 
+	mainSideViewCount := 4
+
 	if height >= 28 {
 		return map[string]int{
 			"status":   3,
-			"packages": (usableSpace / 3) + extraSpace,
-			"deps":     usableSpace / 3,
-			"scripts":  usableSpace / 3,
+			"packages": (usableSpace / mainSideViewCount) + extraSpace,
+			"deps":     usableSpace / mainSideViewCount,
+			"scripts":  usableSpace / mainSideViewCount,
+			"tarballs": usableSpace / mainSideViewCount,
 			"options":  1,
 		}
 	}
@@ -99,8 +103,7 @@ func (gui *Gui) getViewHeights() map[string]int {
 		"scripts":  defaultHeight,
 		"options":  defaultHeight,
 	}
-	sideViewCount := 3
-	vHeights[currentCyclebleView] = height - defaultHeight*sideViewCount - 1
+	vHeights[currentCyclebleView] = height - defaultHeight*mainSideViewCount - 1
 
 	return vHeights
 }
@@ -250,6 +253,16 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		scriptsView.ContainsList = true
 	}
 
+	tarballsView, err := g.SetViewBeneath("tarballs", "scripts", vHeights["tarballs"])
+	if err != nil {
+		if err.Error() != "unknown view" {
+			return err
+		}
+		tarballsView.Title = gui.Tr.SLocalize("TarballsTitle")
+		tarballsView.FgColor = textColor
+		tarballsView.ContainsList = true
+	}
+
 	if v, err := g.SetView("options", appStatusOptionsBoundary-1, height-2, optionsVersionBoundary-1, height, 0); err != nil {
 		if err.Error() != "unknown view" {
 			return err
@@ -342,6 +355,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		{view: packagesView, context: "", selectedLine: gui.State.Panels.Packages.SelectedLine, lineCount: len(gui.State.Packages), listView: gui.packagesListView()},
 		{view: depsView, context: "", selectedLine: gui.State.Panels.Deps.SelectedLine, lineCount: len(gui.State.Deps), listView: gui.depsListView()},
 		{view: scriptsView, context: "", selectedLine: gui.State.Panels.Scripts.SelectedLine, lineCount: len(gui.getScripts()), listView: gui.scriptsListView()},
+		{view: tarballsView, context: "", selectedLine: gui.State.Panels.Tarballs.SelectedLine, lineCount: len(gui.State.Tarballs), listView: gui.tarballsListView()},
 	}
 
 	// menu view might not exist so we check to be safe

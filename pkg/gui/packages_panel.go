@@ -69,6 +69,9 @@ func (gui *Gui) refreshPackages() error {
 	displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandViewMap)
 	gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
 
+	displayStrings = presentation.GetTarballListDisplayStrings(gui.State.Tarballs, gui.State.CommandViewMap)
+	gui.renderDisplayStrings(gui.getTarballsView(), displayStrings)
+
 	gui.refreshStatus()
 
 	return nil
@@ -96,6 +99,11 @@ func (gui *Gui) refreshStatePackages() error {
 		return err
 	}
 
+	gui.State.Tarballs, err = gui.NpmManager.GetTarballs(gui.currentPackage())
+	if err != nil {
+		return err
+	}
+
 	gui.refreshSelectedLine(&gui.State.Panels.Packages.SelectedLine, len(gui.State.Packages))
 	return nil
 }
@@ -108,6 +116,7 @@ func (gui *Gui) handleCheckoutPackage(pkg *commands.Package) error {
 	gui.State.Panels.Packages.SelectedLine = 0
 	gui.State.Panels.Deps.SelectedLine = 0
 	gui.State.Panels.Scripts.SelectedLine = 0
+	gui.State.Panels.Tarballs.SelectedLine = 0
 
 	return gui.refreshPackages()
 }

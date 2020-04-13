@@ -244,6 +244,9 @@ func addEnglish(i18nObject *i18n.Bundle) error {
 		}, &i18n.Message{
 			ID:    "NoScripts",
 			Other: "No Scripts",
+		}, &i18n.Message{
+			ID:    "TarballsTitle",
+			Other: "Tarballs",
 		},
 	)
 }

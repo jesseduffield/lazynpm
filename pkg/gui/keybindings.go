@@ -489,7 +489,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 	}
 
-	for _, viewName := range []string{"status", "packages", "deps", "scripts", "menu"} {
+	for _, viewName := range []string{"status", "packages", "deps", "scripts", "tarballs", "menu"} {
 		bindings = append(bindings, []*Binding{
 			{ViewName: viewName, Key: gui.getKey("universal.togglePanel"), Handler: gui.nextView},
 			{ViewName: viewName, Key: gui.getKey("universal.prevBlock"), Handler: gui.previousView},
@@ -500,7 +500,7 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 	}
 
 	// Appends keybindings to jump to a particular sideView using numbers
-	for i, viewName := range []string{"status", "packages", "deps", "scripts"} {
+	for i, viewName := range []string{"status", "packages", "deps", "scripts", "tarballs"} {
 		bindings = append(bindings, &Binding{ViewName: "", Key: rune(i+1) + '0', Handler: gui.goToSideView(viewName)})
 		bindings = append(bindings, &Binding{ViewName: viewName, Key: gui.getKey("universal.goInto"), Handler: gui.wrappedHandler(gui.enterMainView)})
 	}

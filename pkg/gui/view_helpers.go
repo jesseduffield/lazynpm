@@ -10,7 +10,7 @@ import (
 	"github.com/spkg/bom"
 )
 
-var cyclableViews = []string{"status", "packages", "deps", "scripts"}
+var cyclableViews = []string{"status", "packages", "deps", "scripts", "tarballs"}
 
 func intArrToMap(arr []int) map[int]bool {
 	output := map[int]bool{}
@@ -100,13 +100,13 @@ func (gui *Gui) newLineFocused(g *gocui.Gui, v *gocui.View) error {
 		return gui.handleDepSelect(g, v)
 	case "scripts":
 		return gui.handleScriptSelect(g, v)
+	case "tarballs":
+		return gui.handleTarballSelect(g, v)
 	case "main":
 		v.Highlight = false
 		return nil
 	case "search", "confirmation":
 		return nil
-	case "tarballs":
-		panic("remind me to do this")
 	default:
 		return nil
 	}
@@ -263,6 +263,11 @@ func (gui *Gui) getSearchView() *gocui.View {
 
 func (gui *Gui) getStatusView() *gocui.View {
 	v, _ := gui.g.View("status")
+	return v
+}
+
+func (gui *Gui) getTarballsView() *gocui.View {
+	v, _ := gui.g.View("tarballs")
 	return v
 }
 

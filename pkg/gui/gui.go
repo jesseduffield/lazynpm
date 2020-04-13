@@ -98,6 +98,10 @@ type scriptsPanelState struct {
 	SelectedLine int
 }
 
+type tarballsPanelState struct {
+	SelectedLine int
+}
+
 type menuPanelState struct {
 	SelectedLine int
 	OnPress      func(g *gocui.Gui, v *gocui.View) error
@@ -107,6 +111,7 @@ type panelStates struct {
 	Packages *packagesPanelState
 	Deps     *depsPanelState
 	Scripts  *scriptsPanelState
+	Tarballs *tarballsPanelState
 	Menu     *menuPanelState
 }
 
@@ -119,6 +124,7 @@ type searchingState struct {
 type guiState struct {
 	Packages          []*commands.Package
 	Deps              []*commands.Dependency
+	Tarballs          []*commands.Tarball
 	MenuItemCount     int // can't store the actual list because it's of interface{} type
 	PreviousView      string
 	CurrentSideView   string
@@ -144,6 +150,7 @@ func (gui *Gui) resetState() {
 			Packages: &packagesPanelState{SelectedLine: 0},
 			Deps:     &depsPanelState{SelectedLine: 0},
 			Scripts:  &scriptsPanelState{SelectedLine: 0},
+			Tarballs: &tarballsPanelState{SelectedLine: 0},
 			Menu:     &menuPanelState{SelectedLine: 0},
 		},
 		Ptmx:           nil,

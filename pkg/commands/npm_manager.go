@@ -175,6 +175,24 @@ func (m *NpmManager) GetDeps(currentPkg *Package, previousDeps []*Dependency) ([
 	return deps, nil
 }
 
+func (m *NpmManager) GetTarballs(currentPkg *Package) ([]*Tarball, error) {
+	// would be nice if I had a guarantee on the directory I was checking but this should do
+	paths, err := filepath.Glob("*.tgz")
+	if err != nil {
+		return nil, err
+	}
+
+	tarballs := make([]*Tarball, len(paths))
+	for i, path := range paths {
+		tarballs[i] = &Tarball{
+			Path: path,
+			Name: filepath.Base(path),
+		}
+	}
+
+	return tarballs, nil
+}
+
 func (m *NpmManager) RemoveScript(scriptName string, packageJsonPath string) error {
 	config, err := ioutil.ReadFile(packageJsonPath)
 	if err != nil {

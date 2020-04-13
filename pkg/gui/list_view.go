@@ -177,11 +177,24 @@ func (gui *Gui) scriptsListView() *listView {
 	}
 }
 
+func (gui *Gui) tarballsListView() *listView {
+	return &listView{
+		viewName:              "tarballs",
+		getItemsLength:        func() int { return len(gui.State.Tarballs) },
+		getSelectedLineIdxPtr: func() *int { return &gui.State.Panels.Tarballs.SelectedLine },
+		handleFocus:           gui.handleTarballSelect,
+		handleItemSelect:      gui.handleTarballSelect,
+		gui:                   gui,
+		rendersToMainView:     true,
+	}
+}
+
 func (gui *Gui) getListViews() []*listView {
 	return []*listView{
 		gui.menuListView(),
 		gui.packagesListView(),
 		gui.depsListView(),
 		gui.scriptsListView(),
+		gui.tarballsListView(),
 	}
 }
