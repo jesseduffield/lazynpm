@@ -5,7 +5,7 @@ builds:
       - CGO_ENABLED=0
     goos:
       - freebsd
-      - windows
+      # - windows # would love to but the pty package doesn't really work with it
       - darwin
       - linux
     goarch:
@@ -21,7 +21,7 @@ archives:
   - replacements:
       darwin: Darwin
       linux: Linux
-      windows: Windows
+      # windows: Windows
       386: 32-bit
       amd64: x86_64
     format_overrides:
