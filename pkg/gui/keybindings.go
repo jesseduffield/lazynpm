@@ -495,12 +495,6 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 		},
 		{
 			ViewName:    "tarballs",
-			Key:         gui.getKey("universal.remove"),
-			Handler:     gui.wrappedTarballHandler(gui.handleDeleteTarball),
-			Description: "delete tarball",
-		},
-		{
-			ViewName:    "tarballs",
 			Key:         gui.getKey("universal.install"),
 			Handler:     gui.wrappedTarballHandler(gui.handleInstallTarball),
 			Description: fmt.Sprintf("%s tarball", utils.ColoredString("`npm install`", color.FgYellow)),
