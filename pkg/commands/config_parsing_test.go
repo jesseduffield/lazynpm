@@ -61,6 +61,9 @@ func TestUnmarshalPackageConfig(t *testing.T) {
 
 		config, err := UnmarshalPackageConfig(file, nil)
 
+		// cos I'm lazy
+		config.Sha = nil
+
 		assert.NoError(t, err)
 		assert.EqualValues(t, s.expectedPackageConfig, config)
 	}
