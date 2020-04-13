@@ -114,7 +114,7 @@ func (gui *Gui) createMenu(title string, items []*menuItem, createMenuOptions cr
 			}
 		}
 		currentView := gui.g.CurrentView()
-		return gui.switchFocus(gui.g, currentView, menuView)
+		return gui.switchFocus(currentView, menuView)
 	})
 	return nil
 }

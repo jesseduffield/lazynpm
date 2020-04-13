@@ -6,5 +6,5 @@ func (gui *Gui) handleEscapeMain() error {
 	if err != nil {
 		return nil
 	}
-	return gui.switchFocus(gui.g, nil, view)
+	return gui.switchFocus(nil, view)
 }

@@ -96,7 +96,7 @@ func (gui *Gui) scrollDownConfirmationPanel(g *gocui.Gui, v *gocui.View) error {
 }
 
 func (gui *Gui) handleRefresh(g *gocui.Gui, v *gocui.View) error {
-	return gui.refreshSidePanels(refreshOptions{mode: ASYNC})
+	return gui.refreshPackages()
 }
 
 func (gui *Gui) handleMouseDownMain(g *gocui.Gui, v *gocui.View) error {
@@ -110,7 +110,7 @@ func (gui *Gui) handleMouseDownMain(g *gocui.Gui, v *gocui.View) error {
 		return nil
 	}
 
-	return gui.switchFocus(gui.g, gui.g.CurrentView(), view)
+	return gui.switchFocus(gui.g.CurrentView(), view)
 }
 
 func (gui *Gui) handleInfoClick(g *gocui.Gui, v *gocui.View) error {
@@ -185,5 +185,5 @@ func (gui *Gui) enterMainView() error {
 	if err != nil {
 		return nil
 	}
-	return gui.switchFocus(gui.g, gui.g.CurrentView(), view)
+	return gui.switchFocus(gui.g.CurrentView(), view)
 }

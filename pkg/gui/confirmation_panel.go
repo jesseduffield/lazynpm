@@ -100,7 +100,7 @@ func (gui *Gui) prepareConfirmationPanel(currentView *gocui.View, title, prompt 
 		confirmationView.FgColor = theme.GocuiDefaultTextColor
 	}
 	gui.g.Update(func(g *gocui.Gui) error {
-		return gui.switchFocus(gui.g, currentView, confirmationView)
+		return gui.switchFocus(currentView, confirmationView)
 	})
 	return confirmationView, nil
 }
@@ -224,7 +224,7 @@ func (gui *Gui) createErrorPanel(message string) error {
 
 	colorFunction := color.New(color.FgRed).SprintFunc()
 	coloredMessage := colorFunction(strings.TrimSpace(message))
-	if err := gui.refreshSidePanels(refreshOptions{mode: ASYNC}); err != nil {
+	if err := gui.refreshPackages(); err != nil {
 		return err
 	}
 

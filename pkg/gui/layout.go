@@ -76,13 +76,16 @@ func (gui *Gui) getViewHeights() map[string]int {
 		return vHeights
 	}
 
-	usableSpace := height - 4
-	extraSpace := usableSpace - (usableSpace/3)*3
+	mainSideViewCount := 3
+	if gui.showTarballsView() {
+		mainSideViewCount = 4
+	}
 
-	mainSideViewCount := 4
+	usableSpace := height - 4
+	extraSpace := usableSpace - (usableSpace/mainSideViewCount)*mainSideViewCount
 
 	if height >= 28 {
-		return map[string]int{
+		vHeights := map[string]int{
 			"status":   3,
 			"packages": (usableSpace / mainSideViewCount) + extraSpace,
 			"deps":     usableSpace / mainSideViewCount,
@@ -90,6 +93,10 @@ func (gui *Gui) getViewHeights() map[string]int {
 			"tarballs": usableSpace / mainSideViewCount,
 			"options":  1,
 		}
+		if gui.showTarballsView() {
+			vHeights["tarballs"] = usableSpace / mainSideViewCount
+		}
+		return vHeights
 	}
 
 	defaultHeight := 3
@@ -102,6 +109,9 @@ func (gui *Gui) getViewHeights() map[string]int {
 		"deps":     defaultHeight,
 		"scripts":  defaultHeight,
 		"options":  defaultHeight,
+	}
+	if gui.showTarballsView() {
+		vHeights["tarballs"] = defaultHeight
 	}
 	vHeights[currentCyclebleView] = height - defaultHeight*mainSideViewCount - 1
 
@@ -262,6 +272,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 		tarballsView.FgColor = textColor
 		tarballsView.ContainsList = true
 	}
+	tarballsView.Visible = gui.showTarballsView()
 
 	if v, err := g.SetView("options", appStatusOptionsBoundary-1, height-2, optionsVersionBoundary-1, height, 0); err != nil {
 		if err.Error() != "unknown view" {
@@ -338,7 +349,7 @@ func (gui *Gui) layout(g *gocui.Gui) error {
 			return err
 		}
 
-		if err := gui.switchFocus(gui.g, nil, initialView); err != nil {
+		if err := gui.switchFocus(nil, initialView); err != nil {
 			return err
 		}
 	}

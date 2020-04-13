@@ -19,6 +19,13 @@ func (gui *Gui) getSelectedTarball() *commands.Tarball {
 }
 
 func (gui *Gui) handleTarballSelect(g *gocui.Gui, v *gocui.View) error {
+	if !gui.showTarballsView() {
+		// we hide the tarball view when there are no tarballs
+		if err := gui.switchFocus(nil, gui.getScriptsView()); err != nil {
+			return err
+		}
+	}
+
 	tarball := gui.getSelectedTarball()
 	if tarball == nil {
 		return nil
@@ -70,4 +77,8 @@ func (gui *Gui) handlePublishTarball(tarball *commands.Tarball) error {
 	// as public or restricted. Can't know whether it's a scoped tarball just from
 	// the name because the @ is missing
 	return gui.handlePublish(tarball.Name, true, tarball.ID())
+}
+
+func (gui *Gui) showTarballsView() bool {
+	return len(gui.State.Tarballs) > 0
 }

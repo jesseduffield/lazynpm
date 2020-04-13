@@ -91,7 +91,7 @@ func (lv *listView) handleClick(g *gocui.Gui, v *gocui.View) error {
 	newSelectedLineIdx := v.SelectedLineIdx()
 
 	// we need to focus the view
-	if err := lv.gui.switchFocus(lv.gui.g, nil, v); err != nil {
+	if err := lv.gui.switchFocus(nil, v); err != nil {
 		return err
 	}
 

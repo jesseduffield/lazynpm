@@ -147,6 +147,8 @@ type View struct {
 
 	// IgnoreClickPosition determines whether we set the cursor upon clicking a view
 	IgnoreClickPosition bool
+
+	Visible bool
 }
 
 type searcher struct {
@@ -315,6 +317,7 @@ func newView(name string, x0, y0, x1, y1 int, mode OutputMode, log *logrus.Entry
 		log:          log,
 		topMargin:    1,
 		bottomMargin: y1 - y0, // TODO: this might be off by one
+		Visible:      true,
 	}
 	return v
 }

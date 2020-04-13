@@ -210,12 +210,16 @@ func (m *NpmManager) EditDepConstraint(dep *Dependency, packageJsonPath string, 
 		return err
 	}
 
-	updatedConfig, err := jsonparser.Set(config, []byte(fmt.Sprintf("\"%s\"", constraint)), dep.kindKey(), dep.Name)
+	updatedConfig, err := jsonparser.Set(config, jsonStringValue(constraint), dep.kindKey(), dep.Name)
 	if err != nil {
 		return err
 	}
 
 	return ioutil.WriteFile(packageJsonPath, updatedConfig, 0644)
+}
+
+func jsonStringValue(str string) []byte {
+	return []byte(fmt.Sprintf("\"%s\"", strings.Replace(str, "\"", "\\\"", -1)))
 }
 
 func (m *NpmManager) EditOrAddScript(scriptName string, packageJsonPath string, newName string, newCommand string) error {
@@ -228,7 +232,7 @@ func (m *NpmManager) EditOrAddScript(scriptName string, packageJsonPath string, 
 
 	updatedConfig := jsonparser.Delete(config, "scripts", scriptName)
 
-	updatedConfig, err = jsonparser.Set(updatedConfig, []byte(fmt.Sprintf("\"%s\"", newCommand)), "scripts", newName)
+	updatedConfig, err = jsonparser.Set(updatedConfig, jsonStringValue(newCommand), "scripts", newName)
 	if err != nil {
 		return err
 	}
