@@ -1,6 +1,8 @@
 package gui
 
 import (
+	"fmt"
+
 	"github.com/jesseduffield/gocui"
 	"github.com/jesseduffield/lazynpm/pkg/commands"
 	"github.com/jesseduffield/lazynpm/pkg/gui/presentation"
@@ -43,5 +45,17 @@ func (gui *Gui) wrappedTarballHandler(f func(*commands.Tarball) error) func(*goc
 		}
 
 		return gui.finalStep(f(tarball))
+	})
+}
+
+func (gui *Gui) handleDeleteTarball(tarball *commands.Tarball) error {
+	return gui.createConfirmationPanel(createConfirmationPanelOpts{
+		returnToView:       gui.getTarballsView(),
+		returnFocusOnClose: true,
+		title:              "Remove tarball",
+		prompt:             fmt.Sprintf("are you sure you want to delete `%s`?", tarball.Name),
+		handleConfirm: func() error {
+			return gui.finalStep(gui.OSCommand.Remove(tarball.Path))
+		},
 	})
 }

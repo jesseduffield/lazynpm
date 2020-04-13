@@ -487,6 +487,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Handler:     gui.wrappedDependencyHandler(gui.handleEditDepConstraint),
 			Description: "edit dependency constraint",
 		},
+		{
+			ViewName:    "tarballs",
+			Key:         gui.getKey("universal.remove"),
+			Handler:     gui.wrappedTarballHandler(gui.handleDeleteTarball),
+			Description: "delete tarball",
+		},
 	}
 
 	for _, viewName := range []string{"status", "packages", "deps", "scripts", "tarballs", "menu"} {
