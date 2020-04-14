@@ -14,7 +14,11 @@ import (
 	"github.com/jesseduffield/lazynpm/pkg/utils"
 )
 
-func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
+type newMainCommandOptions struct {
+	onSuccess func()
+}
+
+func (gui *Gui) newMainCommand(cmdStr string, contextKey string, opts newMainCommandOptions) error {
 	cmd := gui.OSCommand.ExecutableFromString(cmdStr)
 
 	mainPanelLeft, mainPanelTop, mainPanelRight, mainPanelBottom, err := gui.getMainViewDimensions()
@@ -124,7 +128,7 @@ func (gui *Gui) newMainCommand(cmdStr string, contextKey string) error {
 
 	gui.State.CommandViewMap[contextKey] = commandView
 
-	if err := gui.newPtyTask(contextKey, commandView, cmdStr); err != nil {
+	if err := gui.newPtyTask(contextKey, commandView, cmdStr, opts); err != nil {
 		gui.Log.Error(err)
 	}
 
@@ -161,7 +165,7 @@ func (gui *Gui) onResize() error {
 // which is just an io.Reader. the pty package lets us wrap a command in a
 // pseudo-terminal meaning we'll get the behaviour we want from the underlying
 // command.
-func (gui *Gui) newPtyTask(viewName string, commandView *commands.CommandView, cmdStr string) error {
+func (gui *Gui) newPtyTask(viewName string, commandView *commands.CommandView, cmdStr string, opts newMainCommandOptions) error {
 	go func() {
 		view, err := gui.g.View(viewName)
 		if err != nil {
@@ -202,6 +206,9 @@ func (gui *Gui) newPtyTask(viewName string, commandView *commands.CommandView, c
 		if commandView.Cancelled {
 			fmt.Fprint(view, utils.ColoredString("\n\ncommand cancelled", color.FgRed))
 		} else if commandView.Cmd.ProcessState.Success() {
+			if opts.onSuccess != nil {
+				opts.onSuccess()
+			}
 			fmt.Fprint(view, utils.ColoredString("\n\ncommand completed successfully", color.FgGreen))
 		} else {
 			fmt.Fprint(view, utils.ColoredString("\n\ncommand failed", color.FgRed))

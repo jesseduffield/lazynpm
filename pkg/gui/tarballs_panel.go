@@ -69,7 +69,7 @@ func (gui *Gui) handleDeleteTarball(tarball *commands.Tarball) error {
 
 func (gui *Gui) handleInstallTarball(tarball *commands.Tarball) error {
 	cmdStr := fmt.Sprintf("npm install %s", tarball.Name)
-	return gui.newMainCommand(cmdStr, tarball.ID())
+	return gui.newMainCommand(cmdStr, tarball.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handlePublishTarball(tarball *commands.Tarball) error {

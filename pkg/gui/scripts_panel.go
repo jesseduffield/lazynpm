@@ -37,7 +37,7 @@ func (gui *Gui) handleScriptSelect(g *gocui.Gui, v *gocui.View) error {
 
 func (gui *Gui) handleRunScript(script *commands.Script) error {
 	return gui.createPromptPanel(gui.getScriptsView(), "run script", fmt.Sprintf("npm run %s", script.Name), func(input string) error {
-		return gui.newMainCommand(input, script.ID())
+		return gui.newMainCommand(input, script.ID(), newMainCommandOptions{})
 	})
 }
 

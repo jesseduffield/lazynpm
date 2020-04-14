@@ -69,8 +69,7 @@ func (gui *Gui) refreshListViews() {
 	displayStrings := presentation.GetPackageListDisplayStrings(gui.State.Packages, gui.linkPathMap(), gui.State.CommandViewMap)
 	gui.renderDisplayStrings(gui.getPackagesView(), displayStrings)
 
-	displayStrings = presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap, gui.getLeftSideWidth() > 70)
-	gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
+	gui.refreshDepsView()
 
 	displayStrings = presentation.GetScriptListDisplayStrings(gui.getScripts(), gui.State.CommandViewMap)
 	gui.renderDisplayStrings(gui.getScriptsView(), displayStrings)
@@ -147,7 +146,7 @@ func (gui *Gui) handleLinkPackage() error {
 		}
 	}
 
-	return gui.newMainCommand(cmdStr, selectedPkg.ID())
+	return gui.newMainCommand(cmdStr, selectedPkg.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handleGlobalLinkPackage(pkg *commands.Package) error {
@@ -162,7 +161,7 @@ func (gui *Gui) handleGlobalLinkPackage(pkg *commands.Package) error {
 		cmdStr = "npm link"
 	}
 
-	return gui.newMainCommand(cmdStr, pkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handleInstall(pkg *commands.Package) error {
@@ -173,7 +172,7 @@ func (gui *Gui) handleInstall(pkg *commands.Package) error {
 		cmdStr = "npm install --prefix " + pkg.Path
 	}
 
-	return gui.newMainCommand(cmdStr, pkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handleBuild(pkg *commands.Package) error {
@@ -184,7 +183,7 @@ func (gui *Gui) handleBuild(pkg *commands.Package) error {
 		cmdStr = "npm run build --prefix " + pkg.Path
 	}
 
-	return gui.newMainCommand(cmdStr, pkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handleOpenPackageConfig(pkg *commands.Package) error {
@@ -227,7 +226,7 @@ func (gui *Gui) handlePackPackage(pkg *commands.Package) error {
 		cmdStr = fmt.Sprintf("npm pack %s", pkg.Path)
 	}
 
-	return gui.newMainCommand(cmdStr, pkg.ID())
+	return gui.newMainCommand(cmdStr, pkg.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) selectedPackageID() string {
@@ -252,7 +251,7 @@ func (gui *Gui) handlePublish(name string, scoped bool, id string) error {
 				cmdStr = fmt.Sprintf("%s --tag=%s", cmdStr, tag)
 			}
 			cmdStr = fmt.Sprintf("%s %s", cmdStr, name)
-			return gui.newMainCommand(cmdStr, id)
+			return gui.newMainCommand(cmdStr, id, newMainCommandOptions{})
 		})
 	}
 

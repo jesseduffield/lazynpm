@@ -54,12 +54,12 @@ func (gui *Gui) linkPathMap() map[string]bool {
 
 func (gui *Gui) handleDepInstall(dep *commands.Dependency) error {
 	cmdStr := fmt.Sprintf("npm install %s", dep.Name)
-	return gui.newMainCommand(cmdStr, dep.ID())
+	return gui.newMainCommand(cmdStr, dep.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handleDepUpdate(dep *commands.Dependency) error {
 	cmdStr := fmt.Sprintf("npm update %s", dep.Name)
-	return gui.newMainCommand(cmdStr, dep.ID())
+	return gui.newMainCommand(cmdStr, dep.ID(), newMainCommandOptions{})
 }
 
 func (gui *Gui) handleOpenDepPackageConfig(dep *commands.Dependency) error {
@@ -81,7 +81,7 @@ func (gui *Gui) handleDepUninstall(dep *commands.Dependency) error {
 			{
 				displayStrings: []string{"uninstall", utils.ColoredString(uninstallStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallStr, dep.ID())
+					return gui.newMainCommand(uninstallStr, dep.ID(), newMainCommandOptions{})
 				},
 			},
 		}
@@ -99,13 +99,13 @@ func (gui *Gui) handleDepUninstall(dep *commands.Dependency) error {
 			{
 				displayStrings: []string{"uninstall and save", utils.ColoredString(uninstallAndSaveCmdStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallAndSaveCmdStr, dep.ID())
+					return gui.newMainCommand(uninstallAndSaveCmdStr, dep.ID(), newMainCommandOptions{})
 				},
 			},
 			{
 				displayStrings: []string{"just uninstall", utils.ColoredString(uninstallCmdStr, color.FgYellow)},
 				onPress: func() error {
-					return gui.newMainCommand(uninstallCmdStr, dep.ID())
+					return gui.newMainCommand(uninstallCmdStr, dep.ID(), newMainCommandOptions{})
 				},
 			},
 		}
@@ -144,7 +144,15 @@ func (gui *Gui) handleChangeDepType(dep *commands.Dependency) error {
 		menuItems = append(menuItems, &menuItem{
 			displayStrings: []string{kindKeyMap[kindFlag.Kind], utils.ColoredString(cmdStr, color.FgYellow)},
 			onPress: func() error {
-				return gui.newMainCommand(cmdStr, dep.ID())
+				return gui.newMainCommand(cmdStr, dep.ID(), newMainCommandOptions{onSuccess: func() {
+					for i, newDep := range gui.State.Deps {
+						if newDep.Name == dep.Name && newDep.Kind == kindFlag.Kind {
+							gui.State.Panels.Deps.SelectedLine = i
+							gui.refreshDepsView()
+							break
+						}
+					}
+				}})
 			},
 		})
 	}
@@ -158,7 +166,7 @@ func (gui *Gui) handleAddDependency(dep *commands.Dependency) error {
 	prompt := func(cmdStr string) error {
 		return gui.createPromptPanel(gui.getDepsView(), "enter dependency name", "", func(input string) error {
 			newCmdStr := fmt.Sprintf("%s %s", cmdStr, input)
-			return gui.newMainCommand(newCmdStr, dep.ID())
+			return gui.newMainCommand(newCmdStr, dep.ID(), newMainCommandOptions{})
 		})
 	}
 
@@ -185,4 +193,9 @@ func (gui *Gui) handleEditDepConstraint(dep *commands.Dependency) error {
 		packageConfigPath := filepath.Join(dep.ParentPackagePath, "package.json")
 		return gui.finalStep(gui.NpmManager.EditDepConstraint(dep, packageConfigPath, input))
 	})
+}
+
+func (gui *Gui) refreshDepsView() {
+	displayStrings := presentation.GetDependencyListDisplayStrings(gui.State.Deps, gui.State.CommandViewMap, gui.getLeftSideWidth() > 70)
+	gui.renderDisplayStrings(gui.getDepsView(), displayStrings)
 }
