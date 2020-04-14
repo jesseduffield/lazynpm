@@ -104,15 +104,6 @@ func (lv *listView) handleClick(g *gocui.Gui, v *gocui.View) error {
 
 	*selectedLineIdxPtr = newSelectedLineIdx
 
-	if lv.rendersToMainView {
-		if err := lv.gui.resetOrigin(lv.gui.getMainView()); err != nil {
-			return err
-		}
-		if err := lv.gui.resetOrigin(lv.gui.getSecondaryView()); err != nil {
-			return err
-		}
-	}
-
 	prevViewName := lv.gui.currentViewName()
 	if prevSelectedLineIdx == newSelectedLineIdx && prevViewName == lv.viewName && lv.handleClickSelectedItem != nil {
 		return lv.handleClickSelectedItem(lv.gui.g, v)
