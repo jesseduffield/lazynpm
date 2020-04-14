@@ -137,7 +137,6 @@ func (m *NpmManager) GetDeps(currentPkg *Package, previousDeps []*Dependency) ([
 		fileInfo, err := os.Lstat(depPath)
 		if err != nil {
 			// must not be present in node modules
-			m.Log.Error(err)
 			continue
 		}
 		dep.Present = true
