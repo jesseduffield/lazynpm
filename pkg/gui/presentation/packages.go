@@ -14,18 +14,21 @@ func GetPackageListDisplayStrings(packages []*commands.Package, linkPathMap map[
 
 	for i := range packages {
 		pkg := packages[i]
-		lines[i] = getPackageDisplayStrings(pkg, linkPathMap[pkg.Path], commandMap[pkg.ID()])
+		lines[i] = getPackageDisplayStrings(pkg, linkPathMap[pkg.Path], commandMap[pkg.ID()], i == 0)
 	}
 
 	return lines
 }
 
-func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool, commandView *commands.CommandView) []string {
+func getPackageDisplayStrings(p *commands.Package, linkedToCurrentPackage bool, commandView *commands.CommandView, isCurrentPkg bool) []string {
 	attr := theme.DefaultTextColor
 	if p.LinkedGlobally {
 		attr = color.FgYellow
 	}
 	line := utils.ColoredString(p.Config.Name, attr)
+	if isCurrentPkg {
+		line = utils.ColoredString("* ", color.FgGreen) + line
+	}
 	linkedArg := ""
 	if linkedToCurrentPackage {
 		linkedArg = utils.ColoredString("(linked)", color.FgCyan)
