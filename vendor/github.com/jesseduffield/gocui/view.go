@@ -1208,7 +1208,9 @@ func (v *View) SelectedLineIdx() int {
 }
 
 func (v *View) SelectedPoint() (int, int) {
+	// TODO: I feel like we should have to involve the origin here but it seems
+	// like the meaning of the cursor has changed from being the position relative to the origin
+	// vs the absolute position in terms of the view's content. Will need to check ramifications of this
 	cx, cy := v.Cursor()
-	ox, oy := v.Origin()
-	return cx + ox, cy + oy
+	return cx, cy
 }

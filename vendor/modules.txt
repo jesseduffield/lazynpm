@@ -14,7 +14,7 @@ github.com/davecgh/go-spew/spew
 github.com/fatih/color
 # github.com/fsnotify/fsnotify v1.4.7
 github.com/fsnotify/fsnotify
-# github.com/go-errors/errors v1.0.1
+# github.com/go-errors/errors v1.0.2
 ## explicit
 github.com/go-errors/errors
 # github.com/golang/protobuf v1.3.2
@@ -33,7 +33,7 @@ github.com/hashicorp/hcl/json/token
 # github.com/integrii/flaggy v1.4.0
 ## explicit
 github.com/integrii/flaggy
-# github.com/jesseduffield/gocui v0.3.1-0.20200413011022-782bc212753a
+# github.com/jesseduffield/gocui v0.3.1-0.20200414115507-5369cdacafa8
 ## explicit
 github.com/jesseduffield/gocui
 # github.com/jesseduffield/semver/v3 v3.0.4-0.20200411092651-8f1f2b3d1bc1
@@ -116,7 +116,7 @@ github.com/subosito/gotenv
 github.com/tcnksm/go-gitconfig
 # golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 ## explicit
-# golang.org/x/sys v0.0.0-20200409092240-59c9f1ba88fa
+# golang.org/x/sys v0.0.0-20200413165638-669c56c373c4
 ## explicit
 golang.org/x/sys/unix
 # golang.org/x/text v0.3.2
