@@ -121,7 +121,7 @@ func (gui *Gui) handleCheckoutPackage(pkg *commands.Package) error {
 	gui.State.Panels.Scripts.SelectedLine = 0
 	gui.State.Panels.Tarballs.SelectedLine = 0
 
-	return gui.refreshPackages()
+	return nil
 }
 
 func (gui *Gui) handleLinkPackage() error {
@@ -191,16 +191,24 @@ func (gui *Gui) handleOpenPackageConfig(pkg *commands.Package) error {
 }
 
 func (gui *Gui) handleRemovePackage(pkg *commands.Package) error {
-	if pkg == gui.currentPackage() {
-		return gui.createErrorPanel("Cannot remove current package")
+	isCurrentPackage := pkg == gui.currentPackage()
+
+	if isCurrentPackage && len(gui.State.Packages) == 1 {
+		return gui.createErrorPanel("Cannot remove only remaining package")
 	}
 
 	return gui.createConfirmationPanel(createConfirmationPanelOpts{
 		returnToView:       gui.getPackagesView(),
 		title:              "Remove package",
-		prompt:             "Do you want to remove this package from the list? It won't actually be removed from the filesystem, but as far as lazynpm is concerned it'll be as good as dead. You won't have to worry about it no more.",
+		prompt:             "Do you want to remove this package from the list? It won't actually be removed from the filesystem, if that's what you were worried about",
 		returnFocusOnClose: true,
 		handleConfirm: func() error {
+			if isCurrentPackage {
+				if err := gui.handleCheckoutPackage(gui.State.Packages[1]); err != nil {
+					return err
+				}
+			}
+
 			return gui.finalStep(gui.removePackage(pkg.Path))
 		},
 	})
