@@ -10,7 +10,7 @@ require (
 	github.com/go-errors/errors v1.0.2
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/integrii/flaggy v1.4.0
-	github.com/jesseduffield/gocui v0.3.1-0.20200414115507-5369cdacafa8
+	github.com/jesseduffield/gocui v0.3.1-0.20200415100931-3c4f0994aca5
 	github.com/jesseduffield/semver/v3 v3.0.4-0.20200411092651-8f1f2b3d1bc1
 	github.com/jesseduffield/termbox-go v0.0.0-20200405031649-4dc645f7e8ba // indirect
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0

@@ -144,7 +144,7 @@ func (ei *escapeInterpreter) parseOSCParams() {
 		// ei.instruction.kind = WRITE
 		// ei.instruction.toWrite = []rune{0x1b, ']', '1', '1', ';', 'r', 'g', 'b', ':', '0', '0', '/', '0', '0', '/', '0', '0', 0x1b, '\\'}
 	default:
-		panic(str)
+		// ignoring for now
 	}
 }
 
