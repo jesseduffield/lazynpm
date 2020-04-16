@@ -4,9 +4,11 @@
 
 A simple terminal UI for npm commands, written in Go with the [gocui](https://github.com/jroimartin/gocui "gocui") library.
 
-npm is pretty cool, but some of its workflows are a little too much for somebody with my terrible short term memory. If I need to link a couple of dependencies to a package I need to do an `npm install` on the package so we're up to date, then cd to each dependency package and `npm install`, then `npm run build`, then `npm link` if it's not already globally linked (and how would I know that it is?) and then cd back to the original package and `npm link <dependency>` each dependency package. Pretty much every time I have to do this I get stuck halfway through and can't remember what I'm up to and end up starting over to be safe. But when every step in this process is one keypress away and I can see at a glance what's linked to what, who needs short-term memory?
+npm is pretty cool, but some of its workflows are a little too much for somebody with my atrocious short term memory. If I need to link a couple of dependencies to a package I need to do an `npm install` on the package so we're up to date, then cd to each dependency package and `npm install`, then `npm run build`, then `npm link` if it's not already globally linked (and how would I know that it is?) and then cd back to the original package and do `npm link <dependency>` for each dependency. Pretty much every time I'll get halfway through, suspect that I've forgotten a step, then start again from scratch. But who needs a functionining brain when have a tool where every step in the process take one keypress and at a glance you can see how everything is linked up?
 
 lazynpm is the younger brother of lazygit and lazydocker, and has learnt from both its siblings how best to make life lazier in the terminal so that you can focus on what matters: programming.
+
+![Gif](/docs/resources/demo2.gif)
 
 ## Table of contents
 
