@@ -422,6 +422,12 @@ func (gui *Gui) GetInitialKeybindings() []*Binding {
 			Description: "open package.json",
 		},
 		{
+			ViewName:    "packages",
+			Key:         gui.getKey("universal.update"),
+			Handler:     gui.wrappedPackageHandler(gui.handlePackageUpdate),
+			Description: fmt.Sprintf("%s package", utils.ColoredString("`npm update`", color.FgYellow)),
+		},
+		{
 			ViewName:    "scripts",
 			Key:         gui.getKey("universal.select"),
 			Handler:     gui.wrappedScriptHandler(gui.handleRunScript),

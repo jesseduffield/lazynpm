@@ -175,6 +175,17 @@ func (gui *Gui) handleInstall(pkg *commands.Package) error {
 	return gui.newMainCommand(cmdStr, pkg.ID(), newMainCommandOptions{})
 }
 
+func (gui *Gui) handlePackageUpdate(pkg *commands.Package) error {
+	var cmdStr string
+	if pkg == gui.currentPackage() {
+		cmdStr = "npm update"
+	} else {
+		cmdStr = "npm update --prefix " + pkg.Path
+	}
+
+	return gui.newMainCommand(cmdStr, pkg.ID(), newMainCommandOptions{})
+}
+
 func (gui *Gui) handleBuild(pkg *commands.Package) error {
 	var cmdStr string
 	if pkg == gui.currentPackage() {
