@@ -118,9 +118,9 @@ Check out the [configuration docs](docs/Config.md).
 ## Contributing
 
 I've written the code so that it's easy to build upon, so contributors are welcome! Please check out the [contributing guide](CONTRIBUTING.md).
-For contributor discussion about things not better discussed here in the repo, join the slack channel
+For contributor discussion about things not better discussed here in the repo, join the discord channel
 
-[![Slack](/docs/resources/slack_rgb.png)](https://join.slack.com/t/lazynpm/shared_invite/zt-dobpx5ic-uw4n9NcGIzczMRfEcrfWWw)
+<a href="https://discord.gg/ehwFt2t4wt"><img src='../assets/discord.png' width='75'></a>
 
 ## Donate
 
