@@ -50,7 +50,7 @@ brew install jesseduffield/lazynpm/lazynpm
 ### Go
 
 ```sh
-go get github.com/jesseduffield/lazynpm
+go install github.com/jesseduffield/lazynpm@latest
 ```
 
 Please note:
